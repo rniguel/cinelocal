@@ -1,0 +1,58 @@
+# ==========================================
+# CineLocal - Arquivos ignorados pelo Git
+# ==========================================
+
+# 1. Mídia e Conteúdo de Vídeo (Filmes, Séries, etc.)
+media/*
+!media/filmes/
+!media/series/
+media/filmes/*
+!media/filmes/.gitkeep
+media/series/*
+!media/series/.gitkeep
+
+# Extensões de vídeo e áudio (garantia adicional)
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+*.m4v
+*.ts
+*.iso
+*.m2ts
+
+# Legendas e arquivos de mídia
+*.srt
+*.vtt
+*.sub
+*.idx
+*.ass
+*.ssa
+
+# 2. Binários e Ferramentas Pesadas
+app/bin/
+app/vlc/
+*.exe
+*.dll
+
+# 3. Cache e Arquivos Temporários
+app/.audio_cache.json
+__pycache__/
+*.py[cod]
+*$py.class
+*.log
+
+# 4. Configurações de IDE e Assistentes
+.gemini/
+.vscode/
+.idea/
+
+# 5. Arquivos de Sistema Operacional (Windows / macOS)
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
