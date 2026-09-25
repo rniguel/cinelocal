@@ -14,6 +14,7 @@ import json
 import urllib.parse
 import subprocess
 import re
+import shutil
 from atualizar_catalogo import build_catalog
 
 PORT = 8000
@@ -21,17 +22,34 @@ APP_DIR = os.path.dirname(os.path.abspath(__file__))
 MOVIES_DIR = os.path.dirname(APP_DIR)
 PORTABLE_VLC = os.path.join(APP_DIR, "vlc", "vlc.exe")
 SYSTEM_VLC = r"C:\Program Files\VideoLAN\VLC\vlc.exe"
-FFMPEG_BIN = os.path.join(APP_DIR, "bin", "ffmpeg.exe")
 
 AUDIO_CACHE = {}
+
+def get_ffmpeg_bin():
+    """Localiza o FFmpeg na pasta app/bin, no PATH do sistema ou em caminhos padroes."""
+    local_bin = os.path.join(APP_DIR, "bin", "ffmpeg.exe")
+    if os.path.exists(local_bin):
+        return local_bin
+    system_bin = shutil.which("ffmpeg")
+    if system_bin:
+        return system_bin
+    for candidate in [
+        r"C:\ffmpeg\bin\ffmpeg.exe",
+        r"C:\Program Files\ffmpeg\bin\ffmpeg.exe",
+        os.path.expandvars(r"%LOCALAPPDATA%\Microsoft\WinGet\Links\ffmpeg.exe")
+    ]:
+        if os.path.exists(candidate):
+            return candidate
+    return None
 
 def get_best_audio_stream(movie_path):
     if movie_path in AUDIO_CACHE:
         return AUDIO_CACHE[movie_path]
+    ffmpeg_bin = get_ffmpeg_bin()
+    if not ffmpeg_bin:
+        return "1"
     try:
-        if not os.path.exists(FFMPEG_BIN):
-            return "1"
-        res = subprocess.run([FFMPEG_BIN, "-i", movie_path], capture_output=True, text=True, encoding="utf-8", errors="ignore")
+        res = subprocess.run([ffmpeg_bin, "-i", movie_path], capture_output=True, text=True, encoding="utf-8", errors="ignore")
         lines = res.stderr.split("\n")
         por_streams = []
         all_audio_streams = []
@@ -50,11 +68,25 @@ def get_best_audio_stream(movie_path):
         return "1"
 
 def get_vlc_path():
+    """Detecta o VLC Media Player de forma dinamica e agnostica de sistema."""
+    if os.path.exists(PORTABLE_VLC):
+        return PORTABLE_VLC
     if os.path.exists(SYSTEM_VLC):
         return SYSTEM_VLC
-    elif os.path.exists(PORTABLE_VLC):
-        return PORTABLE_VLC
-    return "vlc"
+    for p in [
+        r"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe",
+        r"D:\Program Files\VideoLAN\VLC\vlc.exe",
+        os.path.expandvars(r"%ProgramFiles%\VideoLAN\VLC\vlc.exe"),
+        os.path.expandvars(r"%ProgramFiles(x86)%\VideoLAN\VLC\vlc.exe"),
+    ]:
+        if os.path.exists(p):
+            return p
+    system_vlc = shutil.which("vlc")
+    if system_vlc:
+        return system_vlc
+    if os.path.exists("/Applications/VLC.app/Contents/MacOS/VLC"):
+        return "/Applications/VLC.app/Contents/MacOS/VLC"
+    return None
 
 
 def get_local_ip():
@@ -87,6 +119,24 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             return
             
+        # API de recursos do ambiente (VLC e FFmpeg disponíveis)
+        if parsed.path in ('/api/capabilities', '/api/status'):
+            vlc_bin = get_vlc_path()
+            ffmpeg_bin = get_ffmpeg_bin()
+            data = json.dumps({
+                "vlcAvailable": bool(vlc_bin),
+                "vlcPath": vlc_bin or "",
+                "ffmpegAvailable": bool(ffmpeg_bin),
+                "ffmpegPath": ffmpeg_bin or ""
+            }, ensure_ascii=False).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Content-Length', str(len(data)))
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(data)
+            return
+
         # API para sincronizar catálogo dinamicamente
         if parsed.path == '/api/filmes':
             try:
@@ -113,7 +163,7 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                     full_movie_path = os.path.join(MOVIES_DIR, clean_rel)
                     
                     vlc_bin = get_vlc_path()
-                    if os.path.exists(full_movie_path) and os.path.exists(vlc_bin):
+                    if os.path.exists(full_movie_path) and vlc_bin and os.path.exists(vlc_bin):
                         creation_flag = (subprocess.CREATE_NEW_PROCESS_GROUP | 0x00000008) if sys.platform == 'win32' else 0
                         vlc_cmd = [vlc_bin, full_movie_path]
                         
@@ -159,7 +209,8 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                 clean_rel = urllib.parse.unquote(video_rel).replace('../', '').lstrip('/').replace('/', os.sep)
                 full_movie_path = os.path.join(MOVIES_DIR, clean_rel)
                 
-                if not os.path.exists(full_movie_path) or not os.path.exists(FFMPEG_BIN):
+                ffmpeg_bin = get_ffmpeg_bin()
+                if not os.path.exists(full_movie_path) or not ffmpeg_bin:
                     self.send_error(404, 'Arquivo ou FFmpeg não encontrado')
                     return
                 
@@ -168,7 +219,7 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                 
                 # Monta comando FFmpeg Direct Stream (Vídeo cópia 100%, Áudio AAC estéreo)
                 cmd = [
-                    FFMPEG_BIN,
+                    ffmpeg_bin,
                     "-nostdin",
                     "-nostats",
                     "-loglevel", "error",
@@ -290,6 +341,11 @@ def run():
     local_url = f'http://localhost:{PORT}/'
     tv_url = f'http://{local_ip}:{PORT}/'
     
+    vlc_bin = get_vlc_path()
+    ffmpeg_bin = get_ffmpeg_bin()
+    vlc_status = f"Detectado ({vlc_bin})" if vlc_bin else "Nao detectado (Opcional - codecs TrueHD/DTS)"
+    ffmpeg_status = f"Detectado ({ffmpeg_bin})" if ffmpeg_bin else "Nao detectado (Opcional - analise de audio)"
+
     banner = f"""
 ================================================================================
            CINELOCAL - SERVIDOR DE STREAMING ATIVO (MULTITHREAD)
@@ -299,9 +355,10 @@ def run():
   > Na sua Smart TV:     {tv_url}
   > No Celular / Tablet: {tv_url}
 
-  - Suporte a HTTP 206 (Seek fluido em 4K e 1080p)
-  - Servidor Multithread de Alta Velocidade (Conexões Simultâneas)
-  - Integrado ao VLC para áudio Dolby TrueHD / AC3 5.1
+  - Streaming HTTP 206 (Seek fluido em 4K e 1080p)
+  - Player Web Nativo com Volume Boost ate 200%
+  - VLC Media Player: {vlc_status}
+  - FFmpeg:           {ffmpeg_status}
 
   Pressione Ctrl + C no terminal para encerrar o servidor.
 ================================================================================

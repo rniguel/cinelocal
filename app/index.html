@@ -1884,6 +1884,167 @@
       .mcu-timeline-item { flex-direction: column; align-items: flex-start; gap: 8px; }
       .mcu-item-actions { width: 100%; justify-content: space-between; }
     }
+
+    /* TELA DE ONBOARDING / BOAS-VINDAS (CATÁLOGO VAZIO) */
+    .onboarding-container {
+      max-width: 1050px;
+      margin: 40px auto 80px;
+      padding: 0 20px;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .onboarding-hero {
+      text-align: center;
+      padding: 48px 24px 36px;
+      background: linear-gradient(180deg, rgba(229, 9, 20, 0.12) 0%, rgba(19, 23, 34, 0.6) 100%);
+      border: 1px solid rgba(229, 9, 20, 0.25);
+      border-radius: var(--radius-lg);
+      margin-bottom: 32px;
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .onboarding-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      background: rgba(229, 9, 20, 0.2);
+      border: 1px solid rgba(229, 9, 20, 0.4);
+      color: #ff4d4d;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .onboarding-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .onboarding-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 650px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .onboarding-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 36px;
+    }
+
+    .onboarding-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .onboarding-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .onboarding-step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .onboarding-card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .onboarding-card p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .onboarding-code {
+      background: #06070a;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-family: Consolas, monospace;
+      font-size: 0.82rem;
+      color: #e2e8f0;
+      line-height: 1.5;
+    }
+
+    .onboarding-optional-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .optional-feature-card {
+      background: rgba(19, 23, 34, 0.5);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .optional-icon {
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+
+    .optional-content h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--text-main);
+    }
+
+    .optional-content p {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .optional-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.84rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .optional-link:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -2319,10 +2480,16 @@
   <div id="toastContainer" class="toast-container"></div>
 
   <!-- CARREGA OS METADADOS -->
-  <script src="catalogo.js"></script>
+  <script src="catalogo.js" onerror="console.log('catalogo.js ausente ou inicial.');"></script>
 
   <!-- JAVASCRIPT DO SISTEMA -->
   <script>
+    // Garantir que variaveis globais existam mesmo antes do catalogo.js ser gerado
+    window.CATALOGO = window.CATALOGO || [];
+    window.CATALOGO_FILMES = window.CATALOGO_FILMES || [];
+    window.CATALOGO_SERIES = window.CATALOGO_SERIES || [];
+    window.LEGENDAS_DB = window.LEGENDAS_DB || {};
+
     const state = {
       all: [],
       catalogo: [],
@@ -2339,13 +2506,27 @@
       subtitleCues: [],
       subSyncOffset: 0.0,
       subSize: 'md',
-      controlsTimeout: null
+      controlsTimeout: null,
+      vlcAvailable: true,
+      ffmpegAvailable: true
     };
 
     document.addEventListener('DOMContentLoaded', async () => {
       detectProtocol();
       setupKeyboardShortcuts();
       setupSeekDrag();
+
+      // Se rodando via HTTP, consulta capacidades de VLC e FFmpeg
+      if (window.location.protocol.startsWith('http')) {
+        try {
+          const capRes = await fetch('/api/capabilities');
+          if (capRes.ok) {
+            const caps = await capRes.json();
+            state.vlcAvailable = caps.vlcAvailable;
+            state.ffmpegAvailable = caps.ffmpegAvailable;
+          }
+        } catch (e) {}
+      }
 
       // Carregar catálogo
       if (window.CATALOGO) {
@@ -2414,16 +2595,23 @@
 
     /* HERO BANNER DINÂMICO */
     function setupHeroBanner() {
+      const hero = document.getElementById('heroBanner');
       // Prioridade para destaque épico
       const candidates = state.movies.filter(m => 
-        m.resolution.includes('4K') || 
+        (m.resolution && m.resolution.includes('4K')) || 
         ['Interestelar', 'Batman', 'Vingadores', 'Gladiador', 'A Origem'].some(t => m.title.includes(t))
       );
       const chosen = candidates.length > 0 ? candidates[Math.floor(Math.random() * candidates.length)] : (state.movies[0] || state.series[0]);
-      if (!chosen) return;
+      if (!chosen) {
+        if (hero) hero.style.display = 'none';
+        return;
+      }
+
+      if (hero) hero.style.display = 'block';
+      const heroVlc = document.getElementById('heroBtnVlc');
+      if (heroVlc) heroVlc.style.display = state.vlcAvailable ? 'inline-flex' : 'none';
 
       state.heroMedia = chosen;
-      const hero = document.getElementById('heroBanner');
       hero.style.backgroundImage = `url('${encodeURI(chosen.posterPath)}')`;
 
       document.getElementById('heroTitle').innerText = chosen.title;
@@ -2470,6 +2658,12 @@
       const container = document.getElementById('homeCarouselsContainer');
       container.innerHTML = '';
 
+      const totalItems = (state.all && state.all.length) || (state.movies.length + state.series.length);
+      if (totalItems === 0) {
+        renderOnboarding(container);
+        return;
+      }
+
       // 1. ADICIONADOS RECENTEMENTE
       const recent = [...state.movies].reverse().slice(0, 14);
       addCarousel(container, '🔥 Adicionados Recentemente', recent);
@@ -2496,6 +2690,77 @@
 
       // 5. TODOS OS FILMES
       addCarousel(container, '🎬 Catálogo Completo de Longas-Metragens', state.movies);
+    }
+
+    function renderOnboarding(container) {
+      container.innerHTML = `
+        <div class="onboarding-container">
+          <div class="onboarding-hero">
+            <span class="onboarding-badge">🚀 Guia Inicial</span>
+            <h1 class="onboarding-title">Bem-vindo ao CineLocal!</h1>
+            <p class="onboarding-subtitle">
+              Sua central particular de streaming doméstico de alta performance está pronta. 
+              Siga os 3 passos simples abaixo para adicionar seus filmes ou séries:
+            </p>
+          </div>
+
+          <div class="onboarding-steps">
+            <div class="onboarding-card">
+              <div class="onboarding-step-num">1</div>
+              <h3>Coloque suas Mídias</h3>
+              <p>Adicione qualquer arquivo de vídeo (MP4, MKV, AVI, WebM) e legendas .srt nas pastas de mídia do projeto:</p>
+              <div class="onboarding-code">media/filmes/Nome do Filme (Ano)/<br>media/series/Nome da Serie/Season 01/</div>
+            </div>
+
+            <div class="onboarding-card">
+              <div class="onboarding-step-num">2</div>
+              <h3>Atualize o Catálogo</h3>
+              <p>Dê dois cliques no atalho na raiz para escanear a pasta, indexar resoluções, áudio, sinopses e capas:</p>
+              <div class="onboarding-code">Duplo clique em: Atualizar Catalogo.bat<br>ou execute: python app/atualizar_catalogo.py</div>
+            </div>
+
+            <div class="onboarding-card">
+              <div class="onboarding-step-num">3</div>
+              <h3>Dê o Play e Relaxe!</h3>
+              <p>Recarregue a página no seu navegador para assistir com amplificador de volume de até 200% ou acesse da sua Smart TV.</p>
+              <div class="onboarding-code">Smart TV / Celular: Iniciar Servidor (TV e Celular).bat</div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 1.05rem; color: var(--text-muted); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px;">
+            Recursos Opcionais & Melhorias
+          </h3>
+
+          <div class="onboarding-optional-grid">
+            <div class="optional-feature-card">
+              <div class="optional-icon">🔊</div>
+              <div class="optional-content">
+                <h4>FFmpeg (Opcional)</h4>
+                <p>Identifica automaticamente faixas de áudio dublado/legendado e canais avançados. Se não tiver, o CineLocal usa detecção rápida.</p>
+                <a href="https://ffmpeg.org/download.html" target="_blank" rel="noopener" class="optional-link">Baixar FFmpeg Oficial ➔</a>
+              </div>
+            </div>
+
+            <div class="optional-feature-card">
+              <div class="optional-icon">🍿</div>
+              <div class="optional-content">
+                <h4>VLC Media Player (Opcional)</h4>
+                <p>Permite abrir vídeos com formatos avançados de cinema (TrueHD, DTS-HD, AC3 7.1) em 1 clique. O player web nativo é o padrão.</p>
+                <a href="https://www.videolan.org/vlc/" target="_blank" rel="noopener" class="optional-link">Baixar VLC Oficial ➔</a>
+              </div>
+            </div>
+
+            <div class="optional-feature-card">
+              <div class="optional-icon">⚡</div>
+              <div class="optional-content">
+                <h4>Universo Marvel (MCU)</h4>
+                <p>Ao adicionar produções da Marvel Studios, o CineLocal ativa automaticamente o Carrossel Cronológico e o Rastreador Canônico de 66 títulos.</p>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">Ativação automática por detecção</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
     }
 
     function addMarvelCarousel(container, title, items) {
@@ -2653,7 +2918,7 @@
                 </svg>
                 ${isSeries ? 'Episódios' : 'Assistir'}
               </button>
-              ${!isSeries ? `
+              ${(!isSeries && state.vlcAvailable) ? `
               <button class="card-btn-vlc" onclick="event.stopPropagation(); launchVlc('${item.videoPath}')" title="Assistir no VLC (Áudio 5.1)">
                 VLC
               </button>` : ''}
@@ -2669,6 +2934,18 @@
     /* RENDERIZAÇÃO DA GRADE DE FILMES */
     function renderMoviesGrid() {
       const grid = document.getElementById('moviesGrid');
+      if (state.movies.length === 0) {
+        document.getElementById('moviesCountLabel').innerText = `0 títulos`;
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
+            <div style="font-size: 3rem; margin-bottom: 16px;">📁</div>
+            <h3 style="color: var(--text-main); margin-bottom: 8px;">Nenhum filme na pasta media/filmes</h3>
+            <p style="max-width: 500px; margin: 0 auto 16px; line-height: 1.5;">Coloque seus filmes na pasta <code>media/filmes/Nome do Filme (Ano)/</code> e execute <strong>Atualizar Catalogo.bat</strong>.</p>
+          </div>
+        `;
+        return;
+      }
+
       let filtered = [...state.movies];
 
       if (state.searchQuery) {
@@ -2707,6 +2984,17 @@
     /* RENDERIZAÇÃO DA GRADE DE SÉRIES */
     function renderSeriesGrid() {
       const grid = document.getElementById('seriesGrid');
+      if (state.series.length === 0) {
+        document.getElementById('seriesCountLabel').innerText = `0 séries`;
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
+            <div style="font-size: 3rem; margin-bottom: 16px;">📺</div>
+            <h3 style="color: var(--text-main); margin-bottom: 8px;">Nenhuma série na pasta media/series</h3>
+            <p style="max-width: 500px; margin: 0 auto 16px; line-height: 1.5;">Coloque suas séries organizadas por temporadas (ex: <code>media/series/Nome/Season 01/</code>) e execute <strong>Atualizar Catalogo.bat</strong>.</p>
+          </div>
+        `;
+        return;
+      }
       grid.innerHTML = state.series.map(s => createCardHtml(s, false)).join('');
       document.getElementById('seriesCountLabel').innerText = `${state.series.length} séries disponíveis`;
     }
@@ -2833,6 +3121,9 @@
       }
       linksEl.innerHTML = linksHtml;
 
+      const vlcBtn = document.getElementById('movieModalBtnVlc');
+      if (vlcBtn) vlcBtn.style.display = state.vlcAvailable ? 'inline-flex' : 'none';
+
       document.getElementById('movieDetailsModal').classList.add('active');
       document.body.style.overflow = 'hidden';
     }
@@ -2899,9 +3190,10 @@
             <button class="card-btn-play" onclick="event.stopPropagation(); playEpisode('${series.id}', ${seasonIdx}, ${ep.episodeNumber})">
               ▶ Assistir
             </button>
+            ${state.vlcAvailable ? `
             <button class="card-btn-vlc" onclick="event.stopPropagation(); launchVlc('${ep.videoPath}')">
               VLC
-            </button>
+            </button>` : ''}
           </div>
         </div>
       `;
@@ -3311,6 +3603,9 @@
         nextBtn.style.display = 'none';
       }
 
+      const playerVlc = document.getElementById('playerBtnVlc');
+      if (playerVlc) playerVlc.style.display = state.vlcAvailable ? 'inline-flex' : 'none';
+
       video.src = encodeURI(media.videoPath);
       setPlayerVolume(playerVolume, false);
 
@@ -3569,7 +3864,11 @@
 
     /* VLC INTEGRATION */
     function launchVlc(videoPath) {
-      showToast('Iniciando VLC Portable (Áudio 5.1)...');
+      if (state.vlcAvailable === false) {
+        showToast('VLC não detectado. Reproduzindo no player web nativo.');
+        return;
+      }
+      showToast('Iniciando VLC (Áudio 5.1)...');
       fetch(`/api/open_vlc?path=${encodeURIComponent(videoPath)}`)
         .then(r => r.json())
         .then(data => {
@@ -3585,6 +3884,10 @@
     }
 
     function launchCurrentInVlc() {
+      if (state.vlcAvailable === false) {
+        showToast('VLC não detectado. Reproduzindo no player web nativo.');
+        return;
+      }
       if (state.currentPlaying) {
         const video = document.getElementById('mainVideo');
         if (video) {

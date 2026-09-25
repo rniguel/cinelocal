@@ -38,7 +38,8 @@ app/vlc/
 *.exe
 *.dll
 
-# 3. Cache e Arquivos Temporários
+# 3. Banco de Dados e Cache Locais
+app/catalogo.js
 app/.audio_cache.json
 __pycache__/
 *.py[cod]

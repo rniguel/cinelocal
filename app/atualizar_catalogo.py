@@ -10,6 +10,7 @@ import json
 import re
 import subprocess
 import sys
+import shutil
 
 # Ensure APP_DIR is in sys.path
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -21,8 +22,24 @@ ROOT_DIR = os.path.dirname(APP_DIR)
 MEDIA_DIR = os.path.join(ROOT_DIR, 'media')
 FILMES_DIR = os.path.join(MEDIA_DIR, 'filmes')
 SERIES_DIR = os.path.join(MEDIA_DIR, 'series')
-FFMPEG_BIN = os.path.join(APP_DIR, 'bin', 'ffmpeg.exe')
 AUDIO_CACHE_FILE = os.path.join(APP_DIR, '.audio_cache.json')
+
+def get_ffmpeg_bin():
+    """Localiza o FFmpeg na pasta app/bin, no PATH do sistema ou em caminhos padroes."""
+    local_bin = os.path.join(APP_DIR, 'bin', 'ffmpeg.exe')
+    if os.path.exists(local_bin):
+        return local_bin
+    system_bin = shutil.which('ffmpeg')
+    if system_bin:
+        return system_bin
+    for candidate in [
+        r'C:\ffmpeg\bin\ffmpeg.exe',
+        r'C:\Program Files\ffmpeg\bin\ffmpeg.exe',
+        os.path.expandvars(r'%LOCALAPPDATA%\Microsoft\WinGet\Links\ffmpeg.exe')
+    ]:
+        if os.path.exists(candidate):
+            return candidate
+    return None
 
 def load_audio_cache():
     if os.path.exists(AUDIO_CACHE_FILE):
@@ -54,9 +71,10 @@ def probe_audio_and_subs(filepath, cache):
     has_sub = False
     lower_name = os.path.basename(filepath).lower()
     
-    if os.path.exists(FFMPEG_BIN):
+    ffmpeg_bin = get_ffmpeg_bin()
+    if ffmpeg_bin:
         try:
-            cmd = [FFMPEG_BIN, '-i', filepath]
+            cmd = [ffmpeg_bin, '-i', filepath]
             proc = subprocess.run(cmd, stderr=subprocess.PIPE, stdout=subprocess.DEVNULL, text=True, encoding='utf-8', errors='ignore')
             for line in proc.stderr.splitlines():
                 if 'Audio:' in line:
@@ -186,6 +204,15 @@ def build_catalog():
     series_catalog = []
     subtitles_db = {}
     audio_cache = load_audio_cache()
+    
+    # Garante que as pastas de mídia existam
+    os.makedirs(FILMES_DIR, exist_ok=True)
+    os.makedirs(SERIES_DIR, exist_ok=True)
+    
+    # Aviso informativo caso o FFmpeg não esteja presente
+    if not get_ffmpeg_bin():
+        print('[INFO] FFmpeg não encontrado (opcional). A detecção de áudio usará padrões rápidos.')
+        print('       Para suporte completo a codecs de áudio avançados, instale o FFmpeg: https://ffmpeg.org/download.html\n')
     
     # -------------------------------------------------------------
     # 1. PROCESSAR FILMES (media/filmes)
