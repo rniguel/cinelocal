@@ -566,7 +566,7 @@
     .badge-seq {
       position: absolute;
       top: 8px;
-      right: 8px;
+      right: 46px;
       background: rgba(0, 0, 0, 0.8);
       color: #fff;
       font-size: 11px;
@@ -574,6 +574,41 @@
       padding: 3px 7px;
       border-radius: 4px;
       border: 1px solid rgba(255, 255, 255, 0.2);
+      z-index: 8;
+    }
+
+    .card-btn-fav-floating {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(10, 14, 23, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #fff;
+      transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      z-index: 10;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+    }
+
+    .card-btn-fav-floating:hover {
+      transform: scale(1.15);
+      background: rgba(245, 158, 11, 0.3);
+      border-color: #f59e0b;
+      color: #f59e0b;
+    }
+
+    .card-btn-fav-floating.active {
+      background: rgba(245, 158, 11, 0.3);
+      border-color: #f59e0b;
+      color: #f59e0b;
     }
 
     .card-tag-group {
@@ -711,51 +746,55 @@
     .card-actions {
       display: flex;
       align-items: center;
-      gap: 6px;
-      margin-top: 6px;
+      gap: 8px;
+      margin-top: 8px;
     }
 
     .card-btn-play {
       flex: 1;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       color: #fff;
-      padding: 6px 8px;
-      border-radius: 4px;
+      padding: 7px 12px;
+      border-radius: 6px;
       font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
-      transition: all 0.2s;
+      gap: 6px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
     }
 
     .card-btn-play:hover {
       background: var(--primary);
       border-color: var(--primary);
+      box-shadow: 0 4px 14px rgba(229, 9, 20, 0.45);
+      transform: translateY(-1px);
     }
 
-    .card-btn-vlc {
-      background: rgba(255, 136, 0, 0.15);
-      border: 1px solid rgba(255, 136, 0, 0.35);
-      color: #ff9922;
-      padding: 6px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 700;
+    .card-btn-info {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #cbd5e1;
+      border-radius: 6px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
     }
 
-    .card-btn-vlc:hover {
-      background: var(--vlc-orange);
+    .card-btn-info:hover {
+      background: rgba(255, 255, 255, 0.22);
       color: #fff;
+      border-color: #fff;
+      transform: translateY(-1px);
     }
 
     /* GRID VIEW (FILMES E SÉRIES DEDICADAS) */
@@ -1162,26 +1201,6 @@
       box-shadow: 0 4px 14px rgba(255, 136, 0, 0.4);
     }
 
-    .card-btn-info {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #94a3b8;
-      padding: 6px 10px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: 800;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-
-    .card-btn-info:hover {
-      background: rgba(255, 255, 255, 0.2);
-      color: #fff;
-      border-color: #fff;
-    }
 
     .series-seasons-tabs {
       display: flex;
@@ -1716,13 +1735,58 @@
       outline: 3px solid var(--primary) !important;
       outline-offset: 3px !important;
     }
-    .movie-card:focus-visible,
-    .movie-card.tv-focused {
-      outline: 3px solid #e50914 !important;
+    .tv-focused {
+      outline: 4px solid #e50914 !important;
       outline-offset: 4px !important;
       transform: scale(1.08) translateY(-4px) !important;
-      z-index: 20 !important;
-      box-shadow: 0 10px 30px rgba(229, 9, 20, 0.6) !important;
+      z-index: 50 !important;
+      box-shadow: 0 0 28px rgba(229, 9, 20, 0.95), 0 10px 30px rgba(0, 0, 0, 0.9) !important;
+      animation: tvFocusGlow 1.6s infinite alternate ease-in-out !important;
+    }
+    @keyframes tvFocusGlow {
+      0% {
+        box-shadow: 0 0 20px rgba(229, 9, 20, 0.75), 0 10px 30px rgba(0, 0, 0, 0.9);
+        outline-color: #e50914;
+      }
+      100% {
+        box-shadow: 0 0 38px rgba(244, 6, 18, 1), 0 14px 40px rgba(0, 0, 0, 1);
+        outline-color: #ff3b4b;
+      }
+    }
+    .movie-card.tv-focused .card-poster-wrapper img {
+      transform: scale(1.06);
+    }
+    .movie-card.tv-focused .card-btn-play {
+      background: var(--primary) !important;
+      border-color: var(--primary) !important;
+      color: #fff !important;
+    }
+    .tv-focus-beacon {
+      position: fixed;
+      top: 18px;
+      right: 20px;
+      background: rgba(10, 14, 23, 0.92);
+      border: 1px solid rgba(229, 9, 20, 0.6);
+      color: #fff;
+      padding: 7px 16px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 700;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      z-index: 999;
+      pointer-events: none;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8), 0 0 16px rgba(229, 9, 20, 0.4);
+      animation: fadeIn 0.3s ease;
+      backdrop-filter: blur(12px);
+    }
+    .tv-focus-beacon-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e50914;
+      box-shadow: 0 0 10px #e50914;
     }
 
     /* MODAL QR CODE E MODAL SURPREENDA-ME */
@@ -1759,14 +1823,296 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
 
+    /* DESIGN RESPONSIVO MOBILE COMPLETO (CELULARES E TABLETS) */
     @media (max-width: 768px) {
-      header { padding: 12px 16px; }
-      .hero-banner { height: 420px; padding: 24px 20px; }
-      .hero-title { font-size: 28px; }
-      .carousel-section { padding: 0 16px; }
-      .search-input { width: 160px; }
-      .search-input:focus { width: 200px; }
-      .movie-card { flex: 0 0 145px; width: 145px; }
+      header {
+        padding: 8px 12px;
+      }
+      .header-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+      .header-left {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .brand-title {
+        font-size: 18px;
+      }
+      .brand-icon {
+        width: 32px;
+        height: 32px;
+      }
+      .main-nav {
+        gap: 4px;
+      }
+      .nav-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        border-radius: 20px;
+      }
+      .header-right {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        overflow-x: auto;
+        padding-bottom: 2px;
+      }
+      .search-container {
+        flex: 1;
+        min-width: 120px;
+      }
+      .search-input {
+        width: 100% !important;
+        font-size: 12px;
+        padding: 6px 26px 6px 28px;
+        background-color: rgba(255, 255, 255, 0.08);
+      }
+      .btn-header-action {
+        padding: 6px 10px;
+        font-size: 11px;
+        white-space: nowrap;
+        border-radius: 20px;
+      }
+      #protocolBadge {
+        display: none !important;
+      }
+
+      /* Hero Banner Mobile */
+      .hero-banner {
+        height: 360px;
+        padding: 20px 14px;
+        margin-bottom: 14px;
+      }
+      .hero-title {
+        font-size: 22px;
+        line-height: 1.2;
+        margin-bottom: 6px;
+      }
+      .hero-meta {
+        font-size: 11px;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .hero-overview {
+        font-size: 12px;
+        line-height: 1.4;
+        margin-bottom: 14px;
+        -webkit-line-clamp: 2;
+      }
+      .hero-buttons {
+        gap: 8px;
+        width: 100%;
+      }
+      .btn-hero-play {
+        flex: 1;
+        justify-content: center;
+        padding: 10px 14px;
+        font-size: 14px;
+      }
+      .btn-hero-vlc {
+        display: none !important;
+      }
+      .btn-hero-info {
+        padding: 10px 14px;
+        font-size: 14px;
+      }
+
+      /* Carrosséis Mobile Touch */
+      .carousel-section {
+        padding: 0 12px;
+        margin-bottom: 22px;
+      }
+      .carousel-header {
+        margin-bottom: 8px;
+      }
+      .carousel-title {
+        font-size: 17px;
+      }
+      .carousel-count {
+        font-size: 11px;
+      }
+      .carousel-btn {
+        display: none !important;
+      }
+      .carousel-track {
+        gap: 10px;
+        padding-bottom: 6px;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+      }
+      .movie-card {
+        flex: 0 0 135px !important;
+        width: 135px !important;
+        border-radius: 10px;
+        scroll-snap-align: start;
+      }
+      .card-content {
+        padding: 8px 8px 10px 8px;
+      }
+      .card-title {
+        font-size: 12px;
+        line-height: 1.25;
+        margin-bottom: 2px;
+        -webkit-line-clamp: 2;
+      }
+      .card-subinfo {
+        font-size: 10px;
+        margin-bottom: 4px;
+      }
+      .card-btn-play {
+        padding: 6px 8px;
+        font-size: 11px;
+        border-radius: 5px;
+      }
+      .card-btn-info {
+        width: 28px;
+        height: 28px;
+        border-radius: 5px;
+      }
+      .card-btn-fav-floating {
+        width: 28px;
+        height: 28px;
+        top: 6px;
+        right: 6px;
+      }
+      .card-badge {
+        font-size: 9px;
+        padding: 2px 5px;
+        top: 6px;
+        left: 6px;
+      }
+      .badge-seq {
+        top: 6px;
+        right: 38px;
+        font-size: 9px;
+        padding: 2px 5px;
+      }
+
+      /* Grid View Mobile (2 colunas perfeitas) */
+      .view-container {
+        padding: 14px 10px;
+      }
+      .view-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+      .view-title-group h2 {
+        font-size: 20px;
+      }
+      .filter-chips {
+        gap: 6px;
+        padding-bottom: 4px;
+        margin-bottom: 12px;
+      }
+      .chip {
+        padding: 5px 12px;
+        font-size: 12px;
+      }
+      .filter-select {
+        padding: 6px 26px 6px 10px;
+        font-size: 12px;
+        background-size: 9px;
+      }
+      .grid-layout {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+      }
+      .grid-layout .movie-card {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+      }
+
+      /* Modais no Mobile */
+      .series-modal {
+        padding: 8px;
+      }
+      .series-modal-box {
+        max-height: 94vh;
+        border-radius: 14px;
+      }
+      .series-modal-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 20px 14px 14px;
+        gap: 12px;
+      }
+      .series-modal-poster {
+        width: 120px;
+        margin: 0 auto;
+      }
+      .series-modal-title {
+        font-size: 20px;
+      }
+      .series-modal-meta {
+        justify-content: center;
+        font-size: 11px;
+        gap: 6px;
+      }
+      .modal-genres-row {
+        justify-content: center;
+      }
+      .series-modal-desc {
+        font-size: 12px;
+        line-height: 1.45;
+        text-align: left;
+      }
+      .modal-credits {
+        text-align: left;
+        font-size: 11px;
+      }
+      .movie-modal-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 8px;
+      }
+      .movie-modal-actions button {
+        width: 100%;
+        justify-content: center;
+        min-height: 42px;
+        font-size: 13px;
+      }
+      .modal-links-row {
+        justify-content: center;
+      }
+
+      /* Player no Mobile */
+      .player-top-bar {
+        padding: 10px 14px;
+      }
+      .player-movie-title {
+        font-size: 14px;
+      }
+      .player-movie-sub {
+        font-size: 11px;
+      }
+      .player-bottom-controls {
+        padding: 10px 14px 14px;
+        gap: 6px;
+      }
+      .volume-container {
+        display: none !important;
+      }
+      .subtitle-text {
+        font-size: 16px !important;
+        padding: 4px 10px !important;
+      }
+      .subtitle-display {
+        bottom: 70px !important;
+        max-width: 95% !important;
+      }
+      .btn-ctrl {
+        padding: 8px;
+      }
     }
 
     /* MCU TIMELINE & TRACKER STYLES */
@@ -3014,6 +3360,10 @@
       currentSurpriseMovie: null,
       favorites: JSON.parse(localStorage.getItem('cinelocal_favorites') || '[]'),
       audioTracks: [],
+      isTranscoding: false,
+      transcodeOffset: 0,
+      currentAudioIndex: 1,
+      mediaTotalDuration: 0,
       watchProgress: JSON.parse(localStorage.getItem('cinelocal_watch_progress') || '{}'),
       watchedList: JSON.parse(localStorage.getItem('cinelocal_watched_list') || '{}')
     };
@@ -3327,7 +3677,7 @@
         if (favBtn) {
           const isFav = isItemFavorite(currentModalMovie.id);
           favBtn.classList.toggle('active', isFav);
-          favBtn.innerText = isFav ? '⭐ Na Minha Lista' : '⭐ Minha Lista';
+          favBtn.innerText = isFav ? '⭐ Na Minha Lista' : '☆ Minha Lista';
         }
       }
     }
@@ -3341,7 +3691,7 @@
         if (favBtn) {
           const isFav = isItemFavorite(series.id);
           favBtn.classList.toggle('active', isFav);
-          favBtn.innerText = isFav ? '⭐ Na Minha Lista' : '⭐ Minha Lista';
+          favBtn.innerText = isFav ? '⭐ Na Minha Lista' : '☆ Minha Lista';
         }
       }
     }
@@ -3760,6 +4110,11 @@
             <span class="card-badge ${qualityClass}">${tagText}</span>
             ${seqBadge}
             ${watchedBadge}
+            <button class="card-btn-fav-floating ${isItemFavorite(item.id) ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite('${item.id}')" title="${isItemFavorite(item.id) ? 'Remover da Minha Lista' : 'Adicionar à Minha Lista'}">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="${isItemFavorite(item.id) ? '#f59e0b' : 'none'}" stroke="${isItemFavorite(item.id) ? '#f59e0b' : '#fff'}" stroke-width="2.2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            </button>
             <div class="card-tag-group">
               ${audioBadge}
               ${subBadge}
@@ -3773,20 +4128,17 @@
             </div>
             <div class="card-actions">
               <button class="card-btn-play" onclick="event.stopPropagation(); ${playAction}">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
                   <polygon points="5 3 19 12 5 21 5 3"></polygon>
                 </svg>
-                ${isSeries ? 'Episódios' : (prog && prog.pct >= 2 && !prog.completed ? 'Continuar' : 'Assistir')}
+                <span>${isSeries ? 'Episódios' : (prog && prog.pct >= 2 && !prog.completed ? 'Continuar' : 'Assistir')}</span>
               </button>
-              <button class="card-btn-fav" onclick="event.stopPropagation(); toggleFavorite('${item.id}')" title="${isItemFavorite(item.id) ? 'Remover da Minha Lista' : 'Adicionar à Minha Lista'}">
-                ${isItemFavorite(item.id) ? '⭐' : '☆'}
-              </button>
-              ${(!isSeries && state.vlcAvailable) ? `
-              <button class="card-btn-vlc" onclick="event.stopPropagation(); launchVlc('${item.videoPath}')" title="Assistir no VLC (Áudio 5.1)">
-                VLC
-              </button>` : ''}
               <button class="card-btn-info" onclick="event.stopPropagation(); ${clickAction}" title="Ver Sinopse e Detalhes">
-                ℹ
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
               </button>
             </div>
           </div>
@@ -3991,7 +4343,7 @@
       if (seriesFavBtn) {
         const isFav = isItemFavorite(series.id);
         seriesFavBtn.classList.toggle('active', isFav);
-        seriesFavBtn.innerText = isFav ? '⭐ Na Minha Lista' : '⭐ Minha Lista';
+        seriesFavBtn.innerText = isFav ? '⭐ Na Minha Lista' : '☆ Minha Lista';
       }
 
       // Renderizar Tabs de Temporadas
@@ -4106,7 +4458,7 @@
       if (favBtn) {
         const isFav = isItemFavorite(movie.id);
         favBtn.classList.toggle('active', isFav);
-        favBtn.innerText = isFav ? '⭐ Na Minha Lista' : '⭐ Minha Lista';
+        favBtn.innerText = isFav ? '⭐ Na Minha Lista' : '☆ Minha Lista';
       }
 
       document.getElementById('movieDetailsModal').classList.add('active');
@@ -4733,10 +5085,34 @@
 
     let lastProgressSaveTime = 0;
 
+    function getEffectiveCurrentTime() {
+      const video = document.getElementById('mainVideo');
+      if (!video) return 0;
+      if (state.isTranscoding) {
+        return state.transcodeOffset + (video.currentTime || 0);
+      }
+      return video.currentTime || 0;
+    }
+
+    function getEffectiveDuration() {
+      const video = document.getElementById('mainVideo');
+      if (state.mediaTotalDuration && state.mediaTotalDuration > 0) {
+        return state.mediaTotalDuration;
+      }
+      if (video && video.duration && isFinite(video.duration) && video.duration > 0) {
+        return video.duration;
+      }
+      return 0;
+    }
+
     function openPlayer(media, isEpisode = false, startTime = 0) {
       state.currentPlaying = media;
       state.nextEpCountdownActive = false;
       state.nextEpDismissed = false;
+      state.isTranscoding = false;
+      state.transcodeOffset = 0;
+      state.currentAudioIndex = 1;
+      state.mediaTotalDuration = 0;
       clearInterval(nextEpCountdownTimer);
       const nextToast = document.getElementById('nextEpisodeToast');
       if (nextToast) nextToast.style.display = 'none';
@@ -4777,6 +5153,9 @@
       }
 
       video.onloadedmetadata = () => {
+        if (video.duration && isFinite(video.duration) && video.duration > 0) {
+          state.mediaTotalDuration = video.duration;
+        }
         if (targetTime > 0 && video.duration && targetTime < video.duration) {
           video.currentTime = targetTime;
         }
@@ -4825,6 +5204,9 @@
           fetch(`/api/audio_info?path=${encodeURIComponent(media.videoPath)}`)
             .then(r => r.ok ? r.json() : Promise.reject())
             .then(data => {
+              if (data.duration && data.duration > 0) {
+                state.mediaTotalDuration = data.duration;
+              }
               if (data.streams && data.streams.length > 0) {
                 audioList.innerHTML = '';
                 data.streams.forEach(st => {
@@ -4856,28 +5238,52 @@
     function selectAudioTrack(media, audioIndex) {
       const video = document.getElementById('mainVideo');
       if (!video) return;
-      const curr = video.currentTime;
+      const currentEffective = getEffectiveCurrentTime();
       video.pause();
-      video.src = `/api/stream?path=${encodeURIComponent(media.videoPath)}&audio=${audioIndex}&ss=${Math.floor(curr)}`;
-      video.load();
-      video.play().catch(() => {});
+
+      state.currentAudioIndex = audioIndex;
+
+      // Se for a trilha original / nativa (index 1), retorna ao arquivo direto com Range HTTP 206
+      if (audioIndex === 1) {
+        state.isTranscoding = false;
+        state.transcodeOffset = 0;
+        video.src = encodeURI(media.videoPath);
+        video.onloadedmetadata = () => {
+          if (currentEffective > 0) video.currentTime = currentEffective;
+          video.play().catch(() => {});
+        };
+        video.load();
+      } else {
+        state.isTranscoding = true;
+        state.transcodeOffset = Math.floor(currentEffective);
+        video.src = `/api/stream?path=${encodeURIComponent(media.videoPath)}&audio=${audioIndex}&ss=${state.transcodeOffset}`;
+        video.load();
+        video.play().catch(() => {});
+      }
+
       document.querySelectorAll('#audioTracksList .dropdown-item').forEach((btn, idx) => {
         btn.classList.toggle('active', idx === (audioIndex - 1));
       });
       toggleDropdown('audioMenu');
-      showToast('Faixa de áudio alterada');
+      showToast(`Áudio alterado (${formatTime(currentEffective)})`);
     }
 
     function closePlayer() {
       const video = document.getElementById('mainVideo');
       if (video) {
-        if (state.currentPlaying && video.duration) {
-          saveWatchProgress(state.currentPlaying.id, video.currentTime, video.duration, state.currentPlaying);
+        const effTime = getEffectiveCurrentTime();
+        const effDur = getEffectiveDuration();
+        if (state.currentPlaying && effDur > 0) {
+          saveWatchProgress(state.currentPlaying.id, effTime, effDur, state.currentPlaying);
         }
         video.pause();
         video.removeAttribute('src');
         video.load();
       }
+
+      state.isTranscoding = false;
+      state.transcodeOffset = 0;
+      state.mediaTotalDuration = 0;
 
       clearInterval(nextEpCountdownTimer);
       state.nextEpCountdownActive = false;
@@ -4903,8 +5309,20 @@
     function skipTime(seconds) {
       const video = document.getElementById('mainVideo');
       if (!video) return;
-      video.currentTime = Math.max(0, Math.min(video.duration || 0, video.currentTime + seconds));
-      showToast(`${seconds > 0 ? '+' : ''}${seconds}s`);
+      const dur = getEffectiveDuration();
+      const curr = getEffectiveCurrentTime();
+      const target = Math.max(0, Math.min(dur || Infinity, curr + seconds));
+
+      if (state.isTranscoding && state.currentPlaying) {
+        state.transcodeOffset = Math.floor(target);
+        video.src = `/api/stream?path=${encodeURIComponent(state.currentPlaying.videoPath)}&audio=${state.currentAudioIndex}&ss=${state.transcodeOffset}`;
+        video.load();
+        video.play().catch(() => {});
+        showToast(`${seconds > 0 ? '+' : ''}${seconds}s (${formatTime(target)})`);
+      } else {
+        video.currentTime = target;
+        showToast(`${seconds > 0 ? '+' : ''}${seconds}s`);
+      }
     }
 
     function toggleFullscreen() {
@@ -4918,10 +5336,22 @@
     function handleSeekClick(e) {
       const bar = document.getElementById('seekBarContainer');
       const rect = bar.getBoundingClientRect();
-      const pos = (e.clientX - rect.left) / rect.width;
-      const video = document.getElementById('mainVideo');
-      if (video.duration) {
-        video.currentTime = pos * video.duration;
+      const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      const dur = getEffectiveDuration();
+      if (dur <= 0) return;
+      const targetTime = pos * dur;
+
+      if (state.isTranscoding && state.currentPlaying) {
+        state.transcodeOffset = Math.floor(targetTime);
+        const video = document.getElementById('mainVideo');
+        if (video) {
+          video.src = `/api/stream?path=${encodeURIComponent(state.currentPlaying.videoPath)}&audio=${state.currentAudioIndex}&ss=${state.transcodeOffset}`;
+          video.load();
+          video.play().catch(() => {});
+        }
+      } else {
+        const video = document.getElementById('mainVideo');
+        if (video) video.currentTime = targetTime;
       }
     }
 
@@ -4930,24 +5360,29 @@
       if (!video) return;
 
       video.addEventListener('timeupdate', () => {
-        if (!video.duration) return;
-        const pct = (video.currentTime / video.duration) * 100;
-        const fillEl = document.getElementById('seekFill');
-        if (fillEl) fillEl.style.width = pct + '%';
-        const timeEl = document.getElementById('timeDisplay');
-        if (timeEl) timeEl.innerText = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
-        renderSubtitles(video.currentTime);
+        const dur = getEffectiveDuration();
+        const curr = getEffectiveCurrentTime();
+
+        if (dur > 0) {
+          const pct = Math.min(100, Math.max(0, (curr / dur) * 100));
+          const fillEl = document.getElementById('seekFill');
+          if (fillEl) fillEl.style.width = pct + '%';
+          const timeEl = document.getElementById('timeDisplay');
+          if (timeEl) timeEl.innerText = `${formatTime(curr)} / ${formatTime(dur)}`;
+        }
+
+        renderSubtitles(curr);
 
         // Salvar progresso a cada 4 segundos
         const now = Date.now();
         if (state.currentPlaying && now - lastProgressSaveTime > 4000) {
           lastProgressSaveTime = now;
-          saveWatchProgress(state.currentPlaying.id, video.currentTime, video.duration, state.currentPlaying);
+          saveWatchProgress(state.currentPlaying.id, curr, dur, state.currentPlaying);
         }
 
         // Alerta de próximo episódio nos últimos 20 segundos
-        if (state.currentEpisodeSeries && video.duration > 35) {
-          const remaining = video.duration - video.currentTime;
+        if (state.currentEpisodeSeries && dur > 35) {
+          const remaining = dur - curr;
           if (remaining <= 20 && remaining > 1 && !state.nextEpCountdownActive && !state.nextEpDismissed) {
             startNextEpisodeCountdown(Math.floor(remaining));
           }
@@ -4955,16 +5390,20 @@
       });
 
       video.addEventListener('progress', () => {
-        if (video.buffered.length > 0 && video.duration) {
-          const buf = (video.buffered.end(video.buffered.length - 1) / video.duration) * 100;
+        const dur = getEffectiveDuration();
+        if (video.buffered.length > 0 && dur > 0) {
+          const buf = state.isTranscoding 
+            ? ((state.transcodeOffset + video.buffered.end(video.buffered.length - 1)) / dur) * 100
+            : (video.buffered.end(video.buffered.length - 1) / dur) * 100;
           const bufEl = document.getElementById('seekBuffered');
-          if (bufEl) bufEl.style.width = buf + '%';
+          if (bufEl) bufEl.style.width = Math.min(100, buf) + '%';
         }
       });
 
       video.addEventListener('ended', () => {
-        if (state.currentPlaying && video.duration) {
-          saveWatchProgress(state.currentPlaying.id, video.duration, video.duration, state.currentPlaying);
+        const dur = getEffectiveDuration();
+        if (state.currentPlaying && dur > 0) {
+          saveWatchProgress(state.currentPlaying.id, dur, dur, state.currentPlaying);
         }
         if (state.currentEpisodeSeries) {
           playNextEpisodeImmediately();
@@ -5392,8 +5831,12 @@
             if (isPlayerOpen) {
               togglePlayPause();
             } else {
-              if (document.activeElement && typeof document.activeElement.click === 'function') {
-                document.activeElement.click();
+              const focused = document.querySelector('.tv-focused') || (document.activeElement && document.activeElement !== document.body ? document.activeElement : null);
+              if (focused && typeof focused.click === 'function') {
+                focused.click();
+              } else {
+                const firstCard = document.querySelector('.movie-card');
+                if (firstCard) setTvFocus(firstCard);
               }
             }
             break;
@@ -5490,42 +5933,99 @@
     }
 
     /* NAVEGAÇÃO D-PAD PARA SMART TV E CONTROLE REMOTO */
-    function handleDpadNavigation(key) {
-      const isAnyModalOpen = document.querySelector('.series-modal.active, .player-modal.active');
-      if (isAnyModalOpen) return;
+    /* FOCO TV E NAVEGACAO D-PAD PARA SMART TV E CONTROLE REMOTO */
+    let tvBeaconTimeout = null;
+    function showTvFocusBeacon(el) {
+      let beacon = document.getElementById('tvFocusBeacon');
+      if (!beacon) {
+        beacon = document.createElement('div');
+        beacon.id = 'tvFocusBeacon';
+        beacon.className = 'tv-focus-beacon';
+        beacon.innerHTML = '<span class="tv-focus-beacon-dot"></span><span id="tvFocusBeaconText">Controle Ativo</span>';
+        document.body.appendChild(beacon);
+      }
+      const textEl = document.getElementById('tvFocusBeaconText');
+      const cardTitle = el.querySelector ? el.querySelector('.card-title') : null;
+      const label = cardTitle ? cardTitle.innerText : (el.innerText || el.title || 'Selecionado');
+      if (textEl) textEl.innerText = label.length > 28 ? label.substring(0, 26) + '...' : label;
+      beacon.style.display = 'flex';
+      if (tvBeaconTimeout) clearTimeout(tvBeaconTimeout);
+      tvBeaconTimeout = setTimeout(() => {
+        if (beacon) beacon.style.display = 'none';
+      }, 2500);
+    }
 
-      const focusables = Array.from(document.querySelectorAll('.movie-card, .nav-btn, .chip, .btn-header-action'));
+    function setTvFocus(el, smoothScroll = true) {
+      if (!el) return;
+      document.querySelectorAll('.tv-focused').forEach(node => node.classList.remove('tv-focused'));
+      el.classList.add('tv-focused');
+      try {
+        el.focus({ preventScroll: true });
+      } catch (e) {}
+
+      if (smoothScroll) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        const track = el.closest('.carousel-track');
+        if (track) {
+          const trackRect = track.getBoundingClientRect();
+          const cardRect = el.getBoundingClientRect();
+          const offset = (cardRect.left + cardRect.width / 2) - (trackRect.left + trackRect.width / 2);
+          track.scrollBy({ left: offset, behavior: 'smooth' });
+        }
+      }
+
+      showTvFocusBeacon(el);
+    }
+
+    function handleDpadNavigation(key) {
+      const isPlayerOpen = document.getElementById('playerModal') && document.getElementById('playerModal').classList.contains('active');
+      if (isPlayerOpen) return;
+
+      const activeModal = document.querySelector('.series-modal.active, .trailer-modal.active, #qrModal.active');
+      let focusables = [];
+
+      if (activeModal) {
+        focusables = Array.from(activeModal.querySelectorAll('button:not([style*="display: none"]), a:not([style*="display: none"]), .movie-card, .episode-item, input, select'));
+      } else {
+        focusables = Array.from(document.querySelectorAll('.movie-card:not([style*="display: none"]), .btn-hero-play, .btn-hero-info, .chip, .filter-select, .nav-btn, .btn-header-action'));
+      }
+
+      focusables = focusables.filter(el => {
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0 && window.getComputedStyle(el).display !== 'none' && window.getComputedStyle(el).visibility !== 'hidden';
+      });
+
       if (focusables.length === 0) return;
 
-      const active = document.activeElement;
-      let currentIndex = focusables.indexOf(active);
+      const currentFocused = document.querySelector('.tv-focused') || (focusables.includes(document.activeElement) ? document.activeElement : null);
 
-      if (currentIndex === -1) {
-        focusables[0].focus();
+      if (!currentFocused) {
+        const firstCard = focusables.find(el => el.classList.contains('movie-card')) || focusables[0];
+        setTvFocus(firstCard);
         return;
       }
 
-      const currentRect = active.getBoundingClientRect();
+      const currentIndex = focusables.indexOf(currentFocused);
+      const currentRect = currentFocused.getBoundingClientRect();
       let bestNext = null;
       let bestDist = Infinity;
 
       focusables.forEach((el, idx) => {
-        if (idx === currentIndex) return;
+        if (idx === currentIndex || el === currentFocused) return;
         const r = el.getBoundingClientRect();
-        if (r.width === 0 || r.height === 0) return;
-
         let isCandidate = false;
         let dist = 0;
-        if (key === 'ArrowRight' && r.left >= currentRect.right - 10) {
+
+        if (key === 'ArrowRight' && r.left >= currentRect.left + 5) {
           isCandidate = true;
           dist = Math.hypot(r.left - currentRect.right, (r.top - currentRect.top) * 0.7);
-        } else if (key === 'ArrowLeft' && r.right <= currentRect.left + 10) {
+        } else if (key === 'ArrowLeft' && r.right <= currentRect.right - 5) {
           isCandidate = true;
           dist = Math.hypot(currentRect.left - r.right, (r.top - currentRect.top) * 0.7);
-        } else if (key === 'ArrowDown' && r.top >= currentRect.bottom - 10) {
+        } else if (key === 'ArrowDown' && r.top >= currentRect.top + 5) {
           isCandidate = true;
           dist = Math.hypot(r.left - currentRect.left, (r.top - currentRect.bottom) * 1.5);
-        } else if (key === 'ArrowUp' && r.bottom <= currentRect.top + 10) {
+        } else if (key === 'ArrowUp' && r.bottom <= currentRect.bottom - 5) {
           isCandidate = true;
           dist = Math.hypot(r.left - currentRect.left, (currentRect.top - r.bottom) * 1.5);
         }
@@ -5537,17 +6037,14 @@
       });
 
       if (bestNext) {
-        bestNext.focus();
-        bestNext.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+        setTvFocus(bestNext);
       } else {
         if (key === 'ArrowRight' || key === 'ArrowDown') {
           const nextIdx = (currentIndex + 1) % focusables.length;
-          focusables[nextIdx].focus();
-          focusables[nextIdx].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+          setTvFocus(focusables[nextIdx]);
         } else if (key === 'ArrowLeft' || key === 'ArrowUp') {
           const prevIdx = (currentIndex - 1 + focusables.length) % focusables.length;
-          focusables[prevIdx].focus();
-          focusables[prevIdx].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+          setTvFocus(focusables[prevIdx]);
         }
       }
     }
@@ -5629,9 +6126,10 @@
             e.preventDefault();
             handleDpadNavigation(e.key);
           } else if (e.key === 'Enter') {
-            if (document.activeElement && document.activeElement.classList.contains('movie-card')) {
+            const focused = document.querySelector('.tv-focused') || (document.activeElement && document.activeElement !== document.body ? document.activeElement : null);
+            if (focused && typeof focused.click === 'function') {
               e.preventDefault();
-              document.activeElement.click();
+              focused.click();
             }
           }
         }

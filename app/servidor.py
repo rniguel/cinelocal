@@ -91,15 +91,21 @@ def get_best_audio_stream(movie_path):
         return "1"
 
 def get_audio_streams_info(movie_path):
-    """Detecta as faixas de áudio disponíveis no vídeo via FFmpeg."""
+    """Detecta as faixas de áudio disponíveis no vídeo via FFmpeg e calcula a duração total em segundos."""
     ffmpeg_bin = get_ffmpeg_bin()
     if not ffmpeg_bin or not os.path.exists(movie_path):
-        return []
+        return {"streams": [], "duration": 0}
     try:
         res = subprocess.run(
             [ffmpeg_bin, "-i", movie_path],
             capture_output=True, text=True, encoding="utf-8", errors="ignore"
         )
+        duration_sec = 0.0
+        dur_match = re.search(r"Duration:\s*(\d+):(\d+):(\d+\.?\d*)", res.stderr)
+        if dur_match:
+            h, m, s = int(dur_match.group(1)), int(dur_match.group(2)), float(dur_match.group(3))
+            duration_sec = round(h * 3600 + m * 60 + s, 2)
+
         streams = []
         for line in res.stderr.split("\n"):
             m = re.search(r"Stream #0:(\d+)(?:\(([a-zA-Z]+)\))?.*?: Audio: (.*)", line)
@@ -133,10 +139,10 @@ def get_audio_streams_info(movie_path):
                     "label": f"{lang_label} • {channels}",
                     "details": details
                 })
-        return streams
+        return {"streams": streams, "duration": duration_sec}
     except Exception as e:
         print(f"Erro ao extrair audio_info: {e}")
-        return []
+        return {"streams": [], "duration": 0}
 
 DATA_DIR = os.path.join(APP_DIR, "data")
 USER_STATE_FILE = os.path.join(DATA_DIR, "user_state.json")
@@ -427,8 +433,8 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             video_rel = query_params.get('path', [''])[0]
             clean_rel = urllib.parse.unquote(video_rel).replace('../', '').lstrip('/').replace('/', os.sep)
             full_movie_path = os.path.join(MOVIES_DIR, clean_rel)
-            streams = get_audio_streams_info(full_movie_path)
-            data = json.dumps({"streams": streams}, ensure_ascii=False).encode('utf-8')
+            info_data = get_audio_streams_info(full_movie_path)
+            data = json.dumps(info_data, ensure_ascii=False).encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.send_header('Content-Length', str(len(data)))
