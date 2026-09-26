@@ -19,7 +19,8 @@ Bem-vindo ao **CineLocal**, uma central de streaming multimídia de alta perform
 ## 🚀 Principais Funcionalidades
 
 ### 1. 🍿 Catálogo Dinâmico & Descoberta
-* **⭐ Minha Lista (Favoritos):** Salve filmes e séries favoritos com um clique no card ou na ficha técnica. Conta com carrossel exclusivo no Início e filtro dedicado na aba de Filmes.
+* **⭐ Minha Lista (Favoritos):** Salve filmes e séries favoritos com um clique no botão flutuante sobre a capa ou na ficha técnica. Conta com carrossel exclusivo no Início e filtro dedicado na aba de Filmes.
+* **📱 Interface Responsiva & Mobile:** Experiência dedicada para smartphones e tablets com rolagem tátil (touch swipe), grid em duas colunas e modais adaptados para telas verticais.
 * **🔍 Busca Global Inteligente:** Pesquisa instantânea por título, atores (`cast`), diretores/criadores (`director`/`creator`), gêneros e termos da sinopse. Pressione `/` no teclado para focar a barra de pesquisa a qualquer momento.
 * **🎬 Trailers Oficiais Integrados:** Assista à prévia do trailer oficial em alta definição diretamente do YouTube antes de iniciar a sessão.
 * **Continuar Assistindo Sincronizado:** Salva o ponto exato da reprodução e sincroniza automaticamente entre computadores, celulares e Smart TVs na mesma rede.
@@ -34,12 +35,12 @@ Bem-vindo ao **CineLocal**, uma central de streaming multimídia de alta perform
   * D-Pad tátil com vibração (haptic feedback) para navegar menus da Smart TV sem mouse.
   * Comandos de Play/Pause, Seek (-10s / +10s), Volume (- / + / Mute), Fullscreen e Voltar.
   * Ajuste de sincronia de legendas em tempo real direto da palma da mão.
-* **Navegação D-Pad Nativa para Smart TV:** Suporte total às setas do controle físico da TV (`↑`, `↓`, `←`, `→`) e `Enter / OK` para focar cards e botões.
+* **Navegação D-Pad Nativa para Smart TV:** Suporte total às setas do controle físico da TV (`↑`, `↓`, `←`, `→`) e `Enter / OK` para focar cards e botões. Conta com borda pulsante em vermelho vibrante (glow 4px), centralização automática no carrossel e beacon flutuante com o nome do item em foco.
 * **Conexão via QR Code:** Abra a câmera do celular ou digite o link direto na TV para carregar o CineLocal ou abrir o controle remoto instantaneamente.
 * **Detecção Automática de IP Local:** Mostra o IP do computador na rede local sem configurações complexas.
 
 ### 3. 🔊 Player Web Cinematográfico Avançado
-* **🎵 Seletor de Faixas de Áudio:** Identifica trilhas embutidas (Dublado / Legendado / Original) e permite alternar faixas diretamente no menu de áudio do player.
+* **🎵 Seletor de Faixas de Áudio:** Identifica trilhas embutidas (Dublado / Legendado / Original) e permite alternar faixas diretamente no menu de áudio do player com cálculo de offset preciso na linha do tempo.
 * **Clique na Tela para Play/Pause:** Clique em qualquer ponto do vídeo para pausar ou reproduzir, com animação central de feedback estilo YouTube.
 * **Controles Inteligentes em Tela Cheia:** Os controles surgem instantaneamente ao mover o mouse e permanecem visíveis durante o pause.
 * **Picture-in-Picture (PiP):** Assista em janela flutuante enquanto utiliza outros programas no computador.
