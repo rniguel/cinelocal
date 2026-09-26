@@ -41,6 +41,7 @@ app/vlc/
 # 3. Banco de Dados e Cache Locais
 app/catalogo.js
 app/.audio_cache.json
+app/data/
 __pycache__/
 *.py[cod]
 *$py.class

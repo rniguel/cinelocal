@@ -19,19 +19,27 @@ Bem-vindo ao **CineLocal**, uma central de streaming multimídia de alta perform
 ## 🚀 Principais Funcionalidades
 
 ### 1. 🍿 Catálogo Dinâmico & Descoberta
-* **Continuar Assistindo:** Salva o ponto exato da reprodução no navegador e exibe uma fileira dedicada com barra de progresso em cada card.
-* **Filtros Avançados:** Filtre instantaneamente por **Gênero** (Ação, Drama, Ficção...), **Ano / Década** e **Não Assistidos**.
+* **⭐ Minha Lista (Favoritos):** Salve filmes e séries favoritos com um clique no card ou na ficha técnica. Conta com carrossel exclusivo no Início e filtro dedicado na aba de Filmes.
+* **🔍 Busca Global Inteligente:** Pesquisa instantânea por título, atores (`cast`), diretores/criadores (`director`/`creator`), gêneros e termos da sinopse. Pressione `/` no teclado para focar a barra de pesquisa a qualquer momento.
+* **🎬 Trailers Oficiais Integrados:** Assista à prévia do trailer oficial em alta definição diretamente do YouTube antes de iniciar a sessão.
+* **Continuar Assistindo Sincronizado:** Salva o ponto exato da reprodução e sincroniza automaticamente entre computadores, celulares e Smart TVs na mesma rede.
+* **Filtros Avançados:** Filtre instantaneamente por **Gênero** (Ação, Drama, Ficção...), **Ano / Década**, **Favoritos** e **Não Assistidos**.
 * **🎲 Surpreenda-me (Roleta de Filmes):** Sorteie um filme do catálogo para aqueles momentos de indecisão.
 * **Adicionados Recentemente Precisos:** Ordenação baseada na data real de gravação/modificação dos arquivos no disco.
 * **Marcação de Assistido:** Marque filmes e séries como assistidos com um clique para manter sua biblioteca organizada.
 * **Tela de Onboarding Integrada:** Caso a pasta de filmes ainda esteja vazia, uma interface interativa de boas-vindas guia o usuário passo a passo.
 
 ### 2. 📺 Smart TV & Conexão Rápida
-* **Navegação D-Pad para Smart TV:** Suporte total às setas do controle remoto (`↑`, `↓`, `←`, `→`) e `Enter / OK` para selecionar qualquer card ou botão sem precisar de mouse.
-* **Conexão via QR Code:** Abra a câmera do celular ou digite o link direto na TV para carregar o CineLocal instantaneamente.
+* **📱 Controle Remoto Virtual para Celular (`/remote`):** Transforme qualquer celular em um controle touch sem latência. Acesse `http://<ip>:8000/remote` ou aponte a câmera para o QR Code da aplicação.
+  * D-Pad tátil com vibração (haptic feedback) para navegar menus da Smart TV sem mouse.
+  * Comandos de Play/Pause, Seek (-10s / +10s), Volume (- / + / Mute), Fullscreen e Voltar.
+  * Ajuste de sincronia de legendas em tempo real direto da palma da mão.
+* **Navegação D-Pad Nativa para Smart TV:** Suporte total às setas do controle físico da TV (`↑`, `↓`, `←`, `→`) e `Enter / OK` para focar cards e botões.
+* **Conexão via QR Code:** Abra a câmera do celular ou digite o link direto na TV para carregar o CineLocal ou abrir o controle remoto instantaneamente.
 * **Detecção Automática de IP Local:** Mostra o IP do computador na rede local sem configurações complexas.
 
 ### 3. 🔊 Player Web Cinematográfico Avançado
+* **🎵 Seletor de Faixas de Áudio:** Identifica trilhas embutidas (Dublado / Legendado / Original) e permite alternar faixas diretamente no menu de áudio do player.
 * **Clique na Tela para Play/Pause:** Clique em qualquer ponto do vídeo para pausar ou reproduzir, com animação central de feedback estilo YouTube.
 * **Controles Inteligentes em Tela Cheia:** Os controles surgem instantaneamente ao mover o mouse e permanecem visíveis durante o pause.
 * **Picture-in-Picture (PiP):** Assista em janela flutuante enquanto utiliza outros programas no computador.
@@ -40,6 +48,7 @@ Bem-vindo ao **CineLocal**, uma central de streaming multimídia de alta perform
 * **Super Booster de Volume (até 300%):** Amplificador dinâmico via Web Audio API para filmes com áudio baixo.
 * **Legendas Inteligentes:** Renderização de legendas `.srt` com ajuste fino de sincronia (`G` e `H`) e tamanhos personalizáveis.
 * **Atalhos de Teclado:**
+  * `/`: Focar na barra de busca global
   * `Espaço` / `K`: Pausar / Reproduzir
   * `Setas Esquerda / Direita`: Voltar / Avançar 10 segundos
   * `Setas Cima / Baixo`: Volume (0% a 300%)
@@ -86,6 +95,7 @@ CineLocal/
 │   └── SCRIPTS_UTILITARIOS.md         # Detalhes dos scripts utilitários
 ├── app/                               # Código-fonte da aplicação
 │   ├── index.html                     # Interface web do CineLocal (SPA)
+│   ├── remote.html                    # Controle remoto mobile tátil (SSE em tempo real)
 │   ├── generate_netflix_ui.py         # Gerador mestre da interface HTML/CSS/JS
 │   ├── atualizar_catalogo.py          # Scanner de mídia e compilador de catalogo.js
 │   ├── buscar_metadados_tmdb.py       # Utilitário desacoplado de consulta à API TMDb

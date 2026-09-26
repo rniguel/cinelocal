@@ -36,7 +36,10 @@ Este documento detalha o propósito, parâmetros e funcionamento de cada script 
 * **Recursos Avançados:**
   * **Descoberta de IP de Rede:** Identifica a interface de rede ativa e exibe a URL local pronta para uso (ex: `http://192.168.1.15:8000`).
   * **HTTP Range Requests (RFC 7233):** Atende requisições de bytes parciais (`206 Partial Content`), essenciais para que o player do navegador consiga avançar ou retroceder (*seek*) vídeos pesados sem travamentos.
-  * **Integração com VLC (`/launch_vlc`):** Endpoint que aceita parâmetros de caminho e abre o VLC Media Player de 64 bits (`C:\Program Files\VideoLAN\VLC\vlc.exe`) em segundo plano de forma instantânea.
+  * **Hub de Controle Remoto para Smartphones (`/remote`):** Hub de eventos em tempo real (`RemoteControllerHub`) utilizando Server-Sent Events (SSE). Permite que o smartphone controle a Smart TV ou PC com latência mínima (< 20ms) e sem necessidade de teclado/mouse.
+  * **Sincronização de Progresso e Favoritos (`/api/progress` e `/api/favorite/toggle`):** Armazena o estado do usuário de forma segura em `app/data/user_state.json`. Quando você pausa um filme no computador, o tempo assistido e os favoritos são atualizados automaticamente na Smart TV.
+  * **Inspeção de Trilhas de Áudio (`/api/audio_info`):** Executa o `ffprobe` para ler as faixas de áudio embutidas no arquivo de vídeo e expor para seleção no player web.
+  * **Integração com VLC (`/api/open_vlc`):** Endpoint que aceita parâmetros de caminho e abre o VLC Media Player de 64 bits em segundo plano de forma instantânea.
 
 ---
 

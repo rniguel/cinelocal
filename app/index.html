@@ -869,6 +869,52 @@
       color: #ffffff !important;
     }
 
+    .card-btn-fav {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: #cbd5e1;
+      padding: 4px 7px;
+      cursor: pointer;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .card-btn-fav:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #f59e0b;
+      transform: scale(1.1);
+    }
+    .btn-vlc-secondary.active {
+      background: rgba(245, 158, 11, 0.2) !important;
+      border-color: #f59e0b !important;
+      color: #f59e0b !important;
+    }
+    .qr-tab-bar {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .qr-tab-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .qr-tab-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
     .grid-layout {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
@@ -2358,7 +2404,7 @@
             type="text" 
             id="globalSearchInput" 
             class="search-input" 
-            placeholder="Buscar títulos, franquias..." 
+            placeholder="Buscar títulos, atores, diretor... (atalho /)" 
             oninput="handleSearchInput(this.value)"
           >
           <button id="searchClearBtn" class="search-clear" onclick="clearSearch()">&times;</button>
@@ -2368,7 +2414,11 @@
           <span style="font-size: 13px;">🎲</span> Surpreenda-me
         </button>
 
-        <button class="btn-header-action" onclick="openQrConnectModal()" title="Conectar Smart TV ou Celular">
+        <button class="btn-header-action" onclick="openQrConnectModal('remote')" title="Abrir Controle Remoto Virtual no Celular">
+          <span style="font-size: 13px;">📱</span> Controle
+        </button>
+
+        <button class="btn-header-action" onclick="openQrConnectModal('tv')" title="Conectar Smart TV ou Celular">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="5" y="2" width="14" height="20" rx="2"></rect>
             <line x1="12" y1="18" x2="12.01" y2="18"></line>
@@ -2441,6 +2491,7 @@
 
       <div class="filter-chips">
         <button class="chip active" data-filter="all" onclick="setMovieFilter('all')">Todos</button>
+        <button class="chip" data-filter="favorites" onclick="setMovieFilter('favorites')">⭐ Minha Lista</button>
         <button class="chip" data-filter="unwatched" onclick="setMovieFilter('unwatched')">Não Assistidos</button>
         <button class="chip" data-filter="franchise" onclick="setMovieFilter('franchise')">Franquias</button>
         <button class="chip" data-filter="standalone" onclick="setMovieFilter('standalone')">Filmes Avulsos</button>
@@ -2506,9 +2557,15 @@
           </div>
 
           <div class="modal-links-row" id="seriesModalLinks"></div>
-          <div style="margin-top: 14px;">
+          <div style="margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap;">
             <button class="btn-watched-toggle" id="seriesModalBtnWatched" onclick="toggleWatchedCurrentSeries()">
               ✓ Já Assistido
+            </button>
+            <button class="btn-vlc-secondary" id="seriesModalBtnFavorite" onclick="toggleFavoriteCurrentSeries()">
+              ⭐ Minha Lista
+            </button>
+            <button class="btn-vlc-secondary" id="seriesModalBtnTrailer" onclick="openTrailerCurrentSeries()">
+              🎬 Trailer
             </button>
           </div>
         </div>
@@ -2563,6 +2620,12 @@
             </button>
             <button class="btn-vlc-secondary" id="movieModalBtnResume" onclick="resumeMovieFromModal()" style="display: none; background: rgba(229, 9, 20, 0.25); border-color: var(--primary); color: #fff;">
               ⏱️ Continuar de 00:00:00
+            </button>
+            <button class="btn-vlc-secondary" id="movieModalBtnFavorite" onclick="toggleFavoriteCurrentMovie()">
+              ⭐ Minha Lista
+            </button>
+            <button class="btn-vlc-secondary" id="movieModalBtnTrailer" onclick="openTrailerCurrentMovie()">
+              🎬 Trailer
             </button>
             <button class="btn-vlc-secondary" id="movieModalBtnVlc" onclick="vlcMovieFromModal()">
               Assistir no VLC (Áudio 5.1)
@@ -2771,6 +2834,20 @@
               </svg>
             </button>
 
+            <!-- AUDIO TRACKS MENU -->
+            <div class="dropdown">
+              <button class="btn-ctrl" onclick="toggleDropdown('audioMenu')" title="Faixas de Áudio">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
+                  <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
+                </svg>
+              </button>
+              <div id="audioMenu" class="dropdown-menu" style="min-width: 240px;">
+                <div style="font-size: 11px; font-weight: 800; color: var(--primary); text-transform: uppercase; padding: 4px 8px;">Faixa de Áudio</div>
+                <div id="audioTracksList"></div>
+              </div>
+            </div>
+
             <!-- SUBTITLES MENU -->
             <div class="dropdown">
               <button class="btn-ctrl" onclick="toggleDropdown('subtitlesMenu')" title="Legendas (C)">
@@ -2849,13 +2926,34 @@
     </div>
   </div>
 
-  <!-- MODAL CONECTAR TV / CELULAR (QR CODE) -->
+  <!-- MODAL DE TRAILER OFICIAL -->
+  <div id="trailerModal" class="series-modal" onclick="closeTrailerModalOnOut(event)">
+    <div class="series-modal-box" style="max-width: 860px; padding: 0; overflow: hidden; background: #0b0e14;">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--border);">
+        <div style="font-weight: 800; font-size: 1.1rem; color: #fff; display: flex; align-items: center; gap: 8px;">
+          <span>🎬 Trailer Oficial:</span>
+          <span id="trailerModalTitle" style="color: var(--primary);"></span>
+        </div>
+        <button class="series-modal-close" style="position: static;" onclick="closeTrailerModal()">&times;</button>
+      </div>
+      <div style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; background: #000;">
+        <iframe id="trailerIframe" style="position: absolute; top:0; left: 0; width: 100%; height: 100%; border: none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CONECTAR TV / CONTROLE REMOTO (QR CODE) -->
   <div id="qrModal" class="series-modal" onclick="closeQrModalOnOut(event)">
     <div class="series-modal-box qr-modal-box">
       <button class="series-modal-close" onclick="closeQrModal()">&times;</button>
-      <div style="font-size: 2.6rem; margin-bottom: 8px;">📺</div>
-      <h2 style="font-size: 1.4rem; color: #fff; margin-bottom: 6px;">Conectar Smart TV ou Celular</h2>
-      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+      
+      <div class="qr-tab-bar">
+        <button id="qrTabTv" class="qr-tab-btn active" onclick="switchQrTab('tv')">📺 Assistir na TV</button>
+        <button id="qrTabRemote" class="qr-tab-btn" onclick="switchQrTab('remote')">📱 Controle no Celular</button>
+      </div>
+
+      <h2 id="qrModalTitle" style="font-size: 1.3rem; color: #fff; margin-bottom: 6px;">Conectar Smart TV ou Celular</h2>
+      <p id="qrModalDesc" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
         Conecte seu dispositivo na mesma rede Wi-Fi e aponte a câmera para abrir o CineLocal:
       </p>
 
@@ -2868,7 +2966,7 @@
       </div>
 
       <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0;">
-        Ou digite o endereço acima no navegador web da sua Smart TV.
+        Disponível na sua rede local sem necessidade de instalação.
       </p>
     </div>
   </div>
@@ -2914,6 +3012,8 @@
       nextEpCountdownActive: false,
       nextEpDismissed: false,
       currentSurpriseMovie: null,
+      favorites: JSON.parse(localStorage.getItem('cinelocal_favorites') || '[]'),
+      audioTracks: [],
       watchProgress: JSON.parse(localStorage.getItem('cinelocal_watch_progress') || '{}'),
       watchedList: JSON.parse(localStorage.getItem('cinelocal_watched_list') || '{}')
     };
@@ -2940,6 +3040,25 @@
             }
           }
         } catch (e) {}
+
+        // Sincroniza progresso de reprodução e favoritos globais com o servidor
+        try {
+          const userRes = await fetch('/api/user_state');
+          if (userRes.ok) {
+            const userData = await userRes.json();
+            if (userData.watchProgress) {
+              state.watchProgress = Object.assign({}, state.watchProgress, userData.watchProgress);
+              localStorage.setItem('cinelocal_watch_progress', JSON.stringify(state.watchProgress));
+            }
+            if (userData.favorites) {
+              state.favorites = Array.from(new Set([...state.favorites, ...userData.favorites]));
+              localStorage.setItem('cinelocal_favorites', JSON.stringify(state.favorites));
+            }
+          }
+        } catch (e) {}
+
+        // Inicia ouvinte de comandos do controle remoto virtual (Celular -> TV)
+        setupRemoteControlListener();
       }
 
       // Carregar catálogo
@@ -3102,6 +3221,28 @@
       }
 
       localStorage.setItem('cinelocal_watch_progress', JSON.stringify(state.watchProgress));
+
+      // Sincroniza com o servidor local para manter Smart TV, Celular e PC alinhados
+      if (window.location.protocol.startsWith('http')) {
+        fetch('/api/progress', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            id: id,
+            currentTime: currentTime,
+            duration: duration,
+            item: {
+              title: media.title || '',
+              posterPath: media.posterPath || '',
+              isEpisode: !!state.currentEpisodeSeries,
+              seriesId: state.currentEpisodeSeries ? state.currentEpisodeSeries.series.id : null,
+              seasonIdx: state.currentEpisodeSeries ? state.currentEpisodeSeries.seasonIdx : null,
+              episodeNumber: state.currentEpisodeSeries ? state.currentEpisodeSeries.epNum : null
+            }
+          }),
+          keepalive: true
+        }).catch(() => {});
+      }
     }
 
     function isItemWatched(id) {
@@ -3141,6 +3282,107 @@
         renderHomeCarousels();
         renderMoviesGrid();
         showToast('Item removido de Continuar Assistindo');
+      }
+    }
+
+    /* MINHA LISTA (FAVORITOS) */
+    function isItemFavorite(id) {
+      return state.favorites && state.favorites.includes(id);
+    }
+
+    function toggleFavorite(id) {
+      if (!id) return;
+      if (!state.favorites) state.favorites = [];
+      const idx = state.favorites.indexOf(id);
+      let isFav = false;
+      if (idx !== -1) {
+        state.favorites.splice(idx, 1);
+        isFav = false;
+        showToast('Removido da Minha Lista');
+      } else {
+        state.favorites.unshift(id);
+        isFav = true;
+        showToast('Adicionado à Minha Lista ⭐');
+      }
+
+      localStorage.setItem('cinelocal_favorites', JSON.stringify(state.favorites));
+
+      if (window.location.protocol.startsWith('http')) {
+        fetch('/api/favorite/toggle', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ id: id })
+        }).catch(() => {});
+      }
+
+      renderHomeCarousels();
+      renderMoviesGrid();
+      renderSeriesGrid();
+    }
+
+    function toggleFavoriteCurrentMovie() {
+      if (currentModalMovie) {
+        toggleFavorite(currentModalMovie.id);
+        const favBtn = document.getElementById('movieModalBtnFavorite');
+        if (favBtn) {
+          const isFav = isItemFavorite(currentModalMovie.id);
+          favBtn.classList.toggle('active', isFav);
+          favBtn.innerText = isFav ? '⭐ Na Minha Lista' : '⭐ Minha Lista';
+        }
+      }
+    }
+
+    function toggleFavoriteCurrentSeries() {
+      const title = document.getElementById('seriesModalTitle').innerText;
+      const series = state.series.find(s => s.title === title || s.id === title);
+      if (series) {
+        toggleFavorite(series.id);
+        const favBtn = document.getElementById('seriesModalBtnFavorite');
+        if (favBtn) {
+          const isFav = isItemFavorite(series.id);
+          favBtn.classList.toggle('active', isFav);
+          favBtn.innerText = isFav ? '⭐ Na Minha Lista' : '⭐ Minha Lista';
+        }
+      }
+    }
+
+    /* MODAL DE TRAILER OFICIAL */
+    function openTrailerModal(title, year) {
+      const modal = document.getElementById('trailerModal');
+      const titleEl = document.getElementById('trailerModalTitle');
+      const iframe = document.getElementById('trailerIframe');
+      if (!modal || !iframe) return;
+
+      if (titleEl) titleEl.innerText = title;
+      const q = encodeURIComponent(`trailer dublado oficial ${title} ${year || ''}`);
+      iframe.src = `https://www.youtube-nocookie.com/embed?listType=search&list=${q}&autoplay=1`;
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeTrailerModal() {
+      const modal = document.getElementById('trailerModal');
+      const iframe = document.getElementById('trailerIframe');
+      if (modal) modal.classList.remove('active');
+      if (iframe) iframe.src = '';
+      document.body.style.overflow = '';
+    }
+
+    function closeTrailerModalOnOut(e) {
+      if (e.target.id === 'trailerModal') closeTrailerModal();
+    }
+
+    function openTrailerCurrentMovie() {
+      if (currentModalMovie) {
+        openTrailerModal(currentModalMovie.title, currentModalMovie.year);
+      }
+    }
+
+    function openTrailerCurrentSeries() {
+      const title = document.getElementById('seriesModalTitle').innerText;
+      const series = state.series.find(s => s.title === title || s.id === title);
+      if (series) {
+        openTrailerModal(series.title, series.year);
       }
     }
 
@@ -3186,6 +3428,16 @@
 
       if (continueItems.length > 0) {
         addContinueWatchingCarousel(container, '⏱️ Continuar Assistindo', continueItems);
+      }
+
+      // 0.1 MINHA LISTA (FAVORITOS)
+      if (state.favorites && state.favorites.length > 0) {
+        const favItems = state.favorites
+          .map(favId => state.movies.find(m => m.id === favId) || state.series.find(s => s.id === favId))
+          .filter(Boolean);
+        if (favItems.length > 0) {
+          addCarousel(container, '⭐ Minha Lista', favItems);
+        }
       }
 
       // 1. ADICIONADOS RECENTEMENTE (Ordenados pelo timestamp real mtime gravado no catalogo!)
@@ -3526,6 +3778,9 @@
                 </svg>
                 ${isSeries ? 'Episódios' : (prog && prog.pct >= 2 && !prog.completed ? 'Continuar' : 'Assistir')}
               </button>
+              <button class="card-btn-fav" onclick="event.stopPropagation(); toggleFavorite('${item.id}')" title="${isItemFavorite(item.id) ? 'Remover da Minha Lista' : 'Adicionar à Minha Lista'}">
+                ${isItemFavorite(item.id) ? '⭐' : '☆'}
+              </button>
               ${(!isSeries && state.vlcAvailable) ? `
               <button class="card-btn-vlc" onclick="event.stopPropagation(); launchVlc('${item.videoPath}')" title="Assistir no VLC (Áudio 5.1)">
                 VLC
@@ -3584,16 +3839,23 @@
 
       let filtered = [...state.movies];
 
+      // Busca Inteligente: Título, Franquia, Ano, Diretor, Elenco, Gêneros e Sinopse
       if (state.searchQuery) {
         const q = state.searchQuery.toLowerCase();
         filtered = filtered.filter(m => 
-          m.title.toLowerCase().includes(q) || 
+          (m.title && m.title.toLowerCase().includes(q)) || 
           (m.franchise && m.franchise.toLowerCase().includes(q)) || 
-          (m.year && m.year.toString().includes(q))
+          (m.year && m.year.toString().includes(q)) ||
+          (m.director && m.director.toLowerCase().includes(q)) ||
+          (m.cast && m.cast.some(a => a.toLowerCase().includes(q))) ||
+          (m.genres && m.genres.some(g => g.toLowerCase().includes(q))) ||
+          (m.overview && m.overview.toLowerCase().includes(q))
         );
       }
 
-      if (state.movieFilter === 'unwatched') {
+      if (state.movieFilter === 'favorites') {
+        filtered = filtered.filter(m => isItemFavorite(m.id));
+      } else if (state.movieFilter === 'unwatched') {
         filtered = filtered.filter(m => !isItemWatched(m.id));
       } else if (state.movieFilter === 'franchise') {
         filtered = filtered.filter(m => m.franchise);
@@ -3649,8 +3911,19 @@
         `;
         return;
       }
-      grid.innerHTML = state.series.map(s => createCardHtml(s, false)).join('');
-      document.getElementById('seriesCountLabel').innerText = `${state.series.length} séries disponíveis`;
+      let filtered = [...state.series];
+      if (state.searchQuery) {
+        const q = state.searchQuery.toLowerCase();
+        filtered = filtered.filter(s => 
+          (s.title && s.title.toLowerCase().includes(q)) || 
+          (s.creator && s.creator.toLowerCase().includes(q)) || 
+          (s.cast && s.cast.some(a => a.toLowerCase().includes(q))) || 
+          (s.genres && s.genres.some(g => g.toLowerCase().includes(q))) || 
+          (s.overview && s.overview.toLowerCase().includes(q))
+        );
+      }
+      grid.innerHTML = filtered.map(s => createCardHtml(s, false)).join('');
+      document.getElementById('seriesCountLabel').innerText = `${filtered.length} de ${state.series.length} séries disponíveis`;
     }
 
     /* MODAL DE SÉRIES */
@@ -3711,6 +3984,14 @@
         const isWatched = isItemWatched(series.id);
         seriesWatchedBtn.classList.toggle('active', isWatched);
         seriesWatchedBtn.innerText = isWatched ? '✓ Já Assistido' : '✓ Marcar como Assistido';
+      }
+
+      // Botão de Minha Lista
+      const seriesFavBtn = document.getElementById('seriesModalBtnFavorite');
+      if (seriesFavBtn) {
+        const isFav = isItemFavorite(series.id);
+        seriesFavBtn.classList.toggle('active', isFav);
+        seriesFavBtn.innerText = isFav ? '⭐ Na Minha Lista' : '⭐ Minha Lista';
       }
 
       // Renderizar Tabs de Temporadas
@@ -3818,6 +4099,14 @@
         const watched = isItemWatched(movie.id);
         watchedBtn.classList.toggle('active', watched);
         watchedBtn.innerText = watched ? '✓ Já Assistido' : '✓ Marcar como Assistido';
+      }
+
+      // Minha Lista status
+      const favBtn = document.getElementById('movieModalBtnFavorite');
+      if (favBtn) {
+        const isFav = isItemFavorite(movie.id);
+        favBtn.classList.toggle('active', isFav);
+        favBtn.innerText = isFav ? '⭐ Na Minha Lista' : '⭐ Minha Lista';
       }
 
       document.getElementById('movieDetailsModal').classList.add('active');
@@ -4528,11 +4817,55 @@
         disableSubtitles(false);
       }
 
+      // Faixas de Áudio
+      const audioList = document.getElementById('audioTracksList');
+      if (audioList) {
+        audioList.innerHTML = '<div style="font-size: 12px; color: var(--text-muted); padding: 4px 8px;">Detectando áudios...</div>';
+        if (window.location.protocol.startsWith('http')) {
+          fetch(`/api/audio_info?path=${encodeURIComponent(media.videoPath)}`)
+            .then(r => r.ok ? r.json() : Promise.reject())
+            .then(data => {
+              if (data.streams && data.streams.length > 0) {
+                audioList.innerHTML = '';
+                data.streams.forEach(st => {
+                  const btn = document.createElement('button');
+                  btn.className = 'dropdown-item' + (st.index === 1 ? ' active' : '');
+                  btn.innerText = st.label;
+                  btn.onclick = () => selectAudioTrack(media, st.index);
+                  audioList.appendChild(btn);
+                });
+              } else {
+                audioList.innerHTML = '<div style="font-size: 12px; color: var(--text-muted); padding: 4px 8px;">Áudio Padrão (Nativo)</div>';
+              }
+            })
+            .catch(() => {
+              audioList.innerHTML = '<div style="font-size: 12px; color: var(--text-muted); padding: 4px 8px;">Áudio Padrão (Nativo)</div>';
+            });
+        } else {
+          audioList.innerHTML = '<div style="font-size: 12px; color: var(--text-muted); padding: 4px 8px;">Áudio Padrão (Nativo)</div>';
+        }
+      }
+
       updateSubSyncUI();
       document.getElementById('playerModal').classList.add('active');
       document.body.style.overflow = 'hidden';
 
       resetControlsTimer();
+    }
+
+    function selectAudioTrack(media, audioIndex) {
+      const video = document.getElementById('mainVideo');
+      if (!video) return;
+      const curr = video.currentTime;
+      video.pause();
+      video.src = `/api/stream?path=${encodeURIComponent(media.videoPath)}&audio=${audioIndex}&ss=${Math.floor(curr)}`;
+      video.load();
+      video.play().catch(() => {});
+      document.querySelectorAll('#audioTracksList .dropdown-item').forEach((btn, idx) => {
+        btn.classList.toggle('active', idx === (audioIndex - 1));
+      });
+      toggleDropdown('audioMenu');
+      showToast('Faixa de áudio alterada');
     }
 
     function closePlayer() {
@@ -4966,25 +5299,47 @@
       }
     }
 
-    /* MODAL CONECTAR SMART TV OU CELULAR (QR CODE) */
-    function openQrConnectModal() {
+    /* MODAL CONECTAR SMART TV OU CONTROLE REMOTO (QR CODE) */
+    function openQrConnectModal(initialTab = 'tv') {
       const modal = document.getElementById('qrModal');
       if (!modal) return;
+      switchQrTab(initialTab);
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
 
-      const displayUrl = state.localUrl || `http://${window.location.hostname || 'localhost'}:8000/`;
+    function switchQrTab(tabName) {
+      const isRemote = (tabName === 'remote');
+      const baseIpUrl = state.localUrl || `http://${window.location.hostname || 'localhost'}:8000/`;
+      const targetUrl = isRemote ? `${baseIpUrl.replace(/\/$/, '')}/remote` : baseIpUrl;
+
+      const tabTv = document.getElementById('qrTabTv');
+      const tabRemote = document.getElementById('qrTabRemote');
+      if (tabTv) tabTv.classList.toggle('active', !isRemote);
+      if (tabRemote) tabRemote.classList.toggle('active', isRemote);
+
+      const titleEl = document.getElementById('qrModalTitle');
+      if (titleEl) {
+        titleEl.innerText = isRemote ? '📱 Controle Remoto Virtual' : '📺 Conectar Smart TV ou Celular';
+      }
+
+      const descEl = document.getElementById('qrModalDesc');
+      if (descEl) {
+        descEl.innerText = isRemote 
+          ? 'Abra a câmera do seu celular para comandar a Smart TV sem mouse nem teclado:'
+          : 'Conecte seu dispositivo na mesma rede Wi-Fi e aponte a câmera para abrir o CineLocal:';
+      }
+
       const urlEl = document.getElementById('qrLocalUrlDisplay');
-      if (urlEl) urlEl.innerText = displayUrl;
+      if (urlEl) urlEl.innerText = targetUrl;
 
       const qrWrapper = document.getElementById('qrSvgWrapper');
       if (qrWrapper) {
-        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(displayUrl)}&bgcolor=13-17-22&color=ffffff&margin=10`;
+        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(targetUrl)}&bgcolor=13-17-22&color=ffffff&margin=10`;
         qrWrapper.innerHTML = `
-          <img src="${qrApiUrl}" alt="QR Code CineLocal" style="width: 220px; height: 220px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.6);" onerror="this.onerror=null; this.parentElement.innerHTML='<div style=\\'padding: 24px; color: var(--text-muted); font-size: 0.9rem; text-align: center;\\'>📡 Conecte seu dispositivo na mesma rede Wi-Fi e digite o endereço abaixo no navegador.</div>';">
+          <img src="${qrApiUrl}" alt="QR Code CineLocal" style="width: 220px; height: 220px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.6);" onerror="this.onerror=null; this.parentElement.innerHTML='<div style=\\'padding: 24px; color: var(--text-muted); font-size: 0.9rem; text-align: center;\\'>📡 Acesse este endereço no celular: <br><strong>${targetUrl}</strong></div>';">
         `;
       }
-
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden';
     }
 
     function closeQrModal() {
@@ -4995,6 +5350,143 @@
 
     function closeQrModalOnOut(e) {
       if (e.target.id === 'qrModal') closeQrModal();
+    }
+
+    /* RECEPTOR DO CONTROLE REMOTO VIRTUAL (SMART TV / PC) */
+    function setupRemoteControlListener() {
+      if (!window.location.protocol.startsWith('http')) return;
+
+      function executeRemoteCommand(action, payload) {
+        const isPlayerOpen = document.getElementById('playerModal') && document.getElementById('playerModal').classList.contains('active');
+
+        switch(action) {
+          case 'up':
+            if (isPlayerOpen) {
+              setPlayerVolume(playerVolume + 5, true);
+            } else {
+              handleDpadNavigation('ArrowUp');
+            }
+            break;
+          case 'down':
+            if (isPlayerOpen) {
+              setPlayerVolume(playerVolume - 5, true);
+            } else {
+              handleDpadNavigation('ArrowDown');
+            }
+            break;
+          case 'left':
+            if (isPlayerOpen) {
+              skipTime(-10);
+            } else {
+              handleDpadNavigation('ArrowLeft');
+            }
+            break;
+          case 'right':
+            if (isPlayerOpen) {
+              skipTime(10);
+            } else {
+              handleDpadNavigation('ArrowRight');
+            }
+            break;
+          case 'enter':
+            if (isPlayerOpen) {
+              togglePlayPause();
+            } else {
+              if (document.activeElement && typeof document.activeElement.click === 'function') {
+                document.activeElement.click();
+              }
+            }
+            break;
+          case 'play_pause':
+            togglePlayPause();
+            break;
+          case 'skip_fwd':
+            skipTime(10);
+            break;
+          case 'skip_bwd':
+            skipTime(-10);
+            break;
+          case 'vol_up':
+            setPlayerVolume(playerVolume + 5, true);
+            break;
+          case 'vol_down':
+            setPlayerVolume(playerVolume - 5, true);
+            break;
+          case 'mute':
+            toggleMute();
+            break;
+          case 'fullscreen':
+            toggleFullscreen();
+            break;
+          case 'sub_sync_minus':
+            adjustSubSync(-0.1);
+            break;
+          case 'sub_sync_plus':
+            adjustSubSync(0.1);
+            break;
+          case 'sub_toggle':
+            if (state.activeSubtitle) {
+              disableSubtitles(true);
+            } else if (state.currentPlaying && state.currentPlaying.subtitles && state.currentPlaying.subtitles.length > 0) {
+              selectSubtitle(state.currentPlaying.subtitles[0].path, true);
+            }
+            break;
+          case 'back':
+            if (isPlayerOpen) {
+              closePlayer();
+            } else {
+              closeMovieModal();
+              closeSeriesModal();
+              closeSurpriseModal();
+              closeTrailerModal();
+              closeQrModal();
+            }
+            break;
+        }
+      }
+
+      let sseActive = false;
+      try {
+        const evtSource = new EventSource('/api/remote/events');
+        evtSource.onopen = () => {
+          sseActive = true;
+        };
+        evtSource.onmessage = (e) => {
+          try {
+            const data = JSON.parse(e.data);
+            if (data && data.action) {
+              executeRemoteCommand(data.action, data.payload);
+            }
+          } catch (err) {}
+        };
+        evtSource.onerror = () => {
+          if (!sseActive) {
+            startPollingFallback(executeRemoteCommand);
+          }
+        };
+      } catch (e) {
+        startPollingFallback(executeRemoteCommand);
+      }
+    }
+
+    let lastPolledRemoteId = 0;
+    function startPollingFallback(callback) {
+      setInterval(async () => {
+        try {
+          const res = await fetch(`/api/remote/poll?since=${lastPolledRemoteId}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.events && data.events.length > 0) {
+              data.events.forEach(ev => {
+                if (ev.id > lastPolledRemoteId) {
+                  lastPolledRemoteId = ev.id;
+                  callback(ev.action, ev.payload);
+                }
+              });
+            }
+          }
+        } catch (e) {}
+      }, 500);
     }
 
     /* NAVEGAÇÃO D-PAD PARA SMART TV E CONTROLE REMOTO */
@@ -5073,6 +5565,7 @@
           closeMovieModal();
           closeMcuTrackerModal();
           closeSurpriseModal();
+          closeTrailerModal();
           closeQrModal();
         }
 
@@ -5124,8 +5617,15 @@
             adjustSubSync(0.1);
           }
         } else {
-          // Fora do player: Smart TV D-Pad e Enter
-          if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+          // Fora do player: Atalho / para Busca, Smart TV D-Pad e Enter
+          if (e.key === '/') {
+            e.preventDefault();
+            const searchInput = document.getElementById('globalSearchInput');
+            if (searchInput) {
+              searchInput.focus();
+              searchInput.select();
+            }
+          } else if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
             e.preventDefault();
             handleDpadNavigation(e.key);
           } else if (e.key === 'Enter') {
