@@ -15,6 +15,8 @@ import urllib.parse
 import subprocess
 import re
 import shutil
+import time
+from datetime import datetime
 from atualizar_catalogo import build_catalog
 
 PORT = 8000
@@ -24,6 +26,21 @@ PORTABLE_VLC = os.path.join(APP_DIR, "vlc", "vlc.exe")
 SYSTEM_VLC = r"C:\Program Files\VideoLAN\VLC\vlc.exe"
 
 AUDIO_CACHE = {}
+_CLIENT_ACTIVITY_CACHE = {}
+
+def should_log_activity(key, window_seconds=12):
+    """Evita flooding de logs em requisições repetidas num intervalo curto."""
+    now = time.time()
+    last = _CLIENT_ACTIVITY_CACHE.get(key, 0)
+    if now - last > window_seconds:
+        _CLIENT_ACTIVITY_CACHE[key] = now
+        return True
+    return False
+
+def log_event(icon, tag, message):
+    """Exibe logs limpos e padronizados com timestamp e emojis."""
+    ts = datetime.now().strftime("%H:%M:%S")
+    print(f"[{ts}] {icon}  {tag:<13} {message}")
 
 def get_ffmpeg_bin():
     """Localiza o FFmpeg na pasta app/bin, no PATH do sistema ou em caminhos padroes."""
@@ -103,16 +120,40 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=MOVIES_DIR, **kwargs)
 
+    def log_message(self, format, *args):
+        # Silencia o spam das requisições HTTP 200/206/304 rotineiras
+        pass
+
+    def log_error(self, format, *args):
+        # Ignora ruídos comuns de desconexão rápida durante seek de vídeo
+        msg = format % args
+        if any(err in msg for err in ['10054', '10053', 'Broken pipe', 'ConnectionResetError']):
+            return
+        log_event("⚠️", "AVISO", msg)
+
+    def copyfile(self, source, outputfile):
+        try:
+            super().copyfile(source, outputfile)
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+
     def do_GET(self):
+        client_ip = self.client_address[0]
         parsed = urllib.parse.urlparse(self.path)
         
         # Redireciona a raiz para a aplicação CineLocal
         if parsed.path in ('/', '', '/index.html'):
+            if should_log_activity(('ui', client_ip), 10):
+                log_event("🌐", "INTERFACE", f"Cliente conectado ({client_ip})")
             self.send_response(302)
             self.send_header('Location', '/app/index.html')
             self.end_headers()
             return
             
+        if parsed.path in ('/app/index.html', '/app/'):
+            if should_log_activity(('ui', client_ip), 10):
+                log_event("🌐", "INTERFACE", f"Cliente conectado ({client_ip})")
+
         if parsed.path.startswith('/CineLocal/'):
             self.send_response(301)
             self.send_header('Location', parsed.path.replace('/CineLocal/', '/app/'))
@@ -140,6 +181,8 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
         # API para sincronizar catálogo dinamicamente
         if parsed.path == '/api/filmes':
             try:
+                if should_log_activity(('catalog', client_ip), 5):
+                    log_event("⚡", "CATÁLOGO", f"Sincronização solicitada por {client_ip}")
                 catalog = build_catalog()
                 data = json.dumps(catalog, ensure_ascii=False).encode('utf-8')
                 self.send_response(200)
@@ -150,6 +193,7 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(data)
                 return
             except Exception as e:
+                log_event("❌", "ERRO", f"Falha ao carregar catálogo: {e}")
                 self.send_error(500, f'Erro ao carregar catálogo: {e}')
                 return
 
@@ -181,6 +225,8 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                             close_fds=True,
                             creationflags=creation_flag
                         )
+                        movie_name = os.path.basename(full_movie_path)
+                        log_event("🚀", "VLC EXTERNO", f"Abrindo '{movie_name}' ({client_ip})")
                         response_data = json.dumps({"status": "ok", "message": "VLC iniciado", "vlc": vlc_bin}).encode('utf-8')
                         self.send_response(200)
                         self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -217,6 +263,9 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                 if not audio_idx:
                     audio_idx = get_best_audio_stream(full_movie_path)
                 
+                movie_name = os.path.basename(full_movie_path)
+                log_event("🔊", "DIRECT STREAM", f"Transcodificando áudio AAC para '{movie_name}' ({client_ip})")
+
                 # Monta comando FFmpeg Direct Stream (Vídeo cópia 100%, Áudio AAC estéreo)
                 cmd = [
                     ffmpeg_bin,
@@ -275,12 +324,23 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             self.send_error(404, 'Arquivo não encontrado')
             return None
         
+        lower_path = path.lower()
+        client_ip = self.client_address[0]
+        if any(lower_path.endswith(ext) for ext in ('.mp4', '.mkv', '.avi', '.mov', '.webm')):
+            fname = os.path.basename(path)
+            if should_log_activity(('stream', client_ip, path), 12):
+                log_event("🍿", "STREAMING", f"Reproduzindo '{fname}' para {client_ip}")
+        elif lower_path.endswith('.srt'):
+            fname = os.path.basename(path)
+            if should_log_activity(('sub', client_ip, path), 10):
+                log_event("💬", "LEGENDA", f"Carregando legenda: '{fname}' ({client_ip})")
+
         ctype = self.guess_type(path)
-        if path.lower().endswith('.mkv'):
+        if lower_path.endswith('.mkv'):
             ctype = 'video/x-matroska'
-        elif path.lower().endswith('.mp4'):
+        elif lower_path.endswith('.mp4'):
             ctype = 'video/mp4'
-        elif path.lower().endswith('.srt'):
+        elif lower_path.endswith('.srt'):
             ctype = 'text/plain; charset=utf-8'
 
         try:
@@ -331,11 +391,11 @@ class ThreadingServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
     allow_reuse_address = True
 
 def run():
-    print("Verificando e sincronizando catálogo CineLocal...")
+    print("\n📦 Sincronizando catálogo CineLocal...")
     try:
         build_catalog()
     except Exception as e:
-        print(f"Aviso ao compilar catálogo: {e}")
+        log_event("⚠️", "CATÁLOGO", f"Aviso ao compilar catálogo: {e}")
     
     local_ip = get_local_ip()
     local_url = f'http://localhost:{PORT}/'
@@ -343,27 +403,27 @@ def run():
     
     vlc_bin = get_vlc_path()
     ffmpeg_bin = get_ffmpeg_bin()
-    vlc_status = f"Detectado ({vlc_bin})" if vlc_bin else "Nao detectado (Opcional - codecs TrueHD/DTS)"
-    ffmpeg_status = f"Detectado ({ffmpeg_bin})" if ffmpeg_bin else "Nao detectado (Opcional - analise de audio)"
+    vlc_status = f"✅ Ativo ({os.path.basename(vlc_bin)})" if vlc_bin else "⚠️  Não detectado (Opcional - codecs TrueHD/DTS)"
+    ffmpeg_status = f"✅ Ativo ({os.path.basename(ffmpeg_bin)})" if ffmpeg_bin else "⚠️  Não detectado (Opcional - áudio web)"
 
     banner = f"""
 ================================================================================
-           CINELOCAL - SERVIDOR DE STREAMING ATIVO (MULTITHREAD)
+  🍿 CINELOCAL • SERVIDOR DE STREAMING ATIVO (MULTITHREAD)
 ================================================================================
 
-  > No seu Computador:   {local_url}
-  > Na sua Smart TV:     {tv_url}
-  > No Celular / Tablet: {tv_url}
+  🌐 No seu Computador:   {local_url}
+  📺 Na sua Smart TV:     {tv_url}
+  📱 No Celular / Tablet: {tv_url}
 
-  - Streaming HTTP 206 (Seek fluido em 4K e 1080p)
-  - Player Web Nativo com Volume Boost ate 200%
-  - VLC Media Player: {vlc_status}
-  - FFmpeg:           {ffmpeg_status}
+  ⚡ HTTP 206 Streaming:  Ativo (seek instantâneo em 1080p e 4K)
+  🚀 VLC Media Player:    {vlc_status}
+  🎵 Motor FFmpeg:        {ffmpeg_status}
 
-  Pressione Ctrl + C no terminal para encerrar o servidor.
+  💡 Pressione Ctrl + C no terminal para encerrar o servidor.
 ================================================================================
 """
     print(banner)
+    print("📡 Aguardando reproduções e conexões de mídia...\n")
     
     try:
         webbrowser.open(local_url)
@@ -374,7 +434,7 @@ def run():
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
-            print("\nServidor encerrado. Bom filme!")
+            print("\n👋 Servidor CineLocal encerrado com sucesso. Bom filme!\n")
 
 if __name__ == '__main__':
     run()

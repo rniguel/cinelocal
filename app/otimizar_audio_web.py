@@ -11,25 +11,78 @@ import sys
 import subprocess
 import time
 import re
-from atualizar_catalogo import build_catalog
+import shutil
+
+# Ensure APP_DIR is in sys.path
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
+if APP_DIR not in sys.path:
+    sys.path.insert(0, APP_DIR)
+
+from atualizar_catalogo import build_catalog, get_ffmpeg_bin
 
 try:
-    sys.stdout.reconfigure(line_buffering=True)
+    sys.stdout.reconfigure(line_buffering=True, encoding='utf-8')
 except Exception:
     pass
 
-APP_DIR = os.path.dirname(os.path.abspath(__file__))
 MOVIES_DIR = os.path.dirname(APP_DIR)
-FFMPEG_BIN = os.path.join(APP_DIR, "bin", "ffmpeg.exe")
 
-def get_mkv_streams(filepath):
-    res = subprocess.run([FFMPEG_BIN, "-i", filepath], capture_output=True, text=True, encoding="utf-8", errors="ignore")
-    lines = res.stderr.split("\n")
-    
+def format_size(bytes_val):
+    if bytes_val >= 1024 ** 3:
+        return f"{bytes_val / (1024 ** 3):.2f} GB"
+    elif bytes_val >= 1024 ** 2:
+        return f"{bytes_val / (1024 ** 2):.1f} MB"
+    return f"{bytes_val / 1024:.0f} KB"
+
+def format_duration(seconds):
+    if not seconds or seconds <= 0:
+        return "Desconhecida"
+    h = int(seconds // 3600)
+    m = int((seconds % 3600) // 60)
+    s = int(seconds % 60)
+    if h > 0:
+        return f"{h}h {m:02d}m"
+    return f"{m}m {s:02d}s"
+
+def format_eta(seconds):
+    if seconds <= 0:
+        return "concluindo..."
+    m = int(seconds // 60)
+    s = int(seconds % 60)
+    if m > 0:
+        return f"~{m}m {s:02d}s"
+    return f"~{s}s"
+
+def get_progress_bar(current, total, width=20):
+    pct = current / total if total > 0 else 1.0
+    filled = int(width * pct)
+    bar = "█" * filled + "░" * (width - filled)
+    return f"[{bar}] {int(pct * 100)}%"
+
+def get_mkv_details(filepath, ffmpeg_bin):
+    """Extrai trilhas de áudio, vídeo e duração total do arquivo."""
+    try:
+        res = subprocess.run(
+            [ffmpeg_bin, "-i", filepath],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="ignore"
+        )
+        lines = res.stderr.split("\n")
+    except Exception:
+        return [], [], 0
+
     audio_streams = []
     video_streams = []
+    duration_secs = 0
     
     for l in lines:
+        if "Duration:" in l:
+            m_dur = re.search(r"Duration:\s*(\d{2}):(\d{2}):(\d{2})", l)
+            if m_dur:
+                duration_secs = int(m_dur.group(1)) * 3600 + int(m_dur.group(2)) * 60 + int(m_dur.group(3))
+
         m = re.search(r"Stream #0:(\d+)(?:\(([a-zA-Z]+)\))?.*?: (Video|Audio): (.*)", l)
         if m:
             st_idx = int(m.group(1))
@@ -50,7 +103,7 @@ def get_mkv_streams(filepath):
             elif st_type == "Video":
                 video_streams.append(info)
                 
-    return video_streams, audio_streams
+    return video_streams, audio_streams, duration_secs
 
 def needs_web_audio(audio_streams):
     if not audio_streams:
@@ -69,26 +122,22 @@ def needs_web_audio(audio_streams):
         
     return True, best_track
 
-def process_file(filepath):
-    rel_path = os.path.relpath(filepath, MOVIES_DIR)
-    v_streams, a_streams = get_mkv_streams(filepath)
-    
-    needed, best_audio = needs_web_audio(a_streams)
-    if not needed:
-        return False, f"Já compatível: {rel_path}"
-        
+def process_file(filepath, ffmpeg_bin, best_audio, duration_secs):
+    rel_path = os.path.relpath(filepath, MOVIES_DIR).replace('\\', '/')
     orig_size = os.path.getsize(filepath)
     dir_name = os.path.dirname(filepath)
     base_name = os.path.basename(filepath)
     temp_filepath = os.path.join(dir_name, base_name + ".temp.mkv")
     
+    _, a_streams, _ = get_mkv_details(filepath, ffmpeg_bin)
+    
     # Monta comando FFmpeg:
-    # 1. Copia vídeo
+    # 1. Copia vídeo 100% sem perdas (copy)
     # 2. Injeta AAC estéreo (192kbps) como faixa padrão #0
-    # 3. Copia todas as faixas de áudio originais (TrueHD Atmos, AC3 5.1, etc.)
-    # 4. Copia todas as legendas embutidas
+    # 3. Preserva todas as faixas originais de áudio (TrueHD Atmos, DTS, AC3)
+    # 4. Preserva todas as legendas embutidas
     cmd = [
-        FFMPEG_BIN,
+        ffmpeg_bin,
         "-y",
         "-nostdin",
         "-nostats",
@@ -107,7 +156,6 @@ def process_file(filepath):
         "-disposition:a:0", "default"
     ]
     
-    # Remove a flag default das faixas originais para que o navegador priorize a faixa AAC
     for idx in range(1, len(a_streams) + 1):
         cmd.extend([f"-disposition:a:{idx}", "0"])
         
@@ -118,41 +166,60 @@ def process_file(filepath):
     ])
     
     t0 = time.time()
-    proc = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+    proc = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="ignore")
     stderr_out, _ = proc.communicate()
+    elapsed = time.time() - t0
     
     if proc.returncode != 0 or not os.path.exists(temp_filepath):
         err_msg = stderr_out.strip() if stderr_out else "Erro desconhecido"
         if os.path.exists(temp_filepath):
-            os.remove(temp_filepath)
-        return False, f"Erro ao converter: {rel_path} ({err_msg})"
+            try:
+                os.remove(temp_filepath)
+            except Exception:
+                pass
+        return False, f"Falha na conversão ({err_msg})", elapsed
         
     temp_size = os.path.getsize(temp_filepath)
-    # Validação de segurança: temp_size deve ser pelo menos 90% do original
+    # Validação de integridade: temp_size deve ser pelo menos 90% do original
     if temp_size < orig_size * 0.90:
-        os.remove(temp_filepath)
-        return False, f"Tamanho inconsistente ({temp_size} vs {orig_size}): {rel_path}"
+        if os.path.exists(temp_filepath):
+            try:
+                os.remove(temp_filepath)
+            except Exception:
+                pass
+        return False, f"Tamanho inconsistente ({format_size(temp_size)} vs original {format_size(orig_size)})", elapsed
         
     # Substituição atômica segura
     os.replace(temp_filepath, filepath)
-    elapsed = time.time() - t0
-    return True, f"Otimizado com sucesso em {elapsed:.1f}s: {rel_path}"
+    
+    speed_x = (duration_secs / elapsed) if (duration_secs > 0 and elapsed > 0) else 0
+    speed_str = f" • {speed_x:.0f}x tempo real" if speed_x > 0 else ""
+    return True, f"Concluído em {elapsed:.1f}s{speed_str} ({format_size(temp_size)})", elapsed
 
 def main():
-    if not os.path.exists(FFMPEG_BIN):
-        print(f"Erro: FFmpeg não encontrado em {FFMPEG_BIN}")
+    ffmpeg_bin = get_ffmpeg_bin()
+    
+    print("\n" + "=" * 76)
+    print("      🎬 CINELOCAL - OTIMIZADOR DE ÁUDIO WEB (CHROME / SMART TV)")
+    print("=" * 76)
+    
+    if not ffmpeg_bin:
+        print("\n❌ [ERRO] FFmpeg não encontrado!")
+        print("   Para converter áudio para navegadores e Smart TVs, o FFmpeg é necessário.")
+        print("   • Baixe em: https://ffmpeg.org/download.html")
+        print("   • Ou instale via PowerShell: winget install Gyan.FFmpeg")
+        print("=" * 76 + "\n")
         return
         
-    print("=" * 70)
-    print("      CINELOCAL - OTIMIZADOR DE ÁUDIO PARA NAVEGADOR E SMART TV")
-    print("=" * 70)
-    print("Escaneando biblioteca de filmes...")
+    print(f"⚙️  FFmpeg detectado: {ffmpeg_bin}")
+    print("🔍 Escaneando biblioteca de filmes em busca de faixas de cinema sem AAC...\n")
     
     media_folder = os.path.join(MOVIES_DIR, "media")
-    mkv_files = []
     scan_target = media_folder if os.path.exists(media_folder) else MOVIES_DIR
+    
+    mkv_files = []
     for root, dirs, files in os.walk(scan_target):
-        if "app" in root or "CineLocal" in root or ".gemini" in root:
+        if any(skip in root for skip in ("app", "CineLocal", ".gemini", ".git")):
             continue
         for f in files:
             if f.lower().endswith('.mkv'):
@@ -162,35 +229,77 @@ def main():
     
     targets = []
     for p in mkv_files:
-        v, a = get_mkv_streams(p)
+        v, a, dur = get_mkv_details(p, ffmpeg_bin)
         needed, best = needs_web_audio(a)
         if needed:
-            targets.append((p, best))
+            targets.append({
+                "path": p,
+                "best_audio": best,
+                "duration": dur,
+                "size": os.path.getsize(p)
+            })
             
     total = len(targets)
-    print(f"Total de filmes MKV que necessitam de trilha AAC Web: {total}\n")
     
     if total == 0:
-        print("Todos os filmes já possuem compatibilidade nativa com o navegador!")
+        print("✨ [PARABÉNS] Todos os filmes da sua biblioteca já possuem áudio AAC compatível!")
+        print("   Seus vídeos tocarão com som diretamente no Chrome, Edge, Celular e Smart TV.")
+        print("=" * 76 + "\n")
         return
         
+    total_size_bytes = sum(t["size"] for t in targets)
+    print(f"🎯 Total de filmes a otimizar: {total} ({format_size(total_size_bytes)})")
+    print("⚡ Processo 100% lossless: O vídeo não é recodificado (0% perda de qualidade).")
+    print("-" * 76)
+    
     success_count = 0
-    for i, (p, best) in enumerate(targets, 1):
-        rel = os.path.relpath(p, MOVIES_DIR)
-        print(f"[{i}/{total}] Processando: {rel} (Base: #{best['index']} {best['lang']}:{best['codec']})...")
-        ok, msg = process_file(p)
+    total_time_spent = 0.0
+    
+    for i, item in enumerate(targets, 1):
+        p = item["path"]
+        best = item["best_audio"]
+        dur = item["duration"]
+        size_str = format_size(item["size"])
+        dur_str = format_duration(dur)
+        rel_path = os.path.relpath(p, MOVIES_DIR).replace('\\', '/')
+        
+        # Estimativa de tempo restante (ETA)
+        if i > 1 and success_count > 0:
+            avg_per_file = total_time_spent / success_count
+            remaining_files = total - (i - 1)
+            eta_str = format_eta(avg_per_file * remaining_files)
+        else:
+            eta_str = "calculando..."
+            
+        progress = get_progress_bar(i - 1, total)
+        
+        print(f"\n[{i}/{total}] {progress} • Estimativa restante: {eta_str}")
+        print(f"🎬 Filme:    {rel_path}")
+        print(f"📊 Info:     Tamanho: {size_str} • Duração: {dur_str}")
+        print(f"🔊 Origem:   Trilha #{best['index']} ({best['lang'].upper()} - {best['codec'].upper()}) ➔ Injetando AAC 2.0 Web")
+        print(f"⏳ Processando...")
+        
+        ok, msg, elapsed = process_file(p, ffmpeg_bin, best, dur)
+        total_time_spent += elapsed
+        
         if ok:
-            print(f"       -> {msg}")
+            print(f"✅ Status:   {msg}")
             success_count += 1
         else:
-            print(f"       -> [AVISO] {msg}")
+            print(f"⚠️ Aviso:    {msg}")
             
-    print("\n" + "=" * 70)
-    print(f"Concluído! {success_count} de {total} filmes otimizados para reprodução no navegador.")
-    print("Atualizando catálogo do CineLocal...")
+    print("\n" + "=" * 76)
+    avg_speed = (total_time_spent / success_count) if success_count > 0 else 0
+    print(f"🎉 OTIMIZAÇÃO CONCLUÍDA EM {total_time_spent:.1f}s!")
+    print(f"   • Filmes otimizados com sucesso: {success_count} de {total}")
+    print(f"   • Média por filme:               {avg_speed:.1f}s")
+    print(f"   • Áudio estéreo AAC:             Injetado como padrão para Web e TV")
+    print(f"   • Áudios originais (TrueHD/DTS): 100% preservados para uso com VLC")
+    print("-" * 76)
+    print("🔄 Sincronizando metadados do CineLocal...")
     build_catalog()
-    print("Catálogo pronto e atualizado!")
-    print("=" * 70)
+    print("✅ Catálogo atualizado com as novas faixas!")
+    print("=" * 76 + "\n")
 
 if __name__ == '__main__':
     main()

@@ -11,6 +11,12 @@ import re
 import subprocess
 import sys
 import shutil
+import time
+
+try:
+    sys.stdout.reconfigure(line_buffering=True, encoding='utf-8')
+except Exception:
+    pass
 
 # Ensure APP_DIR is in sys.path
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -57,7 +63,7 @@ def save_audio_cache(cache):
     except Exception:
         pass
 
-def probe_audio_and_subs(filepath, cache):
+def probe_audio_and_subs(filepath, cache, stats=None):
     try:
         mtime = os.path.getmtime(filepath)
     except Exception:
@@ -65,7 +71,13 @@ def probe_audio_and_subs(filepath, cache):
     
     norm_path = os.path.normpath(filepath)
     if norm_path in cache and cache[norm_path].get('mtime') == mtime:
+        if stats is not None:
+            stats['cache_hits'] += 1
         return cache[norm_path]
+    
+    if stats is not None:
+        stats['new_probes'] += 1
+        print(f"      🔊 [FFmpeg Probe] {os.path.basename(filepath)}")
     
     audio_langs = []
     has_sub = False
@@ -200,19 +212,30 @@ def parse_subtitles_for_dir(dir_path, rel_prefix, subtitles_db):
     return subtitles
 
 def build_catalog():
+    t_start = time.time()
     movies_catalog = []
     series_catalog = []
     subtitles_db = {}
     audio_cache = load_audio_cache()
+    stats = {'cache_hits': 0, 'new_probes': 0}
     
     # Garante que as pastas de mídia existam
     os.makedirs(FILMES_DIR, exist_ok=True)
     os.makedirs(SERIES_DIR, exist_ok=True)
     
-    # Aviso informativo caso o FFmpeg não esteja presente
-    if not get_ffmpeg_bin():
-        print('[INFO] FFmpeg não encontrado (opcional). A detecção de áudio usará padrões rápidos.')
-        print('       Para suporte completo a codecs de áudio avançados, instale o FFmpeg: https://ffmpeg.org/download.html\n')
+    ffmpeg_bin = get_ffmpeg_bin()
+    ffmpeg_label = f"Detectado ({ffmpeg_bin})" if ffmpeg_bin else "Não encontrado (modo rápido ativo)"
+
+    print("\n" + "=" * 76)
+    print("      🎬 CINELOCAL - ATUALIZADOR DE CATÁLOGO & MÍDIA")
+    print("=" * 76)
+    print(f"⚙️  FFmpeg:   {ffmpeg_label}")
+    print(f"📁 Mídia:    {os.path.relpath(MEDIA_DIR, ROOT_DIR)} (filmes/ e series/)")
+    print("-" * 76)
+    print("🍿 [1/3] ESCANEANDO FILMES & FRANQUIAS...")
+    
+    franchises_summary = {}
+    standalone_count = 0
     
     # -------------------------------------------------------------
     # 1. PROCESSAR FILMES (media/filmes)
@@ -241,11 +264,12 @@ def build_catalog():
                     v_subtitles = parse_subtitles_for_dir(sd_path, rel_prefix, subtitles_db)
                     
                     for v in videos:
+                        franchises_summary[franchise_name] = franchises_summary.get(franchise_name, 0) + 1
                         vrel = f'{rel_prefix}/{v}'.replace('\\', '/')
                         prel = f'{rel_prefix}/poster.jpg'.replace('\\', '/') if posters else ''
                         full_vpath = os.path.join(sd_path, v)
                         v_size = os.path.getsize(full_vpath)
-                        v_audio = probe_audio_and_subs(full_vpath, audio_cache)
+                        v_audio = probe_audio_and_subs(full_vpath, audio_cache, stats)
                         has_subs = bool(len(v_subtitles) > 0 or v_audio.get('hasEmbeddedSubtitles'))
                         m_title = clean_title(v) or clean_title(sd)
                         m_year = get_year(v) or get_year(sd)
@@ -289,11 +313,12 @@ def build_catalog():
                 v_subtitles = parse_subtitles_for_dir(ipath, rel_prefix, subtitles_db)
                 
                 for v in videos:
+                    standalone_count += 1
                     vrel = f'{rel_prefix}/{v}'.replace('\\', '/')
                     prel = f'{rel_prefix}/poster.jpg'.replace('\\', '/') if posters else ''
                     full_vpath = os.path.join(ipath, v)
                     v_size = os.path.getsize(full_vpath)
-                    v_audio = probe_audio_and_subs(full_vpath, audio_cache)
+                    v_audio = probe_audio_and_subs(full_vpath, audio_cache, stats)
                     has_subs = bool(len(v_subtitles) > 0 or v_audio.get('hasEmbeddedSubtitles'))
                     m_title = clean_title(v) or clean_title(item)
                     m_year = get_year(v) or get_year(item)
@@ -328,9 +353,18 @@ def build_catalog():
                         'imdbUrl': m_meta.get('imdbUrl', '')
                     })
                     
+        if franchises_summary:
+            print(f"   • Sagas & Franquias: {len(franchises_summary)} franquia(s) encontrada(s)")
+            for f_name, f_cnt in sorted(franchises_summary.items()):
+                print(f"     ↳ {f_name}: {f_cnt} título(s)")
+        print(f"   • Filmes Avulsos:    {standalone_count} título(s)")
+        if len(movies_catalog) == 0:
+            print("   ↳ Nenhum filme encontrado em media/filmes/")
+
     # -------------------------------------------------------------
     # 2. PROCESSAR SÉRIES (media/series)
     # -------------------------------------------------------------
+    print("\n📺 [2/3] ESCANEANDO SÉRIES DE TV...")
     if os.path.exists(SERIES_DIR):
         for item in sorted(os.listdir(SERIES_DIR)):
             ipath = os.path.join(SERIES_DIR, item)
@@ -378,7 +412,7 @@ def build_catalog():
                         ep_subs = season_subs
                     
                     full_ep_path = os.path.join(sd_path, ep_file)
-                    ep_audio = probe_audio_and_subs(full_ep_path, audio_cache)
+                    ep_audio = probe_audio_and_subs(full_ep_path, audio_cache, stats)
                     has_ep_subs = bool(len(ep_subs) > 0 or ep_audio.get('hasEmbeddedSubtitles'))
                     
                     episodes.append({
@@ -468,9 +502,26 @@ def build_catalog():
                 'imdbUrl': s_info.get('imdbUrl', ''),
                 'seasons': seasons_data
             })
+            print(f"   ↳ {item}: {len(seasons_data)} Temporada(s) • {total_episodes_count} Episódio(s)")
+            
+        if len(series_catalog) == 0:
+            print("   ↳ Nenhuma série encontrada em media/series/")
             
     # Salvar cache persistente de áudio para execuções instantâneas
     save_audio_cache(audio_cache)
+    
+    print("\n📝 [3/3] HIGIENIZANDO E INDEXANDO LEGENDAS...")
+    print(f"   ↳ {len(subtitles_db)} faixa(s) de legenda .srt vinculadas")
+    
+    print(f"\n⚡ DESEMPENHO DO CACHE")
+    print(f"   • {stats['cache_hits']} verificação(ões) instantânea(s) via cache mtime")
+    if stats['new_probes'] > 0:
+        print(f"   • {stats['new_probes']} novo(s) arquivo(s) analisado(s) via FFmpeg")
+    else:
+        print(f"   • 0 novas análises necessárias (100% em cache)")
+        
+    elapsed = time.time() - t_start
+    total_episodes = sum(s.get('totalEpisodes', 0) for s in series_catalog)
     
     # Catálogo unificado para a Home (Filmes + Séries como cards de primeiro nível)
     unified_catalog = list(movies_catalog) + list(series_catalog)
@@ -491,7 +542,13 @@ def build_catalog():
         json.dump(subtitles_db, out, ensure_ascii=False)
         out.write(';\n')
         
-    print(f'Sucesso: Catálogo CineLocal atualizado com {len(movies_catalog)} filmes, {len(series_catalog)} séries e {len(subtitles_db)} legendas!')
+    print("\n" + "=" * 76)
+    print(f"🎉 CATÁLOGO ATUALIZADO COM SUCESSO EM {elapsed:.2f}s!")
+    print(f"   • Total na Home:     {len(unified_catalog)} produções (Filmes + Séries)")
+    print(f"   • Longas-Metragens:  {len(movies_catalog)} filme(s)")
+    print(f"   • Séries de TV:      {len(series_catalog)} série(s) ({total_episodes} episódios)")
+    print(f"   • Base de Dados:     app/catalogo.js (Pronto para streaming)")
+    print("=" * 76 + "\n")
     return {
         'catalog': unified_catalog,
         'movies': movies_catalog,
