@@ -26,7 +26,7 @@ MOVIES_DIR = os.path.dirname(APP_DIR)
 if APP_DIR not in sys.path:
     sys.path.insert(0, APP_DIR)
 
-from atualizar_catalogo import build_catalog
+from atualizar_catalogo import build_catalog, parse_srt
 
 PORTABLE_VLC = os.path.join(APP_DIR, "vlc", "vlc.exe")
 SYSTEM_VLC = r"C:\Program Files\VideoLAN\VLC\vlc.exe"
@@ -149,6 +149,83 @@ def get_audio_streams_info(movie_path):
     except Exception as e:
         print(f"Erro ao extrair audio_info: {e}")
         return {"streams": [], "duration": 0}
+
+def download_online_subtitle(video_rel, query_title, imdb_id=None, season=None, episode=None):
+    """Busca e baixa automaticamente legendas em pt-BR via OpenSubtitles/Cinemeta."""
+    clean_rel = urllib.parse.unquote(video_rel).replace('../', '').lstrip('/').replace('/', os.sep)
+    full_video_path = os.path.join(MOVIES_DIR, clean_rel)
+    if not os.path.exists(full_video_path):
+        return {"success": False, "message": "Arquivo de vídeo não encontrado no disco"}
+    
+    target_dir = os.path.dirname(full_video_path)
+    base_name = os.path.splitext(os.path.basename(full_video_path))[0]
+    sub_filename = f"{base_name}.pt.srt"
+    sub_path = os.path.join(target_dir, sub_filename)
+
+    # 1. Tenta identificar IMDb ID caso não venha informado
+    if not imdb_id or not str(imdb_id).startswith('tt'):
+        try:
+            clean_title = re.sub(r'\s*\(\d{4}\).*', '', query_title).strip()
+            search_type = "series" if (season is not None and episode is not None) else "movie"
+            search_url = f"https://v3-cinemeta.strem.io/catalog/{search_type}/top/search={urllib.parse.quote(clean_title)}.json"
+            req = urllib.request.Request(search_url, headers={'User-Agent': 'Mozilla/5.0 (CineLocal/2.4)'})
+            with urllib.request.urlopen(req, timeout=6) as res:
+                data = json.loads(res.read().decode('utf-8'))
+                metas = data.get('metas', [])
+                if metas:
+                    imdb_id = metas[0].get('id')
+        except Exception as e:
+            print(f"Erro ao buscar IMDb ID: {e}")
+
+    if not imdb_id:
+        return {"success": False, "message": f"Não foi possível identificar '{query_title}' online para buscar legendas"}
+
+    # 2. Busca legendas no OpenSubtitles v3
+    try:
+        if season is not None and episode is not None:
+            sub_query_id = f"{imdb_id}:{season}:{episode}"
+            sub_url = f"https://opensubtitles-v3.strem.io/subtitles/series/{sub_query_id}.json"
+        else:
+            sub_url = f"https://opensubtitles-v3.strem.io/subtitles/movie/{imdb_id}.json"
+        
+        req = urllib.request.Request(sub_url, headers={'User-Agent': 'Mozilla/5.0 (CineLocal/2.4)'})
+        with urllib.request.urlopen(req, timeout=8) as res:
+            sub_data = json.loads(res.read().decode('utf-8'))
+            subs = sub_data.get('subtitles', [])
+            
+        por_subs = [s for s in subs if s.get('lang') in ('pob', 'por', 'pt-br', 'pt')]
+        if not por_subs:
+            return {"success": False, "message": "Nenhuma legenda em português encontrada online"}
+        
+        # Pega a melhor legenda em português
+        download_url = por_subs[0].get('url')
+        if not download_url:
+            return {"success": False, "message": "URL de download da legenda indisponível"}
+        
+        # Baixa a legenda
+        req_dl = urllib.request.Request(download_url, headers={'User-Agent': 'Mozilla/5.0 (CineLocal/2.4)'})
+        with urllib.request.urlopen(req_dl, timeout=10) as dl_res:
+            content_bytes = dl_res.read()
+            text_str = content_bytes.decode('utf-8', errors='ignore')
+            with open(sub_path, 'w', encoding='utf-8-sig') as f:
+                f.write(text_str)
+        
+        rel_sub_path = os.path.relpath(sub_path, MOVIES_DIR).replace('\\', '/')
+        if not rel_sub_path.startswith('../'):
+            rel_sub_path = f"../{rel_sub_path}"
+        
+        cues = parse_srt(text_str)
+        log_event("📥", "LEGENDA", f"Legenda pt-BR baixada com sucesso para '{base_name}'")
+        return {
+            "success": True,
+            "filename": sub_filename,
+            "path": rel_sub_path,
+            "label": "Português (Brasil)",
+            "cues": cues
+        }
+    except Exception as e:
+        print(f"Erro ao baixar legenda: {e}")
+        return {"success": False, "message": f"Erro ao baixar legenda: {e}"}
 
 DATA_DIR = os.path.join(APP_DIR, "data")
 USER_STATE_FILE = os.path.join(DATA_DIR, "user_state.json")
@@ -442,6 +519,32 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             info_data = get_audio_streams_info(full_movie_path)
             data = json.dumps(info_data, ensure_ascii=False).encode('utf-8')
             self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Content-Length', str(len(data)))
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(data)
+            return
+
+        # Busca e download automático de legendas online
+        if parsed.path == '/api/buscar_legendas':
+            query_params = urllib.parse.parse_qs(parsed.query)
+            video_rel = query_params.get('path', [''])[0]
+            title = query_params.get('title', [''])[0]
+            imdb = query_params.get('imdb', [''])[0]
+            season = query_params.get('season', [None])[0]
+            episode = query_params.get('episode', [None])[0]
+            
+            res_data = download_online_subtitle(
+                video_rel=video_rel,
+                query_title=title,
+                imdb_id=imdb,
+                season=season,
+                episode=episode
+            )
+            data = json.dumps(res_data, ensure_ascii=False).encode('utf-8')
+            status_code = 200 if res_data.get('success') else 404
+            self.send_response(status_code)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.send_header('Content-Length', str(len(data)))
             self.send_header('Access-Control-Allow-Origin', '*')
