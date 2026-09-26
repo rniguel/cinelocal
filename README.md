@@ -10,31 +10,48 @@ Bem-vindo ao **CineLocal**, uma central de streaming multimídia de alta perform
 |---|---|
 | **`Abrir CineLocal.bat`** | Inicia a interface web diretamente no seu navegador padrão. |
 | **`Iniciar Servidor (TV e Celular).bat`** | Inicia o servidor HTTP local na sua rede Wi-Fi/Ethernet para você assistir na Smart TV, celular ou tablet pelo endereço IP local (ex: `http://192.168.x.x:8000`). |
-| **`Atualizar Catalogo.bat`** | Escaneia sua pasta `media/`, detecta novos filmes/séries, atualiza resoluções, áudio (Dublado/Legendado), legendas e capas automaticamente. |
+| **`Atualizar Catalogo.bat`** | Escaneia sua pasta `media/`, detecta novos filmes/séries, atualiza resoluções, áudio (Dublado/Legendado), legendas e capas automaticamente ordenando por data de adição real. |
+| **`Buscar Metadados (TMDb).bat`** | Utilitário desacoplado e opcional para buscar sinopses em pt-BR, notas e pôsteres oficiais no The Movie Database sem alterar seus vídeos. |
+| **`Otimizar Audio Web.bat`** | Adiciona faixa estéreo AAC sem recodificar o vídeo para reprodução com áudio perfeito em qualquer navegador web. |
 
 ---
 
 ## 🚀 Principais Funcionalidades
 
-### 1. 🍿 Catálogo Dinâmico & Busca Instantânea
-* **Busca em Tempo Real:** Pesquisa instantânea por título, ano, franquia ou gênero no cabeçalho.
-* **Filtros Rápidos:** Navegação ágil por abas: *Todos*, *Franquias & Sagas*, *Filmes Avulsos* e *4K Ultra HD*.
-* **Hero Banner Dinâmico:** Destaque no topo com o filme do momento, backdrop cinematográfico e botões de reprodução rápida.
+### 1. 🍿 Catálogo Dinâmico & Descoberta
+* **Continuar Assistindo:** Salva o ponto exato da reprodução no navegador e exibe uma fileira dedicada com barra de progresso em cada card.
+* **Filtros Avançados:** Filtre instantaneamente por **Gênero** (Ação, Drama, Ficção...), **Ano / Década** e **Não Assistidos**.
+* **🎲 Surpreenda-me (Roleta de Filmes):** Sorteie um filme do catálogo para aqueles momentos de indecisão.
+* **Adicionados Recentemente Precisos:** Ordenação baseada na data real de gravação/modificação dos arquivos no disco.
+* **Marcação de Assistido:** Marque filmes e séries como assistidos com um clique para manter sua biblioteca organizada.
 * **Tela de Onboarding Integrada:** Caso a pasta de filmes ainda esteja vazia, uma interface interativa de boas-vindas guia o usuário passo a passo.
 
-### 2. 📺 Suporte Completo a Séries de TV
-* Detecção automática de temporadas (`Season 01`, `Season 02`) e episódios (`S01E01`, `S01E02`).
-* Modal dedicado para séries com seletor de temporadas e lista de episódios individuais.
+### 2. 📺 Smart TV & Conexão Rápida
+* **Navegação D-Pad para Smart TV:** Suporte total às setas do controle remoto (`↑`, `↓`, `←`, `→`) e `Enter / OK` para selecionar qualquer card ou botão sem precisar de mouse.
+* **Conexão via QR Code:** Abra a câmera do celular ou digite o link direto na TV para carregar o CineLocal instantaneamente.
+* **Detecção Automática de IP Local:** Mostra o IP do computador na rede local sem configurações complexas.
 
-### 3. 🔊 Player Web Cinematográfico
-* **Controle de Volume com Boost de 200%:** Amplificador dinâmico via Web Audio API para filmes com áudio baixo, permitindo dobrar o volume além do limite convencional de 100%.
-* **Legendas Inteligentes:** Renderização de legendas `.srt` externas ou embutidas com suporte a busca de frases dentro do filme e salto temporal.
+### 3. 🔊 Player Web Cinematográfico Avançado
+* **Clique na Tela para Play/Pause:** Clique em qualquer ponto do vídeo para pausar ou reproduzir, com animação central de feedback estilo YouTube.
+* **Controles Inteligentes em Tela Cheia:** Os controles surgem instantaneamente ao mover o mouse e permanecem visíveis durante o pause.
+* **Picture-in-Picture (PiP):** Assista em janela flutuante enquanto utiliza outros programas no computador.
+* **Velocidade de Reprodução Dinâmica:** Alterne entre 0.75x, 1.0x, 1.25x, 1.5x e 2.0x com os atalhos `[` e `]`.
+* **Próximo Episódio Automático:** Contagem regressiva nos últimos 20 segundos de um episódio para iniciar o próximo sem esforço.
+* **Super Booster de Volume (até 300%):** Amplificador dinâmico via Web Audio API para filmes com áudio baixo.
+* **Legendas Inteligentes:** Renderização de legendas `.srt` com ajuste fino de sincronia (`G` e `H`) e tamanhos personalizáveis.
 * **Atalhos de Teclado:**
   * `Espaço` / `K`: Pausar / Reproduzir
-  * `Setas Esquerda / Direita` ou `J / L`: Voltar / Avançar 10 segundos
-  * `Setas Cima / Baixo`: Aumentar / Diminuir volume
+  * `Setas Esquerda / Direita`: Voltar / Avançar 10 segundos
+  * `Setas Cima / Baixo`: Volume (0% a 300%)
   * `F`: Alternar tela cheia (Fullscreen)
   * `M`: Silenciar (Mute)
+  * `P`: Janela Flutuante (Picture-in-Picture)
+  * `[` / `]`: Diminuir / Aumentar velocidade
+  * `N`: Próximo episódio
+  * `V`: Abrir no VLC Media Player (Áudio 5.1/7.1)
+  * `C`: Abrir seletor de legendas
+  * `G` / `H`: Ajustar sincronia da legenda (-0.1s / +0.1s)
+  * `Esc`: Fechar player ou modais
 
 ### 4. ⚡ Módulo Universo Marvel (MCU) & Rastreador Canônico (Opcional)
 * Se você adicionar produções da Marvel Studios em `media/filmes/Marvel/`, o CineLocal ativa automaticamente:
@@ -58,6 +75,8 @@ CineLocal/
 ├── Abrir CineLocal.bat                # Inicia a interface no navegador
 ├── Iniciar Servidor (TV e Celular).bat# Inicia o servidor local na rede
 ├── Atualizar Catalogo.bat             # Atualiza catálogo e metadados
+├── Buscar Metadados (TMDb).bat        # Enriquecedor de metadados e pôsteres via TMDb
+├── Otimizar Audio Web.bat             # Converte áudio de vídeos incompatíveis
 ├── README.md                          # Guia completo do projeto
 ├── GEMINI.md                          # Regras e convenções para assistentes IA
 ├── docs/                              # Documentações técnicas e aprofundadas
@@ -69,6 +88,7 @@ CineLocal/
 │   ├── index.html                     # Interface web do CineLocal (SPA)
 │   ├── generate_netflix_ui.py         # Gerador mestre da interface HTML/CSS/JS
 │   ├── atualizar_catalogo.py          # Scanner de mídia e compilador de catalogo.js
+│   ├── buscar_metadados_tmdb.py       # Utilitário desacoplado de consulta à API TMDb
 │   ├── metadata_db.py                 # Banco de metadados ricos (sinopses, elenco, links)
 │   ├── otimizar_audio_web.py          # Utilitário de conversão de áudio para AAC estéreo
 │   ├── servidor.py                    # Servidor local Python com suporte a VLC e streaming
