@@ -15,7 +15,8 @@ if __name__ == '__main__':
     if os.path.exists(SERVER_PY):
         os.chdir(APP_DIR)
         try:
-            subprocess.run([sys.executable, SERVER_PY])
+            cmd = [sys.executable, SERVER_PY] + sys.argv[1:]
+            subprocess.run(cmd)
         except KeyboardInterrupt:
             print("\nCineLocal finalizado.")
     else:

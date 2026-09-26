@@ -16,6 +16,7 @@ import subprocess
 import re
 import shutil
 import time
+import threading
 from datetime import datetime
 from atualizar_catalogo import build_catalog
 
@@ -390,16 +391,46 @@ class ThreadingServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
     daemon_threads = True
     allow_reuse_address = True
 
+def is_port_in_use(port):
+    """Verifica se o servidor CineLocal já está em execução nesta porta."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(0.5)
+        return s.connect_ex(('127.0.0.1', port)) == 0
+
 def run():
-    print("\n📦 Sincronizando catálogo CineLocal...")
-    try:
-        build_catalog()
-    except Exception as e:
-        log_event("⚠️", "CATÁLOGO", f"Aviso ao compilar catálogo: {e}")
-    
+    open_browser = True
+    if '--no-browser' in sys.argv:
+        open_browser = False
+    elif '--browser' in sys.argv:
+        open_browser = True
+
     local_ip = get_local_ip()
     local_url = f'http://localhost:{PORT}/'
     tv_url = f'http://{local_ip}:{PORT}/'
+
+    # Se o servidor já estiver rodando, não duplica nem trava com erro de socket
+    if is_port_in_use(PORT):
+        print("\n" + "=" * 76)
+        print(f"  🍿 CINELOCAL • O SERVIDOR JÁ ESTÁ EM EXECUÇÃO NA PORTA {PORT}")
+        print("=" * 76)
+        print(f"\n  🌐 No seu Computador:   {local_url}")
+        print(f"  📺 Na sua Smart TV:     {tv_url}\n")
+        if open_browser:
+            print("  🚀 Abrindo o CineLocal no navegador...\n")
+            try:
+                webbrowser.open(local_url)
+            except Exception:
+                pass
+        return
+
+    # Sincroniza o catálogo apenas se catalogo.js ainda não existir (primeira vez)
+    catalog_path = os.path.join(APP_DIR, 'catalogo.js')
+    if not os.path.exists(catalog_path):
+        print("\n📦 Primeiro uso detectado: gerando catálogo inicial...")
+        try:
+            build_catalog()
+        except Exception as e:
+            log_event("⚠️", "CATÁLOGO", f"Aviso ao compilar catálogo: {e}")
     
     vlc_bin = get_vlc_path()
     ffmpeg_bin = get_ffmpeg_bin()
@@ -423,12 +454,16 @@ def run():
 ================================================================================
 """
     print(banner)
-    print("📡 Aguardando reproduções e conexões de mídia...\n")
+    print("📡 Aguardando conexões e reproduções de mídia...\n")
     
-    try:
-        webbrowser.open(local_url)
-    except Exception:
-        pass
+    if open_browser:
+        def _open_single_tab():
+            time.sleep(0.4)
+            try:
+                webbrowser.open(local_url)
+            except Exception:
+                pass
+        threading.Thread(target=_open_single_tab, daemon=True).start()
     
     with ThreadingServer(('0.0.0.0', PORT), CineLocalStreamingHandler) as httpd:
         try:

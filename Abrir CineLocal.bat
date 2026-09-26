@@ -6,8 +6,6 @@ cd /d "%~dp0app"
 echo =======================================================
 echo          Iniciando CineLocal Home Theater
 echo =======================================================
-echo Abrindo o navegador...
-start "" http://localhost:8000/
-
-python servidor.py
+echo.
+python servidor.py --browser
 pause
