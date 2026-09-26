@@ -1733,6 +1733,39 @@
       color: #fff;
     }
 
+    /* PULAR ABERTURA (SKIP INTRO TOAST) */
+    .skip-intro-toast {
+      position: absolute;
+      bottom: 95px;
+      right: 28px;
+      z-index: 60;
+      animation: slideInRight 0.35s ease-out;
+    }
+    .btn-skip-intro {
+      background: rgba(18, 22, 34, 0.94);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+      transition: all 0.2s ease;
+    }
+    .btn-skip-intro:hover,
+    .btn-skip-intro:focus {
+      background: var(--primary);
+      border-color: var(--primary);
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
+    }
+
     /* FOCO D-PAD PARA SMART TV / CONTROLE REMOTO */
     :focus-visible {
       outline: 3px solid var(--primary) !important;
@@ -3606,6 +3639,9 @@
             <button class="btn-vlc-secondary" id="movieModalBtnTrailer" onclick="openTrailerCurrentMovie()">
               🎬 Trailer
             </button>
+            <button class="btn-vlc-secondary" id="movieModalBtnCinemaMode" onclick="startCinemaModeMovie()" title="Exibe o trailer oficial antes de iniciar o filme">
+              🍿 Modo Cinema
+            </button>
             <button class="btn-vlc-secondary" id="movieModalBtnDownloadSub" onclick="downloadSubtitlesForCurrentMovie()" title="Buscar e baixar legenda pt-BR na internet automaticamente">
               📥 Baixar Legenda pt-BR
             </button>
@@ -3745,6 +3781,12 @@
               <rect x="14" y="4" width="4" height="16"></rect>
             </svg>
           </div>
+        </div>
+
+        <div id="skipIntroToast" class="skip-intro-toast" style="display: none;">
+          <button class="btn-skip-intro" onclick="skipEpisodeIntro()" title="Pular Abertura (Tecla S)">
+            <span>⏭️ Pular Abertura</span>
+          </button>
         </div>
 
         <div id="nextEpisodeToast" class="next-episode-toast" style="display: none;">
@@ -4513,10 +4555,39 @@
       if (modal) modal.classList.remove('active');
       if (iframe) iframe.src = '';
       document.body.style.overflow = '';
+      if (state.pendingCinemaModeMovie) {
+        const m = state.pendingCinemaModeMovie;
+        state.pendingCinemaModeMovie = null;
+        openPlayer(m, 0);
+      }
     }
 
     function closeTrailerModalOnOut(e) {
       if (e.target.id === 'trailerModal') closeTrailerModal();
+    }
+
+    function startCinemaModeMovie() {
+      if (!currentModalMovie) return;
+      const m = currentModalMovie;
+      closeMovieModal();
+      state.pendingCinemaModeMovie = m;
+      openTrailerModal(m.title, m.year);
+      showToast('🍿 Modo Cinema: Trailer iniciado. O filme começará logo em seguida!');
+    }
+
+    function skipEpisodeIntro() {
+      const video = document.getElementById('mainVideo');
+      if (!video) return;
+      const targetTime = 85;
+      if (video.currentTime < targetTime) {
+        video.currentTime = targetTime;
+      } else {
+        video.currentTime += 60;
+      }
+      state.introSkipped = true;
+      const toast = document.getElementById('skipIntroToast');
+      if (toast) toast.style.display = 'none';
+      showToast('⏭️ Abertura pulada');
     }
 
     function openTrailerCurrentMovie() {
@@ -4593,6 +4664,45 @@
         .slice(0, 14);
       addCarousel(container, '🔥 Adicionados Recentemente', recent);
 
+      // 1.1 TOP AVALIADOS IMDB (Obras-Primas: nota >= 8.0 ordenada decrescente)
+      const topRated = [...state.movies]
+        .filter(m => (m.rating || 0) >= 8.0)
+        .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+        .slice(0, 16);
+      if (topRated.length >= 3) {
+        addCarousel(container, '⭐ Obras-Primas: Top IMDb da Sua Coleção', topRated);
+      }
+
+      // 1.2 PLAYLIST SAZONAL INTELIGENTE (Baseada no mês do ano)
+      const curMonth = new Date().getMonth(); // 0 a 11
+      let seasonalTitle = '';
+      let seasonalItems = [];
+      if (curMonth === 8 || curMonth === 9) { // Setembro / Outubro: Halloween
+        seasonalTitle = '🎃 Especial Terror & Suspense: Temporada de Halloween';
+        seasonalItems = state.movies.filter(m => {
+          const g = (m.genres || []).map(x => (x || '').toLowerCase());
+          return g.includes('terror') || g.includes('suspense') || g.includes('mistério') || g.includes('thriller');
+        });
+      } else if (curMonth === 10 || curMonth === 11) { // Novembro / Dezembro: Fim de Ano
+        seasonalTitle = '🎄 Especial Fim de Ano: Clássicos Familiares & Animações';
+        seasonalItems = state.movies.filter(m => {
+          const g = (m.genres || []).map(x => (x || '').toLowerCase());
+          return g.includes('família') || g.includes('animação') || g.includes('comédia');
+        });
+      } else if (curMonth === 0 || curMonth === 1 || curMonth === 2) { // Jan / Fev / Mar: Oscar
+        seasonalTitle = '🎖️ Temporada de Premiações: Aclamados pela Crítica';
+        seasonalItems = state.movies.filter(m => (m.rating || 0) >= 7.8);
+      } else if (curMonth === 5 || curMonth === 6) { // Junho / Julho: Férias & Blockbusters
+        seasonalTitle = '🍿 Pipoca de Férias: Blockbusters & Grandes Aventuras';
+        seasonalItems = state.movies.filter(m => {
+          const g = (m.genres || []).map(x => (x || '').toLowerCase());
+          return g.includes('ação') || g.includes('aventura') || g.includes('ficção científica');
+        });
+      }
+      if (seasonalItems && seasonalItems.length >= 3) {
+        addCarousel(container, seasonalTitle, seasonalItems.slice(0, 14));
+      }
+
       // 2. SÉRIES (The Bear, Loki, etc.)
       if (state.series.length > 0) {
         addCarousel(container, '📺 Séries & Temporadas', state.series);
@@ -4607,10 +4717,31 @@
         addMarvelCarousel(container, '⚡ Universo Marvel (MCU)', marvelItems);
       }
 
+      // 3.1 SAGAS EM ORDEM CRONOLÓGICA (Star Wars, O Senhor dos Anéis, etc.)
+      const starWarsItems = state.movies
+        .filter(m => m.franchise && m.franchise.toLowerCase().includes('star wars'))
+        .sort((a, b) => (a.sequence || a.year || 0) - (b.sequence || b.year || 0));
+      if (starWarsItems.length >= 2) {
+        addCarousel(container, '🌌 Saga Star Wars (Ordem Cronológica)', starWarsItems, true);
+      }
+
+      const tolkienItems = state.movies
+        .filter(m => m.franchise && (m.franchise.toLowerCase().includes('senhor dos anéis') || m.franchise.toLowerCase().includes('hobbit')))
+        .sort((a, b) => (a.sequence || a.year || 0) - (b.sequence || b.year || 0));
+      if (tolkienItems.length >= 2) {
+        addCarousel(container, '💍 Terra-Média: O Senhor dos Anéis & O Hobbit', tolkienItems, true);
+      }
+
       // 4. GRANDES FRANQUIAS
-      const sagas = state.movies.filter(m => m.franchise && !m.franchise.toLowerCase().includes('marvel'));
+      const sagas = state.movies.filter(m => 
+        m.franchise && 
+        !m.franchise.toLowerCase().includes('marvel') && 
+        !m.franchise.toLowerCase().includes('star wars') && 
+        !m.franchise.toLowerCase().includes('senhor dos anéis') &&
+        !m.franchise.toLowerCase().includes('hobbit')
+      );
       if (sagas.length > 0) {
-        addCarousel(container, '🏆 Franquias & Sagas Épicas', sagas);
+        addCarousel(container, '🏆 Outras Franquias & Sagas', sagas);
       }
 
       // 5. TODOS OS FILMES
@@ -4890,6 +5021,7 @@
       const subBadge = item.hasSubtitles ? `<span class="badge-tag badge-sub" title="Legenda disponível">CC</span>` : '';
       const subInfo = isSeries ? `${item.totalSeasons} Temporada • ${item.totalEpisodes} Eps` : `${item.year || ''} • ${item.format || ''}`;
       const audioLabelPart = item.audioLabel ? ` • ${item.audioLabel}` : '';
+      const ratingPart = (item.rating && item.rating > 0) ? ` • ⭐ ${item.rating}` : '';
 
       const watched = isItemWatched(item.id);
       const watchedBadge = watched ? `<span class="card-watched-badge" title="Já assistido">✓ Assistido</span>` : '';
@@ -4921,7 +5053,7 @@
           <div class="card-content">
             <div>
               <div class="card-title">${item.title}</div>
-              <div class="card-subinfo">${subInfo}${audioLabelPart}</div>
+              <div class="card-subinfo">${subInfo}${audioLabelPart}${ratingPart}</div>
             </div>
             <div class="card-actions">
               <button class="card-btn-play" onclick="event.stopPropagation(); ${playAction}">
@@ -6037,6 +6169,12 @@
       const btnDownSub = document.getElementById('btnDownloadSubPlayer');
       if (btnDownSub) { btnDownSub.disabled = false; btnDownSub.innerHTML = '<span>📥</span> Baixar Legenda pt-BR Online'; }
 
+      // Skip intro state reset
+      state.introSkipped = false;
+      state.introDismissed = false;
+      const skipToast = document.getElementById('skipIntroToast');
+      if (skipToast) skipToast.style.display = 'none';
+
       updateSubSyncUI();
       document.getElementById('playerModal').classList.add('active');
       document.body.style.overflow = 'hidden';
@@ -6237,6 +6375,16 @@
           const remaining = dur - curr;
           if (remaining <= 20 && remaining > 1 && !state.nextEpCountdownActive && !state.nextEpDismissed) {
             startNextEpisodeCountdown(Math.floor(remaining));
+          }
+        }
+
+        // Botão de Pular Abertura nos primeiros 85 segundos de episódio de série
+        if (state.currentEpisodeSeries && dur > 120) {
+          const skipToast = document.getElementById('skipIntroToast');
+          if (curr >= 12 && curr <= 85 && !state.introSkipped && !state.introDismissed) {
+            if (skipToast && skipToast.style.display !== 'block') skipToast.style.display = 'block';
+          } else {
+            if (skipToast && skipToast.style.display !== 'none') skipToast.style.display = 'none';
           }
         }
       });
@@ -7452,6 +7600,9 @@
           } else if (e.key.toLowerCase() === 'n') {
             e.preventDefault();
             playNextEpisode();
+          } else if (e.key.toLowerCase() === 's') {
+            e.preventDefault();
+            skipEpisodeIntro();
           } else if (e.key.toLowerCase() === 'p') {
             e.preventDefault();
             togglePictureInPicture();
