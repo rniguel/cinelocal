@@ -442,7 +442,9 @@
       overflow-x: auto;
       overflow-y: hidden;
       scroll-behavior: smooth;
-      padding: 12px 4px 20px 4px;
+      padding: 24px 8px 24px 8px;
+      margin-top: -12px;
+      margin-bottom: -10px;
       scrollbar-width: none;
       -ms-overflow-style: none;
     }
@@ -3011,19 +3013,39 @@
       }
     }
 
-    /* AMBILIGHT / LUZ AMBIENTE DINÂMICA */
-    .player-ambient-glow {
+    /* SLEEP TIMER MENU NO PLAYER TOP BAR (ABRE PARA BAIXO) */
+    .player-top-bar .dropdown-menu,
+    .sleep-timer-menu {
+      bottom: auto !important;
+      top: calc(100% + 8px) !important;
+      right: 0 !important;
+      left: auto !important;
+      z-index: 50 !important;
+    }
+
+    /* AMBILIGHT / LUZ AMBIENTE DINÂMICA (CANVAS DIRECT BLUR) */
+    .player-ambient-canvas {
       position: absolute;
-      inset: -50px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1.18);
+      width: 96%;
+      height: 96%;
       pointer-events: none;
-      z-index: 0;
-      filter: blur(60px);
+      z-index: 1;
+      filter: blur(65px) saturate(2.4) brightness(1.25);
       opacity: 0;
       border-radius: 20px;
-      transition: opacity 0.5s ease, background 0.4s ease, box-shadow 0.4s ease;
+      transition: opacity 0.4s ease;
     }
-    .player-ambient-glow.active {
-      opacity: 0.8;
+    .player-ambient-canvas.active {
+      opacity: 0.85;
+    }
+
+    /* VIDEO NATIVO ACIMA DO AMBILIGHT */
+    .video-viewport video {
+      position: relative;
+      z-index: 2;
     }
 
     /* SEEKBAR SCRUBBING PREVIEW TOOLTIP */
@@ -3705,9 +3727,8 @@
       </div>
 
       <div class="video-viewport" id="videoViewport" onclick="handleViewportClick(event)">
-        <div id="playerAmbientGlow" class="player-ambient-glow active"></div>
-        <canvas id="ambilightCanvas" width="32" height="18" style="display: none;"></canvas>
-        <video id="mainVideo" playsinline></video>
+        <canvas id="playerAmbientGlowCanvas" class="player-ambient-canvas active" width="64" height="36"></canvas>
+        <video id="mainVideo" playsinline crossorigin="anonymous" style="position: relative; z-index: 2; width: 100%; height: 100%; object-fit: contain;"></video>
         <video id="previewVideo" preload="metadata" muted playsinline style="display: none;"></video>
 
         <div id="subtitleDisplay" class="subtitle-display size-md">
@@ -6005,8 +6026,8 @@
       }
 
       // Ambilight
-      const glow = document.getElementById('playerAmbientGlow');
-      if (glow) glow.classList.toggle('active', state.ambilightEnabled);
+      const ambCanvas = document.getElementById('playerAmbientGlowCanvas');
+      if (ambCanvas) ambCanvas.classList.toggle('active', state.ambilightEnabled);
       const btnAmb = document.getElementById('btnAmbilight');
       if (btnAmb) btnAmb.classList.toggle('active', state.ambilightEnabled);
 
@@ -6654,9 +6675,9 @@
       state.ambilightEnabled = !state.ambilightEnabled;
       localStorage.setItem('cinelocal_ambilight', state.ambilightEnabled);
       const btn = document.getElementById('btnAmbilight');
-      const glow = document.getElementById('playerAmbientGlow');
+      const canvas = document.getElementById('playerAmbientGlowCanvas');
       if (btn) btn.classList.toggle('active', state.ambilightEnabled);
-      if (glow) glow.classList.toggle('active', state.ambilightEnabled);
+      if (canvas) canvas.classList.toggle('active', state.ambilightEnabled);
       showToast(state.ambilightEnabled ? '🌈 Ambilight Ativado' : 'Ambilight Desativado');
       if (state.ambilightEnabled) {
         startAmbilightLoop();
@@ -6667,33 +6688,17 @@
 
     function startAmbilightLoop() {
       if (ambilightInterval) clearInterval(ambilightInterval);
-      const canvas = document.getElementById('ambilightCanvas');
-      const glow = document.getElementById('playerAmbientGlow');
+      const canvas = document.getElementById('playerAmbientGlowCanvas');
       const video = document.getElementById('mainVideo');
-      if (!canvas || !glow || !video) return;
-      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!canvas || !video) return;
+      const ctx = canvas.getContext('2d');
 
       ambilightInterval = setInterval(() => {
         if (!state.ambilightEnabled || video.paused || video.ended || video.readyState < 2) return;
         try {
-          ctx.drawImage(video, 0, 0, 32, 18);
-          const imgData = ctx.getImageData(0, 0, 32, 18).data;
-          let r = 0, g = 0, b = 0, count = 0;
-          for (let i = 0; i < imgData.length; i += 16) {
-            r += imgData[i];
-            g += imgData[i+1];
-            b += imgData[i+2];
-            count++;
-          }
-          if (count > 0) {
-            r = Math.round(r / count);
-            g = Math.round(g / count);
-            b = Math.round(b / count);
-            glow.style.boxShadow = `0 0 110px 35px rgba(${r}, ${g}, ${b}, 0.8)`;
-            glow.style.background = `radial-gradient(circle, rgba(${r}, ${g}, ${b}, 0.55) 0%, rgba(${r}, ${g}, ${b}, 0.15) 60%, transparent 100%)`;
-          }
+          ctx.drawImage(video, 0, 0, 64, 36);
         } catch (e) {}
-      }, 300);
+      }, 150);
     }
 
     function stopAmbilightLoop() {
@@ -6701,10 +6706,10 @@
         clearInterval(ambilightInterval);
         ambilightInterval = null;
       }
-      const glow = document.getElementById('playerAmbientGlow');
-      if (glow) {
-        glow.style.boxShadow = 'none';
-        glow.style.background = 'none';
+      const canvas = document.getElementById('playerAmbientGlowCanvas');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, 64, 36);
       }
     }
 
@@ -6765,10 +6770,14 @@
 
     /* MEU CINEMA EM NÚMEROS (ESTATÍSTICAS DA COLEÇÃO) */
     function openStatsModal() {
-      renderStatsData();
       const m = document.getElementById('statsModal');
       if (m) m.classList.add('active');
       document.body.style.overflow = 'hidden';
+      try {
+        renderStatsData();
+      } catch (err) {
+        console.error('Erro ao renderizar estatísticas:', err);
+      }
     }
 
     function closeStatsModal() {
@@ -6785,9 +6794,9 @@
     }
 
     function renderStatsData() {
-      const movies = state.movies || [];
-      const series = state.series || [];
-      const all = state.all || [];
+      const movies = (state.movies && state.movies.length > 0) ? state.movies : (window.CATALOGO_FILMES || []);
+      const series = (state.series && state.series.length > 0) ? state.series : (window.CATALOGO_SERIES || []);
+      const all = (state.all && state.all.length > 0) ? state.all : (window.CATALOGO || [...movies, ...series]);
       const watched = state.watchedList || {};
 
       const totalTitles = all.length;
@@ -6834,7 +6843,10 @@
       let mcuWatched = 0;
       if (window.MCU_CANONICAL_TIMELINE) {
         window.MCU_CANONICAL_TIMELINE.forEach(m => {
-          if (watched[m.id] || isMcuTitleWatched(m)) mcuWatched++;
+          const item = typeof findDownloadedMcuItem === 'function' ? findDownloadedMcuItem(m) : null;
+          if (watched[m.id] || (item && (watched[item.id] || (typeof isItemWatched === 'function' && isItemWatched(item.id))))) {
+            mcuWatched++;
+          }
         });
       }
 
