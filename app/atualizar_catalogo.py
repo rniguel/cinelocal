@@ -269,6 +269,7 @@ def build_catalog():
                         prel = f'{rel_prefix}/poster.jpg'.replace('\\', '/') if posters else ''
                         full_vpath = os.path.join(sd_path, v)
                         v_size = os.path.getsize(full_vpath)
+                        v_mtime = int(os.path.getmtime(full_vpath))
                         v_audio = probe_audio_and_subs(full_vpath, audio_cache, stats)
                         has_subs = bool(len(v_subtitles) > 0 or v_audio.get('hasEmbeddedSubtitles'))
                         m_title = clean_title(v) or clean_title(sd)
@@ -291,6 +292,7 @@ def build_catalog():
                             'posterPath': prel,
                             'sizeBytes': v_size,
                             'sizeFormatted': f'{v_size / (1024**3):.2f} GB' if v_size > 1024**3 else f'{v_size / (1024**2):.0f} MB',
+                            'addedAt': v_mtime,
                             'subtitles': v_subtitles,
                             'audio': v_audio['audio'],
                             'audioLabel': v_audio['audioLabel'],
@@ -318,6 +320,7 @@ def build_catalog():
                     prel = f'{rel_prefix}/poster.jpg'.replace('\\', '/') if posters else ''
                     full_vpath = os.path.join(ipath, v)
                     v_size = os.path.getsize(full_vpath)
+                    v_mtime = int(os.path.getmtime(full_vpath))
                     v_audio = probe_audio_and_subs(full_vpath, audio_cache, stats)
                     has_subs = bool(len(v_subtitles) > 0 or v_audio.get('hasEmbeddedSubtitles'))
                     m_title = clean_title(v) or clean_title(item)
@@ -340,6 +343,7 @@ def build_catalog():
                         'posterPath': prel,
                         'sizeBytes': v_size,
                         'sizeFormatted': f'{v_size / (1024**3):.2f} GB' if v_size > 1024**3 else f'{v_size / (1024**2):.0f} MB',
+                        'addedAt': v_mtime,
                         'subtitles': v_subtitles,
                         'audio': v_audio['audio'],
                         'audioLabel': v_audio['audioLabel'],
@@ -376,6 +380,7 @@ def build_catalog():
             
             seasons_data = []
             total_episodes_count = 0
+            all_ep_mtimes = []
             
             for sd in season_dirs:
                 sd_path = os.path.join(ipath, sd)
@@ -392,7 +397,10 @@ def build_catalog():
                 
                 for ep_file in ep_files:
                     total_episodes_count += 1
-                    ep_size = os.path.getsize(os.path.join(sd_path, ep_file))
+                    full_ep_path = os.path.join(sd_path, ep_file)
+                    ep_size = os.path.getsize(full_ep_path)
+                    ep_mtime = int(os.path.getmtime(full_ep_path))
+                    all_ep_mtimes.append(ep_mtime)
                     m_ep = re.search(r'[eE](?:pisode)?\s*0*(\d+)', ep_file)
                     if not m_ep:
                         m_ep = re.search(r'(\d+)x(\d+)', ep_file)
@@ -411,7 +419,6 @@ def build_catalog():
                     if not ep_subs and len(season_subs) == 1:
                         ep_subs = season_subs
                     
-                    full_ep_path = os.path.join(sd_path, ep_file)
                     ep_audio = probe_audio_and_subs(full_ep_path, audio_cache, stats)
                     has_ep_subs = bool(len(ep_subs) > 0 or ep_audio.get('hasEmbeddedSubtitles'))
                     
@@ -426,6 +433,7 @@ def build_catalog():
                         'format': os.path.splitext(ep_file)[1][1:].upper(),
                         'sizeBytes': ep_size,
                         'sizeFormatted': f'{ep_size / (1024**3):.2f} GB' if ep_size > 1024**3 else f'{ep_size / (1024**2):.0f} MB',
+                        'addedAt': ep_mtime,
                         'subtitles': ep_subs,
                         'audio': ep_audio['audio'],
                         'audioLabel': ep_audio['audioLabel'],
@@ -453,6 +461,7 @@ def build_catalog():
             }
             s_info = get_series_info(item)
             s_year = s_info.get('year') or SERIES_YEARS.get(item.lower(), get_year(item))
+            series_added_at = max(all_ep_mtimes) if all_ep_mtimes else int(os.path.getmtime(ipath))
             
             all_ep_audios = [ep['audio'] for s in seasons_data for ep in s['episodes']]
             all_ep_subs = [ep['hasSubtitles'] for s in seasons_data for ep in s['episodes']]
@@ -490,6 +499,7 @@ def build_catalog():
                 'posterPath': series_poster,
                 'totalSeasons': len(seasons_data),
                 'totalEpisodes': total_episodes_count,
+                'addedAt': series_added_at,
                 'audio': series_audio,
                 'audioLabel': series_audio_label,
                 'hasSubtitles': series_has_subs,

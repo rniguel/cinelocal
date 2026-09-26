@@ -165,11 +165,14 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
         if parsed.path in ('/api/capabilities', '/api/status'):
             vlc_bin = get_vlc_path()
             ffmpeg_bin = get_ffmpeg_bin()
+            local_ip = get_local_ip()
             data = json.dumps({
                 "vlcAvailable": bool(vlc_bin),
                 "vlcPath": vlc_bin or "",
                 "ffmpegAvailable": bool(ffmpeg_bin),
-                "ffmpegPath": ffmpeg_bin or ""
+                "ffmpegPath": ffmpeg_bin or "",
+                "localIp": local_ip,
+                "localUrl": f"http://{local_ip}:{PORT}/"
             }, ensure_ascii=False).encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
