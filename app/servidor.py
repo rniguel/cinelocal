@@ -12,6 +12,7 @@ import socket
 import webbrowser
 import json
 import urllib.parse
+import urllib.request
 import subprocess
 import re
 import shutil
@@ -271,6 +272,9 @@ class RemoteControllerHub:
 
 REMOTE_HUB = RemoteControllerHub()
 
+CINEMA_CACHE_FILE = os.path.join(DATA_DIR, "cinema_releases.json")
+TMDB_API_KEY = "1cf50e6248dc270629e802686245c2c8"
+
 def load_user_state():
     """Carrega o progresso e favoritos globais sincronizados entre dispositivos."""
     if not os.path.exists(DATA_DIR):
@@ -278,10 +282,78 @@ def load_user_state():
     if os.path.exists(USER_STATE_FILE):
         try:
             with open(USER_STATE_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
+                data = json.load(f)
+                if not isinstance(data, dict):
+                    data = {}
+                if "watchProgress" not in data:
+                    data["watchProgress"] = {}
+                if "favorites" not in data:
+                    data["favorites"] = []
+                if "watchedList" not in data:
+                    data["watchedList"] = {}
+                return data
         except Exception:
             pass
-    return {"watchProgress": {}, "favorites": []}
+    return {"watchProgress": {}, "favorites": [], "watchedList": {}}
+
+def get_cinema_releases():
+    """Obtém lançamentos de cinema e filmes em cartaz (com cache local de 6h)."""
+    now = time.time()
+    if os.path.exists(CINEMA_CACHE_FILE):
+        try:
+            mtime = os.path.getmtime(CINEMA_CACHE_FILE)
+            if now - mtime < 21600:  # 6 horas
+                with open(CINEMA_CACHE_FILE, "r", encoding="utf-8") as f:
+                    cached = json.load(f)
+                    if cached.get("releases"):
+                        return cached
+        except Exception:
+            pass
+
+    # Busca no TMDb oficial com região Brasil e idioma pt-BR
+    url = f"https://api.themoviedb.org/3/movie/now_playing?api_key={TMDB_API_KEY}&language=pt-BR&page=1&region=BR"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "CineLocal/2.0"})
+        with urllib.request.urlopen(req, timeout=12) as response:
+            raw = response.read().decode("utf-8")
+            data = json.loads(raw)
+            results = data.get("results", [])
+            clean_results = []
+            for m in results:
+                poster_path = m.get("poster_path")
+                backdrop_path = m.get("backdrop_path")
+                clean_results.append({
+                    "id": m.get("id"),
+                    "title": m.get("title") or m.get("original_title", "Sem título"),
+                    "originalTitle": m.get("original_title", ""),
+                    "overview": m.get("overview") or "Em exibição nos cinemas.",
+                    "releaseDate": m.get("release_date", ""),
+                    "rating": round(float(m.get("vote_average", 0)), 1),
+                    "voteCount": m.get("vote_count", 0),
+                    "posterPath": f"https://image.tmdb.org/t/p/w500{poster_path}" if poster_path else None,
+                    "backdropPath": f"https://image.tmdb.org/t/p/original{backdrop_path}" if backdrop_path else None,
+                    "popularity": m.get("popularity", 0)
+                })
+            output = {
+                "status": "ok",
+                "updatedAt": int(now),
+                "releases": clean_results
+            }
+            if not os.path.exists(DATA_DIR):
+                os.makedirs(DATA_DIR, exist_ok=True)
+            with open(CINEMA_CACHE_FILE, "w", encoding="utf-8") as f:
+                json.dump(output, f, ensure_ascii=False, indent=2)
+            log_event("🎟️", "CINEMA_RELEASES", f"{len(clean_results)} filmes em cartaz atualizados via TMDb.")
+            return output
+    except Exception as e:
+        log_event("⚠️", "CINEMA_API", f"Falha ao consultar TMDb: {e}")
+        if os.path.exists(CINEMA_CACHE_FILE):
+            try:
+                with open(CINEMA_CACHE_FILE, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception:
+                pass
+        return {"status": "error", "releases": []}
 
 def save_user_state(state_data):
     """Persiste o progresso e favoritos globais em disco."""
@@ -391,24 +463,69 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             if media_id:
                 state_data = load_user_state()
                 wp = state_data.get('watchProgress', {})
-                completed = bool(duration > 0 and (current_time / duration) > 0.92)
+                wl = state_data.get('watchedList', {})
+                
+                pct = int(round((current_time / duration) * 100)) if duration > 0 else int(payload.get('pct', 0))
+                pct = max(0, min(100, pct))
+                completed = bool(duration > 0 and (pct >= 90 or (current_time / duration) > 0.90 or payload.get('completed')))
+                now_ts = int(time.time() * 1000)
                 
                 wp[str(media_id)] = {
+                    "id": str(media_id),
                     "currentTime": current_time,
                     "duration": duration,
+                    "pct": pct,
                     "completed": completed,
+                    "timestamp": now_ts,
                     "updatedAt": int(time.time()),
                     "title": item_info.get('title', ''),
                     "posterPath": item_info.get('posterPath', ''),
+                    "type": 'episode' if item_info.get('isEpisode') else 'movie',
                     "isEpisode": item_info.get('isEpisode', False),
                     "seriesId": item_info.get('seriesId', None),
+                    "seriesTitle": item_info.get('seriesTitle', None),
                     "seasonIdx": item_info.get('seasonIdx', None),
                     "episodeNumber": item_info.get('episodeNumber', None)
                 }
+                if completed:
+                    wl[str(media_id)] = True
+                    
                 state_data['watchProgress'] = wp
+                state_data['watchedList'] = wl
                 save_user_state(state_data)
                 
-                res = json.dumps({"status": "ok", "id": media_id, "completed": completed}).encode('utf-8')
+                res = json.dumps({"status": "ok", "id": media_id, "pct": pct, "completed": completed}).encode('utf-8')
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(res)
+                return
+            self.send_error(400, 'ID não informado')
+            return
+
+        # 2.1 Alternar Status de Assistido (Já Assistidos)
+        if parsed.path == '/api/watched/toggle':
+            media_id = str(payload.get('id', ''))
+            if media_id:
+                state_data = load_user_state()
+                wl = state_data.get('watchedList', {})
+                wp = state_data.get('watchProgress', {})
+                is_watched = not bool(wl.get(media_id))
+                if is_watched:
+                    wl[media_id] = True
+                    if media_id in wp:
+                        wp[media_id]['completed'] = True
+                        wp[media_id]['pct'] = 100
+                else:
+                    if media_id in wl:
+                        del wl[media_id]
+                    if media_id in wp:
+                        wp[media_id]['completed'] = False
+                state_data['watchedList'] = wl
+                state_data['watchProgress'] = wp
+                save_user_state(state_data)
+                res = json.dumps({"status": "ok", "id": media_id, "watched": is_watched}).encode('utf-8')
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.send_header('Access-Control-Allow-Origin', '*')
@@ -498,10 +615,22 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(data)
             return
 
-        # Estado global do usuário (Progresso e Favoritos)
+        # Estado global do usuário (Progresso, Favoritos e Assistidos)
         if parsed.path == '/api/user_state':
             state_data = load_user_state()
             data = json.dumps(state_data, ensure_ascii=False).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Content-Length', str(len(data)))
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(data)
+            return
+
+        # Filmes em Cartaz nos Cinemas (TMDb Now Playing)
+        if parsed.path == '/api/cinema_releases':
+            releases_data = get_cinema_releases()
+            data = json.dumps(releases_data, ensure_ascii=False).encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.send_header('Content-Length', str(len(data)))

@@ -451,13 +451,13 @@ html_content = r"""<!DOCTYPE html>
 
     .carousel-track {
       display: flex;
-      gap: 16px;
+      gap: 18px;
       overflow-x: auto;
-      overflow-y: hidden;
+      overflow-y: visible;
       scroll-behavior: smooth;
-      padding: 24px 8px 24px 8px;
-      margin-top: -12px;
-      margin-bottom: -10px;
+      padding: 30px 26px 36px 26px;
+      margin-top: -18px;
+      margin-bottom: -16px;
       scrollbar-width: none;
       -ms-overflow-style: none;
     }
@@ -1812,21 +1812,21 @@ html_content = r"""<!DOCTYPE html>
       outline-offset: 3px !important;
     }
     .tv-focused {
-      outline: 4px solid #e50914 !important;
-      outline-offset: 4px !important;
-      transform: scale(1.08) translateY(-6px) !important;
+      border: 3.5px solid #ff1e27 !important;
+      outline: none !important;
+      transform: scale(1.06) translateY(-4px) !important;
       z-index: 50 !important;
-      box-shadow: 0 0 35px rgba(229, 9, 20, 1), 0 16px 40px rgba(0, 0, 0, 0.95) !important;
+      box-shadow: 0 0 0 3px rgba(255, 30, 39, 0.7), 0 0 32px rgba(229, 9, 20, 0.95), 0 14px 38px rgba(0, 0, 0, 0.95) !important;
       animation: tvFocusGlow 1.6s infinite alternate ease-in-out !important;
     }
     @keyframes tvFocusGlow {
       0% {
-        box-shadow: 0 0 22px rgba(229, 9, 20, 0.8), 0 12px 30px rgba(0, 0, 0, 0.9);
-        outline-color: #e50914;
+        box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.6), 0 0 22px rgba(229, 9, 20, 0.8), 0 12px 30px rgba(0, 0, 0, 0.9);
+        border-color: #e50914;
       }
       100% {
-        box-shadow: 0 0 42px rgba(244, 6, 18, 1), 0 18px 45px rgba(0, 0, 0, 1);
-        outline-color: #ff4d5d;
+        box-shadow: 0 0 0 4px rgba(255, 56, 72, 0.85), 0 0 40px rgba(244, 6, 18, 1), 0 16px 42px rgba(0, 0, 0, 1);
+        border-color: #ff4d5d;
       }
     }
     .movie-card.tv-focused .card-hover-overlay {
@@ -1834,6 +1834,36 @@ html_content = r"""<!DOCTYPE html>
     }
     .movie-card.tv-focused .card-poster {
       transform: scale(1.06) !important;
+    }
+
+    /* OSD (ON-SCREEN DISPLAY) DO PLAYER */
+    .player-osd-badge {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.85);
+      background: rgba(10, 14, 23, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 2px solid rgba(229, 9, 20, 0.8);
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.95), 0 0 30px rgba(229, 9, 20, 0.5);
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 40px;
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 35;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .player-osd-badge.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
     }
     .tv-focus-beacon {
       position: fixed;
@@ -3819,6 +3849,12 @@ html_content = r"""<!DOCTYPE html>
           </div>
         </div>
 
+        <!-- OSD FLUTUANTE PARA AVANÇO RÁPIDO E COMANDOS TV -->
+        <div id="playerOsdBadge" class="player-osd-badge" style="display: none;">
+          <span id="playerOsdIcon" style="font-size: 22px;">⏩</span>
+          <span id="playerOsdText">+1m (01:23:45)</span>
+        </div>
+
         <div id="skipIntroToast" class="skip-intro-toast" style="display: none;">
           <button class="btn-skip-intro" onclick="skipEpisodeIntro()" title="Pular Abertura (Tecla S)">
             <span>⏭️ Pular Abertura</span>
@@ -3849,7 +3885,7 @@ html_content = r"""<!DOCTYPE html>
 
         <div class="controls-row">
           <div class="controls-left">
-            <button class="btn-ctrl" onclick="togglePlayPause()" title="Play / Pause (Espaço)">
+            <button class="btn-ctrl" onclick="togglePlayPause()" title="Play / Pause (Espaço / K)">
               <svg id="playIcon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
               </svg>
@@ -3859,16 +3895,24 @@ html_content = r"""<!DOCTYPE html>
               </svg>
             </button>
 
-            <button class="btn-ctrl" onclick="skipTime(-10)" title="Voltar 10s (←)">
+            <button class="btn-ctrl" onclick="skipTime(-60)" title="Voltar 1 Minuto (Shift+← / PageDown)" style="font-size: 11px; font-weight: 800; padding: 2px 7px; color: var(--text-muted);">
+              -1m
+            </button>
+
+            <button class="btn-ctrl" onclick="skipTime(-10)" title="Voltar 10s (← / J)">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M1 4v6h6M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
               </svg>
             </button>
 
-            <button class="btn-ctrl" onclick="skipTime(10)" title="Avançar 10s (→)">
+            <button class="btn-ctrl" onclick="skipTime(10)" title="Avançar 10s (→ / L)">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M23 4v6h-6M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
               </svg>
+            </button>
+
+            <button class="btn-ctrl" onclick="skipTime(60)" title="Avançar 1 Minuto (Shift+→ / PageUp)" style="font-size: 11px; font-weight: 800; padding: 2px 7px; color: var(--text-muted);">
+              +1m
             </button>
 
             <button id="btnNextEpisode" class="btn-ctrl" onclick="playNextEpisode()" title="Próximo Episódio (N)" style="display: none;">
@@ -4034,6 +4078,38 @@ html_content = r"""<!DOCTYPE html>
       </div>
       <div style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; background: #000;">
         <iframe id="trailerIframe" style="position: absolute; top:0; left: 0; width: 100%; height: 100%; border: none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+  <!-- MODAL DE FILME EM CARTAZ NOS CINEMAS -->
+  <div id="cinemaModal" class="series-modal" onclick="closeCinemaModalOnOut(event)">
+    <div class="series-modal-box" style="max-width: 760px; padding: 0; overflow: hidden; background: #0b0e14; border: 1px solid var(--border); border-radius: var(--radius-lg);">
+      <div id="cinemaModalBanner" style="position: relative; width: 100%; height: 260px; background-size: cover; background-position: center; background-color: #1a202c;">
+        <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11, 14, 20, 0.3) 0%, rgba(11, 14, 20, 0.96) 100%);"></div>
+        <button class="series-modal-close" onclick="closeCinemaModal()">&times;</button>
+        <div style="position: absolute; bottom: 18px; left: 22px; right: 22px; display: flex; gap: 18px; align-items: flex-end;">
+          <img id="cinemaModalPoster" src="" style="width: 110px; height: 165px; border-radius: 8px; object-fit: cover; box-shadow: 0 8px 24px rgba(0,0,0,0.85); border: 1px solid rgba(255,255,255,0.25);">
+          <div style="flex: 1;">
+            <div style="display: inline-block; background: var(--primary); color: #fff; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 4px; margin-bottom: 6px;">🎟️ EM CARTAZ NOS CINEMAS</div>
+            <h2 id="cinemaModalTitle" style="font-size: 1.45rem; font-weight: 800; color: #fff; margin: 0 0 4px; line-height: 1.2;"></h2>
+            <div id="cinemaModalOrigTitle" style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;"></div>
+            <div style="display: flex; gap: 14px; font-size: 12px; font-weight: 700; color: #cbd5e1;">
+              <span id="cinemaModalRating" style="color: #fbbf24;"></span>
+              <span id="cinemaModalDate"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="padding: 22px;">
+        <h4 style="font-size: 13px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Sinopse</h4>
+        <p id="cinemaModalDesc" style="font-size: 14px; line-height: 1.6; color: #e2e8f0; margin-bottom: 22px; max-height: 160px; overflow-y: auto;"></p>
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+          <button id="cinemaModalBtnTrailer" class="btn-play-primary" style="background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.25);">
+            🎬 Ver Trailer Oficial
+          </button>
+          <button id="cinemaModalBtnWatch" class="btn-play-primary" style="display: none;">
+            ▶ Assistir no CineLocal
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -4215,14 +4291,27 @@ html_content = r"""<!DOCTYPE html>
           }
         } catch (e) {}
 
-        // Sincroniza progresso de reprodução e favoritos globais com o servidor
+        // Sincroniza progresso de reprodução, assistidos e favoritos globais com o servidor
         try {
           const userRes = await fetch('/api/user_state');
           if (userRes.ok) {
             const userData = await userRes.json();
             if (userData.watchProgress) {
-              state.watchProgress = Object.assign({}, state.watchProgress, userData.watchProgress);
+              for (const [id, item] of Object.entries(userData.watchProgress)) {
+                if (!item.id) item.id = id;
+                if (item.pct == null) {
+                  item.pct = item.duration > 0 ? Math.round((item.currentTime / item.duration) * 100) : 0;
+                }
+                if (!item.timestamp) {
+                  item.timestamp = item.updatedAt ? item.updatedAt * 1000 : Date.now();
+                }
+                state.watchProgress[id] = Object.assign({}, state.watchProgress[id] || {}, item);
+              }
               localStorage.setItem('cinelocal_watch_progress', JSON.stringify(state.watchProgress));
+            }
+            if (userData.watchedList) {
+              state.watchedList = Object.assign({}, state.watchedList, userData.watchedList);
+              localStorage.setItem('cinelocal_watched_list', JSON.stringify(state.watchedList));
             }
             if (userData.favorites) {
               state.favorites = Array.from(new Set([...state.favorites, ...userData.favorites]));
@@ -4353,48 +4442,97 @@ html_content = r"""<!DOCTYPE html>
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    /* HERO BANNER DINÂMICO */
+    /* HERO BANNER DINÂMICO COM AUTO-ROTAÇÃO (A CADA 10 SEGUNDOS) */
+    function renderHeroMedia(chosen, animated = true) {
+      const hero = document.getElementById('heroBanner');
+      if (!hero || !chosen) return;
+
+      const content = hero.querySelector('.hero-content');
+      const updateData = () => {
+        state.heroMedia = chosen;
+        hero.style.backgroundImage = `url('${encodeURI(chosen.posterPath)}')`;
+
+        document.getElementById('heroTitle').innerText = chosen.title;
+        document.getElementById('heroYear').innerText = chosen.year || '2024';
+        document.getElementById('heroRes').innerText = chosen.resolution || '1080p';
+        document.getElementById('heroTag').innerText = chosen.franchise ? chosen.franchise : 'Destaque CineLocal';
+        
+        let desc = chosen.overview || '';
+        if (!desc || desc.length < 15) {
+          const descMap = {
+            'A Origem': 'Dom Cobb é um ladrão habilidoso cuja arte é a espionagem corporativa através do mundo dos sonhos subconscientes.',
+            'Gladiador': 'Um ex-general romano jura se vingar do imperador corrupto que assassinou sua família e o sentenciou à escravidão.',
+            'Vingadores': 'Os heróis mais poderosos da Terra devem se unir e aprender a lutar como uma equipe para salvar a Terra.',
+            'The Bear': 'Um jovem e brilhante chef assume o restaurante de sanduíches da família em Chicago, enfrentando caos e superação.',
+            'Batman': 'Em Gotham City, o Cavaleiro das Trevas enfrenta os maiores criminosos do submundo para restaurar a ordem.',
+            'Interestelar': 'Uma equipe de exploradores viaja através de um buraco de minhoca no espaço para garantir o futuro da humanidade.',
+            'Senhor dos Anéis': 'A jornada épica pela Terra Média para destruir o Um Anel nas chamas da Montanha da Perdição.'
+          };
+          for (const [k, d] of Object.entries(descMap)) {
+            if (chosen.title.includes(k)) {
+              desc = d;
+              break;
+            }
+          }
+          if (!desc) desc = 'Disponível em alta resolução com áudio multicanal imersivo e streaming ultra rápido via CineLocal.';
+        }
+        document.getElementById('heroDesc').innerText = desc;
+
+        const heroVlc = document.getElementById('heroBtnVlc');
+        if (heroVlc) heroVlc.style.display = state.vlcAvailable ? 'inline-flex' : 'none';
+      };
+
+      if (animated && content) {
+        content.style.transition = 'opacity 0.28s ease, transform 0.28s ease';
+        content.style.opacity = '0';
+        content.style.transform = 'translateY(8px)';
+        setTimeout(() => {
+          updateData();
+          content.style.opacity = '1';
+          content.style.transform = 'translateY(0)';
+        }, 280);
+      } else {
+        updateData();
+      }
+    }
+
     function setupHeroBanner() {
       const hero = document.getElementById('heroBanner');
-      // Prioridade para destaque épico
+      if (!hero) return;
+
       const candidates = state.movies.filter(m => 
         (m.resolution && m.resolution.includes('4K')) || 
-        ['Interestelar', 'Batman', 'Vingadores', 'Gladiador', 'A Origem'].some(t => m.title.includes(t))
+        (m.rating && m.rating >= 7.6) ||
+        ['Interestelar', 'Batman', 'Vingadores', 'Gladiador', 'A Origem', 'O Senhor dos Anéis', 'Duna', 'Deadpool', 'Velozes'].some(t => m.title.includes(t))
       );
-      const chosen = candidates.length > 0 ? candidates[Math.floor(Math.random() * candidates.length)] : (state.movies[0] || state.series[0]);
-      if (!chosen) {
-        if (hero) hero.style.display = 'none';
+      state.heroPlaylist = candidates.length > 0 ? candidates : state.movies.slice(0, 10);
+      if (state.heroPlaylist.length === 0 && state.series.length > 0) {
+        state.heroPlaylist = state.series.slice(0, 5);
+      }
+
+      if (state.heroPlaylist.length === 0) {
+        hero.style.display = 'none';
         return;
       }
 
-      if (hero) hero.style.display = 'flex';
-      const heroVlc = document.getElementById('heroBtnVlc');
-      if (heroVlc) heroVlc.style.display = state.vlcAvailable ? 'inline-flex' : 'none';
+      hero.style.display = 'flex';
+      state.heroIndex = Math.floor(Math.random() * state.heroPlaylist.length);
+      renderHeroMedia(state.heroPlaylist[state.heroIndex], false);
 
-      state.heroMedia = chosen;
-      hero.style.backgroundImage = `url('${encodeURI(chosen.posterPath)}')`;
+      hero.addEventListener('mouseenter', () => { state.heroHovered = true; });
+      hero.addEventListener('mouseleave', () => { state.heroHovered = false; });
 
-      document.getElementById('heroTitle').innerText = chosen.title;
-      document.getElementById('heroYear').innerText = chosen.year || '2024';
-      document.getElementById('heroRes').innerText = chosen.resolution || '1080p';
-      document.getElementById('heroTag').innerText = chosen.franchise ? chosen.franchise : 'Destaque CineLocal';
-      
-      const descMap = {
-        'A Origem': 'Dom Cobb é um ladrão habilidoso cuja arte é a espionagem corporativa através do mundo dos sonhos subconscientes.',
-        'Gladiador': 'Um ex-general romano jura se vingar do imperador corrupto que assassinou sua família e o sentenciou à escravidão.',
-        'Vingadores': 'Os heróis mais poderosos da Terra devem se unir e aprender a lutar como uma equipe para salvar a Terra.',
-        'The Bear': 'Um jovem e brilhante chef assume o restaurante de sanduíches da família em Chicago, enfrentando caos e superação.',
-        'Batman': 'Em Gotham City, o Cavaleiro das Trevas enfrenta os maiores criminosos do submundo para restaurar a ordem.'
-      };
-      
-      let matchedDesc = 'Disponível em alta resolução com áudio multicanal imersivo e streaming ultra rápido via CineLocal.';
-      for (const [k, d] of Object.entries(descMap)) {
-        if (chosen.title.includes(k)) {
-          matchedDesc = d;
-          break;
-        }
-      }
-      document.getElementById('heroDesc').innerText = matchedDesc;
+      // Auto-rotação do Hero Banner a cada 10 segundos
+      if (window._heroInterval) clearInterval(window._heroInterval);
+      window._heroInterval = setInterval(() => {
+        if (document.hidden || state.heroHovered) return;
+        const isPlayerOpen = document.getElementById('playerModal') && document.getElementById('playerModal').classList.contains('active');
+        const isModalOpen = document.querySelector('.series-modal.active, .trailer-modal.active, #surpriseModal.active, #cinemaModal.active');
+        if (isPlayerOpen || isModalOpen) return;
+
+        state.heroIndex = (state.heroIndex + 1) % state.heroPlaylist.length;
+        renderHeroMedia(state.heroPlaylist[state.heroIndex], true);
+      }, 10000);
     }
 
     function playHeroMedia() {
@@ -4420,8 +4558,8 @@ html_content = r"""<!DOCTYPE html>
 
     function saveWatchProgress(id, currentTime, duration, media) {
       if (!id || !duration || duration <= 0) return;
-      const pct = Math.round((currentTime / duration) * 100);
-      const completed = pct >= 92;
+      const pct = Math.min(100, Math.max(0, Math.round((currentTime / duration) * 100)));
+      const completed = pct >= 90;
 
       state.watchProgress[id] = {
         id: id,
@@ -4432,7 +4570,7 @@ html_content = r"""<!DOCTYPE html>
         timestamp: Date.now(),
         title: media.title || '',
         posterPath: media.posterPath || '',
-        type: media.type || 'movie',
+        type: state.currentEpisodeSeries ? 'episode' : (media.type || 'movie'),
         resolution: media.resolution || '1080p',
         seriesId: state.currentEpisodeSeries ? state.currentEpisodeSeries.series.id : null,
         seriesTitle: state.currentEpisodeSeries ? state.currentEpisodeSeries.series.title : null,
@@ -4456,11 +4594,14 @@ html_content = r"""<!DOCTYPE html>
             id: id,
             currentTime: currentTime,
             duration: duration,
+            pct: pct,
+            completed: completed,
             item: {
               title: media.title || '',
               posterPath: media.posterPath || '',
               isEpisode: !!state.currentEpisodeSeries,
               seriesId: state.currentEpisodeSeries ? state.currentEpisodeSeries.series.id : null,
+              seriesTitle: state.currentEpisodeSeries ? state.currentEpisodeSeries.series.title : null,
               seasonIdx: state.currentEpisodeSeries ? state.currentEpisodeSeries.seasonIdx : null,
               episodeNumber: state.currentEpisodeSeries ? state.currentEpisodeSeries.epNum : null
             }
@@ -4484,6 +4625,7 @@ html_content = r"""<!DOCTYPE html>
       if (state.watchedList[id]) {
         if (state.watchProgress[id]) {
           state.watchProgress[id].completed = true;
+          state.watchProgress[id].pct = 100;
           localStorage.setItem('cinelocal_watch_progress', JSON.stringify(state.watchProgress));
         }
         showToast('Marcado como assistido ✓');
@@ -4493,6 +4635,15 @@ html_content = r"""<!DOCTYPE html>
           localStorage.setItem('cinelocal_watch_progress', JSON.stringify(state.watchProgress));
         }
         showToast('Desmarcado de assistidos');
+      }
+
+      if (window.location.protocol.startsWith('http')) {
+        fetch('/api/watched/toggle', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ id: id }),
+          keepalive: true
+        }).catch(() => {});
       }
 
       renderHomeCarousels();
@@ -4637,9 +4788,20 @@ html_content = r"""<!DOCTYPE html>
         return;
       }
 
-      // 0. CONTINUAR ASSISTINDO (Em andamento: 2% a 91%)
-      const continueItems = Object.values(state.watchProgress)
-        .filter(p => p.pct >= 2 && p.pct < 92 && !p.completed)
+      // Extrai e normaliza todos os itens de progresso de reprodução
+      const progressEntries = Object.entries(state.watchProgress).map(([k, p]) => {
+        const pct = p.pct != null ? p.pct : (p.duration > 0 ? Math.round((p.currentTime / p.duration) * 100) : 0);
+        return {
+          ...p,
+          id: p.id || k,
+          pct: pct,
+          timestamp: p.timestamp || (p.updatedAt ? p.updatedAt * 1000 : 0)
+        };
+      });
+
+      // 0. CONTINUAR ASSISTINDO (Em andamento: 2% a 89% e não marcado como assistido)
+      const continueItems = progressEntries
+        .filter(p => p.pct >= 2 && p.pct < 90 && !p.completed && !state.watchedList[p.id])
         .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
         .map(p => {
           if (p.type === 'episode' && p.seriesId) {
@@ -4669,6 +4831,28 @@ html_content = r"""<!DOCTYPE html>
       if (continueItems.length > 0) {
         addContinueWatchingCarousel(container, '⏱️ Continuar Assistindo', continueItems);
       }
+
+      // 0.05 JÁ ASSISTIDOS (Finalizados >= 90%, completed: true ou marcados manualmente)
+      const watchedMap = new Map();
+      progressEntries.forEach(p => {
+        if (p.completed || p.pct >= 90 || state.watchedList[p.id]) {
+          const item = state.movies.find(x => x.id === p.id) || state.series.find(x => x.id === p.id);
+          if (item) watchedMap.set(item.id, { ...item, watchedAt: p.timestamp });
+        }
+      });
+      Object.keys(state.watchedList).forEach(id => {
+        if (state.watchedList[id] && !watchedMap.has(id)) {
+          const item = state.movies.find(x => x.id === id) || state.series.find(x => x.id === id);
+          if (item) watchedMap.set(item.id, { ...item, watchedAt: 0 });
+        }
+      });
+      const watchedItems = Array.from(watchedMap.values()).sort((a, b) => (b.watchedAt || 0) - (a.watchedAt || 0));
+      if (watchedItems.length > 0) {
+        addWatchedCarousel(container, '✅ Já Assistidos', watchedItems);
+      }
+
+      // 0.08 FILMES EM CARTAZ NOS CINEMAS (Últimos lançamentos do cinema)
+      renderCinemaReleasesCarousel(container);
 
       // 0.1 MINHA LISTA (FAVORITOS)
       if (state.favorites && state.favorites.length > 0) {
@@ -4834,6 +5018,210 @@ html_content = r"""<!DOCTYPE html>
       `;
 
       container.appendChild(section);
+    }
+
+    function addWatchedCarousel(container, title, items) {
+      if (!items || items.length === 0) return;
+
+      const sectionId = 'carousel_watched';
+      const section = document.createElement('section');
+      section.className = 'carousel-section';
+
+      section.innerHTML = `
+        <div class="carousel-header">
+          <div class="carousel-title-box">
+            <h3 class="carousel-title">${title}</h3>
+            <span class="carousel-count">${items.length} concluídos</span>
+          </div>
+        </div>
+        <div class="carousel-track-wrapper">
+          <button class="carousel-btn left" onclick="scrollTrack('${sectionId}', -600)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <div id="${sectionId}" class="carousel-track">
+            ${items.map(item => {
+              const isSeries = item.type === 'series';
+              const clickAction = isSeries ? `openSeriesModal('${item.id}')` : `openMovieModal('${item.id}')`;
+
+              return `
+                <div class="movie-card dpad-focusable" tabindex="0" onclick="${clickAction}" data-id="${item.id}" onmouseenter="setTvFocus(this, false)">
+                  <img class="card-poster" src="${encodeURI(item.posterPath || '')}" alt="${item.title}" loading="lazy">
+                  <span class="card-badge" style="background: rgba(16, 185, 129, 0.95); color: #fff; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;">
+                    ✓ ASSISTIDO
+                  </span>
+                  <button class="card-btn-fav-floating" onclick="event.stopPropagation(); toggleWatched('${item.id}')" title="Desmarcar de Assistidos" style="color: #10b981; font-weight: 800;">
+                    ✓
+                  </button>
+                  <div class="card-hover-overlay">
+                    <div class="card-title">${item.title}</div>
+                    <div class="card-subinfo">${item.year || ''} • ${item.resolution || '1080p'}</div>
+                    <div class="card-hover-hint">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                      </svg>
+                      <span>Ver Novamente</span>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+          <button class="carousel-btn right" onclick="scrollTrack('${sectionId}', 600)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      `;
+
+      container.appendChild(section);
+    }
+
+    async function renderCinemaReleasesCarousel(container) {
+      if (!window.location.protocol.startsWith('http')) return;
+      try {
+        const res = await fetch('/api/cinema_releases');
+        if (!res.ok) return;
+        const data = await res.json();
+        const releases = data.releases || [];
+        if (!releases || releases.length === 0) return;
+
+        state.cinemaReleases = releases;
+        const sectionId = 'carousel_cinema_releases';
+
+        let section = document.getElementById('section_cinema_releases');
+        if (!section) {
+          section = document.createElement('section');
+          section.id = 'section_cinema_releases';
+          section.className = 'carousel-section';
+          
+          const afterTarget = container.querySelector('#carousel_watched') || container.querySelector('#carousel_continue');
+          if (afterTarget && afterTarget.closest('.carousel-section') && afterTarget.closest('.carousel-section').nextSibling) {
+            container.insertBefore(section, afterTarget.closest('.carousel-section').nextSibling);
+          } else {
+            container.appendChild(section);
+          }
+        }
+
+        section.innerHTML = `
+          <div class="carousel-header">
+            <div class="carousel-title-box">
+              <h3 class="carousel-title">🎟️ Em Cartaz nos Cinemas</h3>
+              <span class="carousel-count">${releases.length} lançamentos nas telonas</span>
+            </div>
+          </div>
+          <div class="carousel-track-wrapper">
+            <button class="carousel-btn left" onclick="scrollTrack('${sectionId}', -600)">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+            <div id="${sectionId}" class="carousel-track">
+              ${releases.map((item, idx) => {
+                const localMovie = state.movies.find(m => {
+                  const t1 = (m.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                  const t2 = (item.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                  return t1.includes(t2) || t2.includes(t1);
+                });
+                const inLibrary = !!localMovie;
+                const badgeHtml = inLibrary 
+                  ? `<span class="card-badge" style="background: rgba(16, 185, 129, 0.95); color: #fff;">🍿 NA BIBLIOTECA</span>`
+                  : `<span class="card-badge" style="background: rgba(229, 9, 20, 0.9); color: #fff;">🎟️ NO CINEMA</span>`;
+                
+                const year = item.releaseDate ? item.releaseDate.split('-')[0] : '';
+                const ratingBadge = item.rating > 0 ? `<span class="badge-tag" style="background: rgba(245, 197, 24, 0.9); color: #000; font-weight: 800; position: absolute; bottom: 8px; left: 8px; z-index: 4;">★ ${item.rating}</span>` : '';
+
+                return `
+                  <div class="movie-card dpad-focusable" tabindex="0" onclick="openCinemaReleaseModal(${idx})" data-cinema-idx="${idx}" onmouseenter="setTvFocus(this, false)">
+                    <img class="card-poster" src="${encodeURI(item.posterPath || '')}" alt="${item.title}" loading="lazy">
+                    ${badgeHtml}
+                    ${ratingBadge}
+                    <div class="card-hover-overlay">
+                      <div class="card-title">${item.title}</div>
+                      <div class="card-subinfo">${year} • ${item.originalTitle || ''}</div>
+                      <div class="card-hover-hint">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        <span>${inLibrary ? 'Assistir Agora' : 'Ver Detalhes & Trailer'}</span>
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+            <button class="carousel-btn right" onclick="scrollTrack('${sectionId}', 600)">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
+        `;
+      } catch (err) {}
+    }
+
+    function openCinemaReleaseModal(idx) {
+      if (!state.cinemaReleases || !state.cinemaReleases[idx]) return;
+      const rel = state.cinemaReleases[idx];
+      
+      const modal = document.getElementById('cinemaModal');
+      if (!modal) return;
+
+      const localMovie = state.movies.find(m => {
+        const t1 = (m.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const t2 = (rel.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        return t1.includes(t2) || t2.includes(t1);
+      });
+
+      document.getElementById('cinemaModalTitle').innerText = rel.title;
+      document.getElementById('cinemaModalOrigTitle').innerText = rel.originalTitle ? `Título Original: ${rel.originalTitle}` : '';
+      document.getElementById('cinemaModalDate').innerText = rel.releaseDate ? `Lançamento: ${rel.releaseDate.split('-').reverse().join('/')}` : '';
+      document.getElementById('cinemaModalRating').innerText = rel.rating > 0 ? `★ ${rel.rating} / 10 (${rel.voteCount} avaliações)` : '';
+      document.getElementById('cinemaModalDesc').innerText = rel.overview || 'Sinopse não disponível.';
+      
+      const poster = document.getElementById('cinemaModalPoster');
+      if (poster) poster.src = rel.posterPath || '';
+      
+      const banner = document.getElementById('cinemaModalBanner');
+      if (banner && rel.backdropPath) banner.style.backgroundImage = `url('${encodeURI(rel.backdropPath)}')`;
+
+      const btnWatch = document.getElementById('cinemaModalBtnWatch');
+      if (btnWatch) {
+        if (localMovie) {
+          btnWatch.style.display = 'inline-flex';
+          btnWatch.onclick = () => {
+            closeCinemaModal();
+            openPlayer(localMovie);
+          };
+        } else {
+          btnWatch.style.display = 'none';
+        }
+      }
+
+      const btnTrailer = document.getElementById('cinemaModalBtnTrailer');
+      if (btnTrailer) {
+        btnTrailer.onclick = () => {
+          const year = rel.releaseDate ? rel.releaseDate.split('-')[0] : '';
+          openTrailerModal(rel.title, year);
+        };
+      }
+
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      const firstBtn = modal.querySelector('button');
+      if (firstBtn) setTvFocus(firstBtn);
+    }
+
+    function closeCinemaModal() {
+      const modal = document.getElementById('cinemaModal');
+      if (modal) modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function closeCinemaModalOnOut(e) {
+      if (e.target.id === 'cinemaModal') closeCinemaModal();
     }
 
     function renderOnboarding(container) {
@@ -6287,6 +6675,48 @@ html_content = r"""<!DOCTYPE html>
       }
     }
 
+    let osdTimeout = null;
+    function showPlayerOsd(icon, text) {
+      const badge = document.getElementById('playerOsdBadge');
+      const iconEl = document.getElementById('playerOsdIcon');
+      const textEl = document.getElementById('playerOsdText');
+      if (!badge || !iconEl || !textEl) return;
+
+      iconEl.innerText = icon;
+      textEl.innerText = text;
+      badge.style.display = 'flex';
+      badge.classList.remove('show');
+      void badge.offsetWidth;
+      badge.classList.add('show');
+
+      if (osdTimeout) clearTimeout(osdTimeout);
+      osdTimeout = setTimeout(() => {
+        badge.classList.remove('show');
+        setTimeout(() => { badge.style.display = 'none'; }, 220);
+      }, 1000);
+    }
+
+    function jumpToPercentage(pct) {
+      const video = document.getElementById('mainVideo');
+      if (!video) return;
+      const dur = getEffectiveDuration();
+      if (dur <= 0) return;
+      const target = Math.max(0, Math.min(dur, (pct / 100) * dur));
+
+      if (state.isTranscoding && state.currentPlaying) {
+        state.transcodeOffset = Math.floor(target);
+        video.onloadedmetadata = () => {
+          video.play().catch(() => {});
+          renderSubtitles(state.transcodeOffset);
+        };
+        video.src = `/api/stream?path=${encodeURIComponent(state.currentPlaying.videoPath)}&audio=${state.currentAudioIndex}&ss=${state.transcodeOffset}`;
+        video.load();
+      } else {
+        video.currentTime = target;
+      }
+      showPlayerOsd('⏩', `${pct}% (${formatTime(target)})`);
+    }
+
     function skipTime(seconds) {
       const video = document.getElementById('mainVideo');
       if (!video) return;
@@ -6302,11 +6732,15 @@ html_content = r"""<!DOCTYPE html>
         };
         video.src = `/api/stream?path=${encodeURIComponent(state.currentPlaying.videoPath)}&audio=${state.currentAudioIndex}&ss=${state.transcodeOffset}`;
         video.load();
-        showToast(`${seconds > 0 ? '+' : ''}${seconds}s (${formatTime(target)})`);
       } else {
         video.currentTime = target;
-        showToast(`${seconds > 0 ? '+' : ''}${seconds}s`);
       }
+
+      const label = seconds > 0
+        ? (seconds >= 60 ? `+${Math.round(seconds/60)}m` : `+${seconds}s`)
+        : (seconds <= -60 ? `${Math.round(seconds/60)}m` : `${seconds}s`);
+      const icon = seconds > 0 ? (seconds >= 60 ? '⏩' : '▶️') : (seconds <= -60 ? '⏪' : '◀️');
+      showPlayerOsd(icon, `${label} (${formatTime(target)})`);
     }
 
     function toggleFullscreen() {
@@ -7349,6 +7783,14 @@ html_content = r"""<!DOCTYPE html>
           case 'skip_bwd':
             skipTime(-10);
             break;
+          case 'skip_fwd_60':
+          case 'fast_fwd':
+            skipTime(60);
+            break;
+          case 'skip_bwd_60':
+          case 'fast_bwd':
+            skipTime(-60);
+            break;
           case 'vol_up':
             setPlayerVolume(playerVolume + 5, true);
             break;
@@ -7453,6 +7895,8 @@ html_content = r"""<!DOCTYPE html>
       if (code === 179 || code === 415 || code === 19 || e.key === 'MediaPlayPause' || e.key === 'Play' || e.key === 'Pause') return 'MediaPlayPause';
       if (code === 227 || e.key === 'MediaRewind') return 'MediaRewind';
       if (code === 228 || e.key === 'MediaFastForward') return 'MediaFastForward';
+      if (code === 33 || code === 427 || e.key === 'PageUp' || e.key === 'ChannelUp') return 'PageUp';
+      if (code === 34 || code === 428 || e.key === 'PageDown' || e.key === 'ChannelDown') return 'PageDown';
       return e.key;
     }
 
@@ -7529,7 +7973,7 @@ html_content = r"""<!DOCTYPE html>
       if (isPlayerOpen) return;
 
       // 1. SE HOUVER MODAL ABERTO: NAVEGAÇÃO RESTRITA AOS BOTÕES DO MODAL
-      const activeModal = document.querySelector('.series-modal.active, .trailer-modal.active, #qrModal.active, #statsModal.active, #surpriseModal.active');
+      const activeModal = document.querySelector('.series-modal.active, .trailer-modal.active, #qrModal.active, #statsModal.active, #surpriseModal.active, #cinemaModal.active');
       if (activeModal) {
         const focusables = Array.from(activeModal.querySelectorAll('button:not([style*="display: none"]), a:not([style*="display: none"]), input, select'))
           .filter(el => {
@@ -7764,6 +8208,7 @@ html_content = r"""<!DOCTYPE html>
           if (isPlayerOpen) closePlayer();
           closeSeriesModal();
           closeMovieModal();
+          closeCinemaModal();
           closeMcuTrackerModal();
           closeSurpriseModal();
           closeTrailerModal();
@@ -7777,12 +8222,21 @@ html_content = r"""<!DOCTYPE html>
           if (normKey === ' ' || normKey === 'MediaPlayPause' || (typeof normKey === 'string' && normKey.toLowerCase() === 'k')) {
             e.preventDefault();
             togglePlayPause();
-          } else if (normKey === 'ArrowRight' || normKey === 'MediaFastForward') {
+          } else if (normKey === 'PageUp' || normKey === 'ChannelUp' || (normKey === 'ArrowRight' && e.shiftKey)) {
+            e.preventDefault();
+            skipTime(60);
+          } else if (normKey === 'PageDown' || normKey === 'ChannelDown' || (normKey === 'ArrowLeft' && e.shiftKey)) {
+            e.preventDefault();
+            skipTime(-60);
+          } else if (normKey === 'ArrowRight' || normKey === 'MediaFastForward' || (typeof normKey === 'string' && normKey.toLowerCase() === 'l')) {
             e.preventDefault();
             skipTime(10);
-          } else if (normKey === 'ArrowLeft' || normKey === 'MediaRewind') {
+          } else if (normKey === 'ArrowLeft' || normKey === 'MediaRewind' || (typeof normKey === 'string' && normKey.toLowerCase() === 'j')) {
             e.preventDefault();
             skipTime(-10);
+          } else if (typeof normKey === 'string' && normKey >= '0' && normKey <= '9') {
+            e.preventDefault();
+            jumpToPercentage(parseInt(normKey) * 10);
           } else if (normKey === 'ArrowUp') {
             e.preventDefault();
             setPlayerVolume(playerVolume + 5, true);
