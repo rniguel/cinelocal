@@ -241,35 +241,41 @@
       background: rgba(255, 255, 255, 0.12);
     }
 
-    /* HERO BANNER WIDESCREEN */
+    /* HERO BANNER WIDESCREEN (INTRO EM TELA CHEIA - TEXTO ANCORADO NA BASE) */
     .hero-banner {
       position: relative;
       width: 100%;
-      height: 560px;
-      min-height: 520px;
+      height: 90vh;
+      min-height: 580px;
+      max-height: 920px;
       display: flex;
       align-items: flex-end;
-      padding: 40px 60px;
+      padding: 0;
       box-sizing: border-box;
       background-size: cover;
-      background-position: center 25%;
+      background-position: center 20%;
       overflow: hidden;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
       transition: background-image 0.8s ease-in-out;
     }
 
     .hero-backdrop-gradient {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to top, var(--bg-dark) 5%, rgba(9, 11, 16, 0.7) 45%, rgba(9, 11, 16, 0.2) 100%),
-                  linear-gradient(to right, rgba(9, 11, 16, 0.95) 15%, rgba(9, 11, 16, 0.6) 45%, transparent 100%);
+      background: linear-gradient(to top, var(--bg-dark) 8%, rgba(9, 11, 16, 0.75) 45%, rgba(9, 11, 16, 0.15) 100%),
+                  linear-gradient(to right, rgba(9, 11, 16, 0.95) 20%, rgba(9, 11, 16, 0.6) 55%, transparent 100%);
       pointer-events: none;
+      z-index: 1;
     }
 
     .hero-content {
-      position: relative;
+      position: absolute;
+      bottom: 36px;
+      left: 60px;
+      right: 60px;
       z-index: 2;
       max-width: 680px;
+      margin-bottom: 0;
       animation: fadeIn 0.6s ease;
     }
 
@@ -283,28 +289,28 @@
       text-transform: uppercase;
       background: var(--primary);
       color: #fff;
-      padding: 4px 10px;
+      padding: 3px 9px;
       border-radius: 4px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       box-shadow: 0 2px 8px rgba(229, 9, 20, 0.5);
     }
 
     .hero-title {
-      font-size: 42px;
+      font-size: 38px;
       font-weight: 900;
-      line-height: 1.1;
-      margin-bottom: 12px;
-      letter-spacing: -1px;
-      text-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+      line-height: 1.15;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+      text-shadow: 0 4px 14px rgba(0, 0, 0, 0.9);
     }
 
     .hero-meta {
       display: flex;
       align-items: center;
-      gap: 12px;
-      font-size: 14px;
+      gap: 10px;
+      font-size: 13px;
       color: var(--text-muted);
-      margin-bottom: 14px;
+      margin-bottom: 10px;
       font-weight: 600;
     }
 
@@ -318,15 +324,16 @@
     }
 
     .hero-overview {
-      font-size: 15px;
-      line-height: 1.5;
+      font-size: 14px;
+      line-height: 1.45;
       color: #cbd5e1;
-      margin-bottom: 24px;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+      margin-bottom: 18px;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
       display: -webkit-box;
-      -webkit-line-clamp: 3;
+      -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      max-width: 580px;
     }
 
     .hero-buttons {
@@ -2066,10 +2073,17 @@
 
       /* Hero Banner Mobile */
       .hero-banner {
-        height: 480px;
-        min-height: 450px;
-        padding: 24px 16px;
+        height: 75vh;
+        min-height: 480px;
+        max-height: 600px;
+        padding: 0;
         margin-bottom: 16px;
+      }
+      .hero-content {
+        bottom: 20px;
+        left: 16px;
+        right: 16px;
+        max-width: 100%;
       }
       .hero-title {
         font-size: 24px;
@@ -3639,9 +3653,6 @@
             <button class="btn-vlc-secondary" id="movieModalBtnTrailer" onclick="openTrailerCurrentMovie()">
               🎬 Trailer
             </button>
-            <button class="btn-vlc-secondary" id="movieModalBtnCinemaMode" onclick="startCinemaModeMovie()" title="Exibe o trailer oficial antes de iniciar o filme">
-              🍿 Modo Cinema
-            </button>
             <button class="btn-vlc-secondary" id="movieModalBtnDownloadSub" onclick="downloadSubtitlesForCurrentMovie()" title="Buscar e baixar legenda pt-BR na internet automaticamente">
               📥 Baixar Legenda pt-BR
             </button>
@@ -4331,7 +4342,7 @@
         return;
       }
 
-      if (hero) hero.style.display = 'block';
+      if (hero) hero.style.display = 'flex';
       const heroVlc = document.getElementById('heroBtnVlc');
       if (heroVlc) heroVlc.style.display = state.vlcAvailable ? 'inline-flex' : 'none';
 
@@ -4555,24 +4566,10 @@
       if (modal) modal.classList.remove('active');
       if (iframe) iframe.src = '';
       document.body.style.overflow = '';
-      if (state.pendingCinemaModeMovie) {
-        const m = state.pendingCinemaModeMovie;
-        state.pendingCinemaModeMovie = null;
-        openPlayer(m, 0);
-      }
     }
 
     function closeTrailerModalOnOut(e) {
       if (e.target.id === 'trailerModal') closeTrailerModal();
-    }
-
-    function startCinemaModeMovie() {
-      if (!currentModalMovie) return;
-      const m = currentModalMovie;
-      closeMovieModal();
-      state.pendingCinemaModeMovie = m;
-      openTrailerModal(m.title, m.year);
-      showToast('🍿 Modo Cinema: Trailer iniciado. O filme começará logo em seguida!');
     }
 
     function skipEpisodeIntro() {
@@ -4717,12 +4714,13 @@
         addMarvelCarousel(container, '⚡ Universo Marvel (MCU)', marvelItems);
       }
 
-      // 3.1 SAGAS EM ORDEM CRONOLÓGICA (Star Wars, O Senhor dos Anéis, etc.)
+      // 3.1 SAGAS EM ORDEM DE LANÇAMENTO (Star Wars) E CRONOLÓGICA (Tolkien)
       const starWarsItems = state.movies
         .filter(m => m.franchise && m.franchise.toLowerCase().includes('star wars'))
-        .sort((a, b) => (a.sequence || a.year || 0) - (b.sequence || b.year || 0));
+        .sort((a, b) => (a.year || 0) - (b.year || 0))
+        .map((item, idx) => ({ ...item, displaySequence: idx + 1 }));
       if (starWarsItems.length >= 2) {
-        addCarousel(container, '🌌 Saga Star Wars (Ordem Cronológica)', starWarsItems, true);
+        addCarousel(container, '🌌 Saga Star Wars (Ordem de Lançamento)', starWarsItems, true);
       }
 
       const tolkienItems = state.movies
@@ -5016,7 +5014,8 @@
       const clickAction = isSeries ? `openSeriesModal('${item.id}')` : `openMovieModal('${item.id}')`;
       const playAction = isSeries ? `openSeriesModal('${item.id}')` : `openPlayerById('${item.id}')`;
       
-      const seqBadge = (showSeq && item.sequence) ? `<span class="badge-seq">#${String(item.sequence).padStart(2, '0')}</span>` : '';
+      const seqNum = item.displaySequence || item.sequence;
+      const seqBadge = (showSeq && seqNum) ? `<span class="badge-seq">#${String(seqNum).padStart(2, '0')}</span>` : '';
       const audioBadge = item.audio ? `<span class="badge-tag badge-${item.audio.toLowerCase()}">${item.audio}</span>` : '';
       const subBadge = item.hasSubtitles ? `<span class="badge-tag badge-sub" title="Legenda disponível">CC</span>` : '';
       const subInfo = isSeries ? `${item.totalSeasons} Temporada • ${item.totalEpisodes} Eps` : `${item.year || ''} • ${item.format || ''}`;
