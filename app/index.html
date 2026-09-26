@@ -245,7 +245,8 @@
     .hero-banner {
       position: relative;
       width: 100%;
-      height: 520px;
+      height: 560px;
+      min-height: 520px;
       display: flex;
       align-items: flex-end;
       padding: 40px 60px;
@@ -1823,77 +1824,224 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
 
+    /* MENU HAMBURGUER & DRAWER MOBILE */
+    .mobile-hamburger-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #fff;
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    .mobile-hamburger-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+    .mobile-drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 1050;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .mobile-drawer-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .mobile-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 320px;
+      max-width: 86vw;
+      background: linear-gradient(180deg, #181c26 0%, #0d1017 100%);
+      border-left: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: -10px 0 35px rgba(0, 0, 0, 0.85);
+      z-index: 1060;
+      transform: translateX(100%);
+      transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .mobile-drawer.active {
+      transform: translateX(0);
+    }
+    .mobile-drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .mobile-drawer-close {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 26px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+    .mobile-drawer-content {
+      padding: 16px 18px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex: 1;
+    }
+    .mobile-drawer-section-title {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .mobile-drawer-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .mobile-drawer-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: #cbd5e1;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+    .mobile-drawer-link:hover, .mobile-drawer-link.active {
+      background: rgba(229, 9, 20, 0.15);
+      border-color: rgba(229, 9, 20, 0.4);
+      color: #fff;
+    }
+    .mobile-drawer-link.active {
+      border-left: 4px solid var(--primary);
+      font-weight: 700;
+    }
+    .m-link-icon {
+      font-size: 17px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+    }
+    .mobile-drawer-footer {
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .mobile-drawer-ip-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .m-ip-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .m-ip-val {
+      font-size: 12px;
+      color: #00ff88;
+      font-family: monospace;
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    /* SEÇÃO MARVEL DESKTOP */
+    .marvel-section .carousel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .marvel-section .carousel-title-box {
+      flex: 1;
+      min-width: 220px;
+    }
+
     /* DESIGN RESPONSIVO MOBILE COMPLETO (CELULARES E TABLETS) */
     @media (max-width: 768px) {
       header {
-        padding: 8px 12px;
+        padding: 10px 14px;
       }
       .header-content {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 8px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
       }
       .header-left {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-      }
-      .brand-title {
-        font-size: 18px;
-      }
-      .brand-icon {
-        width: 32px;
-        height: 32px;
+        width: auto;
       }
       .main-nav {
-        gap: 4px;
-      }
-      .nav-btn {
-        padding: 6px 12px;
-        font-size: 12px;
-        border-radius: 20px;
-      }
-      .header-right {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 6px;
-        overflow-x: auto;
-        padding-bottom: 2px;
-      }
-      .search-container {
-        flex: 1;
-        min-width: 120px;
-      }
-      .search-input {
-        width: 100% !important;
-        font-size: 12px;
-        padding: 6px 26px 6px 28px;
-        background-color: rgba(255, 255, 255, 0.08);
+        display: none !important;
       }
       .btn-header-action {
-        padding: 6px 10px;
-        font-size: 11px;
-        white-space: nowrap;
-        border-radius: 20px;
+        display: none !important;
       }
       #protocolBadge {
         display: none !important;
       }
+      .header-right {
+        width: auto;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        overflow: visible;
+        padding-bottom: 0;
+      }
+      .search-container {
+        width: 140px;
+        min-width: 100px;
+        flex: none;
+      }
+      .search-input {
+        width: 100% !important;
+        font-size: 12px;
+        padding: 6px 18px 6px 26px !important;
+        background-color: rgba(255, 255, 255, 0.08);
+      }
+      .mobile-hamburger-btn {
+        display: inline-flex !important;
+      }
 
       /* Hero Banner Mobile */
       .hero-banner {
-        height: 360px;
-        padding: 20px 14px;
-        margin-bottom: 14px;
+        height: 480px;
+        min-height: 450px;
+        padding: 24px 16px;
+        margin-bottom: 16px;
       }
       .hero-title {
-        font-size: 22px;
-        line-height: 1.2;
-        margin-bottom: 6px;
+        font-size: 24px;
+        line-height: 1.25;
+        margin-bottom: 8px;
       }
       .hero-meta {
         font-size: 11px;
@@ -1901,26 +2049,27 @@
         margin-bottom: 10px;
       }
       .hero-overview {
-        font-size: 12px;
-        line-height: 1.4;
-        margin-bottom: 14px;
-        -webkit-line-clamp: 2;
+        font-size: 13px;
+        line-height: 1.45;
+        margin-bottom: 16px;
+        -webkit-line-clamp: 3;
       }
       .hero-buttons {
-        gap: 8px;
+        gap: 10px;
         width: 100%;
       }
       .btn-hero-play {
         flex: 1;
         justify-content: center;
-        padding: 10px 14px;
+        padding: 12px 18px;
         font-size: 14px;
+        font-weight: 700;
       }
       .btn-hero-vlc {
         display: none !important;
       }
       .btn-hero-info {
-        padding: 10px 14px;
+        padding: 12px 18px;
         font-size: 14px;
       }
 
@@ -1946,6 +2095,31 @@
         padding-bottom: 6px;
         scroll-snap-type: x mandatory;
         -webkit-overflow-scrolling: touch;
+      }
+
+      /* Marvel Section Mobile */
+      .marvel-section .carousel-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+      .marvel-section .carousel-title {
+        font-size: 19px;
+        line-height: 1.3;
+      }
+      .marvel-section .btn-mcu-timeline-header {
+        width: 100%;
+        justify-content: center;
+        padding: 9px 14px;
+        font-size: 12px;
+      }
+      .mcu-modal-title {
+        font-size: 17px !important;
+        line-height: 1.3;
+      }
+      .mcu-studios-tag {
+        font-size: 12px;
+        padding: 2px 6px;
       }
       .movie-card {
         flex: 0 0 135px !important;
@@ -2784,9 +2958,83 @@
           </svg>
           Ajuda
         </button>
+
+        <button id="btnMobileMenu" class="mobile-hamburger-btn" onclick="toggleMobileMenu()" title="Menu de Navegação">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
       </div>
     </div>
   </header>
+
+  <!-- MENU DRAWER MOBILE -->
+  <div id="mobileDrawerOverlay" class="mobile-drawer-overlay" onclick="closeMobileMenu()"></div>
+  <aside id="mobileDrawer" class="mobile-drawer">
+    <div class="mobile-drawer-header">
+      <div class="brand" onclick="switchView('home'); closeMobileMenu();">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+            <line x1="7" y1="2" x2="7" y2="22"></line>
+            <line x1="17" y1="2" x2="17" y2="22"></line>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+          </svg>
+        </div>
+        <span class="brand-title" style="font-size: 18px;">CineLocal</span>
+      </div>
+      <button class="mobile-drawer-close" onclick="closeMobileMenu()" title="Fechar Menu">&times;</button>
+    </div>
+
+    <div class="mobile-drawer-content">
+      <div class="mobile-drawer-section-title">Navegação Principal</div>
+      <nav class="mobile-drawer-nav">
+        <button id="mNavHome" class="mobile-drawer-link active" onclick="switchView('home'); closeMobileMenu();">
+          <span class="m-link-icon">🏠</span> Início
+        </button>
+        <button id="mNavMovies" class="mobile-drawer-link" onclick="switchView('movies'); closeMobileMenu();">
+          <span class="m-link-icon">🎬</span> Filmes
+        </button>
+        <button id="mNavSeries" class="mobile-drawer-link" onclick="switchView('series'); closeMobileMenu();">
+          <span class="m-link-icon">📺</span> Séries
+        </button>
+        <button id="mNavFavorites" class="mobile-drawer-link" onclick="switchView('movies'); setMovieFilter('favorites'); closeMobileMenu();">
+          <span class="m-link-icon">⭐</span> Minha Lista (Favoritos)
+        </button>
+        <button class="mobile-drawer-link" onclick="openMcuTrackerModal(); closeMobileMenu();">
+          <span class="m-link-icon">⚡</span> Universo Marvel (MCU 66)
+        </button>
+      </nav>
+
+      <div class="mobile-drawer-section-title">Ações Rápidas</div>
+      <div class="mobile-drawer-nav">
+        <button class="mobile-drawer-link" onclick="openSurpriseModal(); closeMobileMenu();">
+          <span class="m-link-icon">🎲</span> Surpreenda-me (Sorteador)
+        </button>
+        <button class="mobile-drawer-link" onclick="openQrConnectModal('remote'); closeMobileMenu();">
+          <span class="m-link-icon">📱</span> Controle Remoto Celular
+        </button>
+        <button class="mobile-drawer-link" onclick="openQrConnectModal('tv'); closeMobileMenu();">
+          <span class="m-link-icon">📺</span> Conectar Smart TV / QR
+        </button>
+        <button class="mobile-drawer-link" onclick="showHelpModal(); closeMobileMenu();">
+          <span class="m-link-icon">❓</span> Ajuda & Instruções
+        </button>
+      </div>
+
+      <div class="mobile-drawer-footer">
+        <div class="mobile-drawer-ip-box">
+          <span class="m-ip-label">Endereço na Rede Local:</span>
+          <span id="mDrawerIp" class="m-ip-val">http://localhost:8000</span>
+        </div>
+        <div style="font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 10px;">
+          CineLocal v2.4 • Streaming Doméstico
+        </div>
+      </div>
+    </div>
+  </aside>
 
   <!-- VIEW 1: HOME (HERO BANNER + CARROSÉIS NETFLIX) -->
   <main id="homeView">
@@ -3455,12 +3703,54 @@
       const isHttp = window.location.protocol.startsWith('http');
       const badge = document.getElementById('protocolBadge');
       const text = document.getElementById('protocolText');
-      if (isHttp) {
-        badge.className = 'badge-protocol badge-lan';
-        text.innerText = 'Servidor LAN Ativo';
-      } else {
-        badge.className = 'badge-protocol badge-local';
-        text.innerText = 'Modo Portátil';
+      if (badge && text) {
+        if (isHttp) {
+          badge.className = 'badge-protocol badge-lan';
+          text.innerText = 'Servidor LAN Ativo';
+        } else {
+          badge.className = 'badge-protocol badge-local';
+          text.innerText = 'Modo Portátil';
+        }
+      }
+      const mIp = document.getElementById('mDrawerIp');
+      if (mIp) {
+        mIp.innerText = isHttp ? (state.localUrl || window.location.origin) : 'Arquivo Local (file://)';
+      }
+    }
+
+    /* MENU HAMBURGUER MOBILE */
+    function toggleMobileMenu() {
+      const drawer = document.getElementById('mobileDrawer');
+      const overlay = document.getElementById('mobileDrawerOverlay');
+      if (drawer && overlay) {
+        if (drawer.classList.contains('active')) {
+          closeMobileMenu();
+        } else {
+          openMobileMenu();
+        }
+      }
+    }
+
+    function openMobileMenu() {
+      const drawer = document.getElementById('mobileDrawer');
+      const overlay = document.getElementById('mobileDrawerOverlay');
+      if (drawer && overlay) {
+        drawer.classList.add('active');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closeMobileMenu() {
+      const drawer = document.getElementById('mobileDrawer');
+      const overlay = document.getElementById('mobileDrawerOverlay');
+      if (drawer && overlay) {
+        drawer.classList.remove('active');
+        overlay.classList.remove('active');
+        const player = document.getElementById('playerModal');
+        if (!player || !player.classList.contains('active')) {
+          document.body.style.overflow = '';
+        }
       }
     }
 
@@ -3470,6 +3760,15 @@
       document.getElementById('navHome').classList.toggle('active', viewName === 'home');
       document.getElementById('navMovies').classList.toggle('active', viewName === 'movies');
       document.getElementById('navSeries').classList.toggle('active', viewName === 'series');
+
+      const mHome = document.getElementById('mNavHome');
+      const mMovies = document.getElementById('mNavMovies');
+      const mSeries = document.getElementById('mNavSeries');
+      const mFavs = document.getElementById('mNavFavorites');
+      if (mHome) mHome.classList.toggle('active', viewName === 'home');
+      if (mMovies) mMovies.classList.toggle('active', viewName === 'movies');
+      if (mSeries) mSeries.classList.toggle('active', viewName === 'series');
+      if (mFavs) mFavs.classList.remove('active');
 
       document.getElementById('homeView').style.display = viewName === 'home' ? 'block' : 'none';
       document.getElementById('moviesView').style.display = viewName === 'movies' ? 'block' : 'none';
@@ -3807,7 +4106,7 @@
         .filter(m => m.franchise && m.franchise.toLowerCase().includes('marvel'))
         .sort((a, b) => (a.sequence || 99) - (b.sequence || 99));
       if (marvelItems.length > 0) {
-        addMarvelCarousel(container, '⚡ Universo Marvel (Ordem Cronológica do MCU)', marvelItems);
+        addMarvelCarousel(container, '⚡ Universo Marvel (MCU)', marvelItems);
       }
 
       // 4. GRANDES FRANQUIAS
@@ -3984,10 +4283,10 @@
         <div class="carousel-header">
           <div class="carousel-title-box">
             <h3 class="carousel-title">${title}</h3>
-            <span class="carousel-count">${items.length} títulos na sua coleção</span>
+            <span class="carousel-count">Ordem Cronológica • ${items.length} títulos na sua coleção</span>
           </div>
           <button class="btn-mcu-timeline-header" onclick="openMcuTrackerModal()">
-            <span class="pulse-dot"></span> Guia Cronológico Completo (66 Títulos) ➔
+            <span class="pulse-dot"></span> Guia Cronológico (66 Títulos) ➔
           </button>
         </div>
         <div class="carousel-track-wrapper">
@@ -5096,10 +5395,10 @@
 
     function getEffectiveDuration() {
       const video = document.getElementById('mainVideo');
-      if (state.mediaTotalDuration && state.mediaTotalDuration > 0) {
+      if (state.mediaTotalDuration && state.mediaTotalDuration > 30) {
         return state.mediaTotalDuration;
       }
-      if (video && video.duration && isFinite(video.duration) && video.duration > 0) {
+      if (!state.isTranscoding && video && video.duration && isFinite(video.duration) && video.duration > 30) {
         return video.duration;
       }
       return 0;
@@ -5112,7 +5411,7 @@
       state.isTranscoding = false;
       state.transcodeOffset = 0;
       state.currentAudioIndex = 1;
-      state.mediaTotalDuration = 0;
+      state.mediaTotalDuration = (media.duration && media.duration > 30) ? media.duration : 0;
       clearInterval(nextEpCountdownTimer);
       const nextToast = document.getElementById('nextEpisodeToast');
       if (nextToast) nextToast.style.display = 'none';
@@ -5153,10 +5452,10 @@
       }
 
       video.onloadedmetadata = () => {
-        if (video.duration && isFinite(video.duration) && video.duration > 0) {
+        if (!state.isTranscoding && video.duration && isFinite(video.duration) && video.duration > 30) {
           state.mediaTotalDuration = video.duration;
         }
-        if (targetTime > 0 && video.duration && targetTime < video.duration) {
+        if (!state.isTranscoding && targetTime > 0 && video.duration && targetTime < video.duration) {
           video.currentTime = targetTime;
         }
         video.play().catch(() => {});
@@ -5204,7 +5503,7 @@
           fetch(`/api/audio_info?path=${encodeURIComponent(media.videoPath)}`)
             .then(r => r.ok ? r.json() : Promise.reject())
             .then(data => {
-              if (data.duration && data.duration > 0) {
+              if (data.duration && data.duration > 30) {
                 state.mediaTotalDuration = data.duration;
               }
               if (data.streams && data.streams.length > 0) {
@@ -5239,6 +5538,7 @@
       const video = document.getElementById('mainVideo');
       if (!video) return;
       const currentEffective = getEffectiveCurrentTime();
+      const savedDuration = getEffectiveDuration();
       video.pause();
 
       state.currentAudioIndex = audioIndex;
@@ -5247,18 +5547,36 @@
       if (audioIndex === 1) {
         state.isTranscoding = false;
         state.transcodeOffset = 0;
-        video.src = encodeURI(media.videoPath);
         video.onloadedmetadata = () => {
-          if (currentEffective > 0) video.currentTime = currentEffective;
+          if (video.duration && isFinite(video.duration) && video.duration > 30) {
+            state.mediaTotalDuration = video.duration;
+          } else if (savedDuration > 30) {
+            state.mediaTotalDuration = savedDuration;
+          }
+          if (currentEffective > 0 && currentEffective < (video.duration || Infinity)) {
+            video.currentTime = currentEffective;
+          }
           video.play().catch(() => {});
+          renderSubtitles(currentEffective);
         };
+        video.src = encodeURI(media.videoPath);
         video.load();
       } else {
         state.isTranscoding = true;
         state.transcodeOffset = Math.floor(currentEffective);
+        if (savedDuration > 30) {
+          state.mediaTotalDuration = savedDuration;
+        }
+        // Sobrescreve onloadedmetadata para impedir que os metadados do stream fragmentado (1s) sobrescrevam a duração real
+        video.onloadedmetadata = () => {
+          if (savedDuration > 30) {
+            state.mediaTotalDuration = savedDuration;
+          }
+          video.play().catch(() => {});
+          renderSubtitles(state.transcodeOffset);
+        };
         video.src = `/api/stream?path=${encodeURIComponent(media.videoPath)}&audio=${audioIndex}&ss=${state.transcodeOffset}`;
         video.load();
-        video.play().catch(() => {});
       }
 
       document.querySelectorAll('#audioTracksList .dropdown-item').forEach((btn, idx) => {
@@ -5311,13 +5629,16 @@
       if (!video) return;
       const dur = getEffectiveDuration();
       const curr = getEffectiveCurrentTime();
-      const target = Math.max(0, Math.min(dur || Infinity, curr + seconds));
+      const target = Math.max(0, Math.min(dur > 30 ? dur : Infinity, curr + seconds));
 
       if (state.isTranscoding && state.currentPlaying) {
         state.transcodeOffset = Math.floor(target);
+        video.onloadedmetadata = () => {
+          video.play().catch(() => {});
+          renderSubtitles(state.transcodeOffset);
+        };
         video.src = `/api/stream?path=${encodeURIComponent(state.currentPlaying.videoPath)}&audio=${state.currentAudioIndex}&ss=${state.transcodeOffset}`;
         video.load();
-        video.play().catch(() => {});
         showToast(`${seconds > 0 ? '+' : ''}${seconds}s (${formatTime(target)})`);
       } else {
         video.currentTime = target;
@@ -5339,15 +5660,18 @@
       const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
       const dur = getEffectiveDuration();
       if (dur <= 0) return;
-      const targetTime = pos * dur;
+      const targetTime = Math.max(0, Math.min(dur, pos * dur));
 
       if (state.isTranscoding && state.currentPlaying) {
         state.transcodeOffset = Math.floor(targetTime);
         const video = document.getElementById('mainVideo');
         if (video) {
+          video.onloadedmetadata = () => {
+            video.play().catch(() => {});
+            renderSubtitles(state.transcodeOffset);
+          };
           video.src = `/api/stream?path=${encodeURIComponent(state.currentPlaying.videoPath)}&audio=${state.currentAudioIndex}&ss=${state.transcodeOffset}`;
           video.load();
-          video.play().catch(() => {});
         }
       } else {
         const video = document.getElementById('mainVideo');
@@ -5402,6 +5726,10 @@
 
       video.addEventListener('ended', () => {
         const dur = getEffectiveDuration();
+        const curr = getEffectiveCurrentTime();
+        if (state.isTranscoding && dur > 30 && curr < dur - 15) {
+          return;
+        }
         if (state.currentPlaying && dur > 0) {
           saveWatchProgress(state.currentPlaying.id, dur, dur, state.currentPlaying);
         }
@@ -5498,6 +5826,7 @@
 
       if (cues && cues.length > 0) {
         state.subtitleCues = cues;
+        renderSubtitles(getEffectiveCurrentTime());
         if (fromUserClick) showToast('Legenda ativada');
       } else {
         // Tenta buscar o arquivo .srt diretamente se não estiver no banco
@@ -5507,6 +5836,7 @@
             const parsed = parseClientSRT(text);
             if (parsed.length > 0) {
               state.subtitleCues = parsed;
+              renderSubtitles(getEffectiveCurrentTime());
               if (fromUserClick) showToast('Legenda carregada');
             }
           })

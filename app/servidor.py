@@ -32,6 +32,7 @@ PORTABLE_VLC = os.path.join(APP_DIR, "vlc", "vlc.exe")
 SYSTEM_VLC = r"C:\Program Files\VideoLAN\VLC\vlc.exe"
 
 AUDIO_CACHE = {}
+AUDIO_INFO_CACHE = {}
 _CLIENT_ACTIVITY_CACHE = {}
 
 def should_log_activity(key, window_seconds=12):
@@ -92,6 +93,8 @@ def get_best_audio_stream(movie_path):
 
 def get_audio_streams_info(movie_path):
     """Detecta as faixas de áudio disponíveis no vídeo via FFmpeg e calcula a duração total em segundos."""
+    if movie_path in AUDIO_INFO_CACHE:
+        return AUDIO_INFO_CACHE[movie_path]
     ffmpeg_bin = get_ffmpeg_bin()
     if not ffmpeg_bin or not os.path.exists(movie_path):
         return {"streams": [], "duration": 0}
@@ -139,7 +142,10 @@ def get_audio_streams_info(movie_path):
                     "label": f"{lang_label} • {channels}",
                     "details": details
                 })
-        return {"streams": streams, "duration": duration_sec}
+        result = {"streams": streams, "duration": duration_sec}
+        if duration_sec > 0:
+            AUDIO_INFO_CACHE[movie_path] = result
+        return result
     except Exception as e:
         print(f"Erro ao extrair audio_info: {e}")
         return {"streams": [], "duration": 0}
