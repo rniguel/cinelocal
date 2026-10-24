@@ -87,6 +87,7 @@ CineLocal/
 ├── Atualizar Catalogo.bat             # Atualiza catálogo e metadados
 ├── Buscar Metadados (TMDb).bat        # Enriquecedor de metadados e pôsteres via TMDb
 ├── Otimizar Audio Web.bat             # Converte áudio de vídeos incompatíveis
+├── CONTRIBUTING.md                    # Guia completo de contribuição, issues e Git Flow
 ├── README.md                          # Guia completo do projeto
 ├── GEMINI.md                          # Regras e convenções para assistentes IA
 ├── docs/                              # Documentações técnicas e aprofundadas
@@ -129,6 +130,61 @@ CineLocal/
    * Dê dois cliques em **`Atualizar Catalogo.bat`** (ou rode `python app/atualizar_catalogo.py`).
    * Dê dois cliques em **`Abrir CineLocal.bat`** (ou rode `python run.py`).
    * Aproveite sua sessão de cinema particular!
+
+---
+
+## 🤝 Como Colaborar & Git Flow
+
+Queremos tornar o **CineLocal** cada vez melhor e aceitamos contribuições da comunidade! Adotamos uma estratégia baseada em **Git Flow**:
+
+```text
+main       ●─────────────────────────────────────● (Releases Estáveis)
+            \                                   /
+develop      ●─────────●──────────────●────────● (Integração / PRs aqui)
+                        \            /
+feature/fix              ●──────────● (Sua Branch de Trabalho)
+```
+
+### 📋 Passo a Passo Rápido
+
+1. **Faça o Fork & Clone:**
+   ```bash
+   git clone https://github.com/SEU_USUARIO/cinelocal.git
+   cd cinelocal
+   ```
+
+2. **Crie sua Branch a partir de `develop`:**
+   > ⚠️ **Importante:** Todo desenvolvimento deve partir e retornar para a branch `develop`. A branch `main` é reservada para versões consolidadas de produção.
+   ```bash
+   git checkout develop
+   git pull origin develop
+   git checkout -b feature/minha-melhoria
+   # ou para correções de bugs:
+   git checkout -b fix/ajuste-player
+   ```
+
+3. **Desenvolva e Respeite as Regras do CineLocal:**
+   * **Interface Web:** Se modificar HTML/CSS/JS, faça as alterações no script mestre `app/generate_netflix_ui.py` e execute `python app/generate_netflix_ui.py` para regenerar `app/index.html`.
+   * **Mídia:** Nunca crie rotinas destrutivas que apaguem arquivos de vídeo.
+   * **Codificação:** Mantenha arquivos com codificação `UTF-8`.
+
+4. **Commits Semânticos (Conventional Commits):**
+   ```bash
+   git commit -m "feat(ui): adicionar novo carrossel de lancamentos"
+   git commit -m "fix(player): corrigir tecla de atalho de volume no macOS"
+   ```
+
+5. **Envie sua Branch e Abra o Pull Request:**
+   ```bash
+   git push -u origin feature/minha-melhoria
+   ```
+   * No GitHub, abra o **Pull Request** apontando **Base:** `develop` ⬅️ **Compare:** `feature/minha-melhoria`.
+   * Se o seu PR resolve uma issue aberta, referencie-a na descrição (ex: `Closes #12`).
+
+6. **Promoção para a Branch `main`:**
+   * Após revisão e testes em `develop`, os mantenedores promovem as novidades para a `main` em cada lançamento estável de release.
+
+📖 Para detalhes completos sobre templates de issues, convenções de código e checklist de revisão, consulte o [**Guia de Contribuição Completo (CONTRIBUTING.md)**](CONTRIBUTING.md).
 
 ---
 
