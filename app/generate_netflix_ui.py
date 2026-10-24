@@ -10,6 +10,11 @@ html_content = r"""<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>CineLocal - Home Theater & Streaming</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#e50914">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/icon-192.png">
   <style>
     :root {
       --bg-dark: #090b10;
@@ -504,10 +509,10 @@ html_content = r"""<!DOCTYPE html>
       right: -20px;
     }
 
-    /* CARDS DE MÍDIA - FORMATO CAPA VERTICAL PURA (ESTILO STREAMING) */
+    /* CARDS DE MÍDIA - FORMATO CAPA VERTICAL PURA (ESTILO STREAMING MAIOR & MAIS ELEGANTE) */
     .movie-card {
-      flex: 0 0 210px;
-      width: 210px;
+      flex: 0 0 236px;
+      width: 236px;
       aspect-ratio: 2 / 3;
       border-radius: var(--radius-md);
       background: #111520;
@@ -519,14 +524,44 @@ html_content = r"""<!DOCTYPE html>
                   box-shadow 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
                   border-color 0.28s ease;
       display: block;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
     }
 
     .movie-card:hover {
       transform: translateY(-8px) scale(1.04);
       border-color: rgba(229, 9, 20, 0.7);
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.9), 0 0 22px rgba(229, 9, 20, 0.4);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.9), 0 0 24px rgba(229, 9, 20, 0.4);
       z-index: 10;
+    }
+
+    /* MODO SALA / TV COM ELEMENTOS MAIORES (15-20% MAIORES) */
+    body.tv-scale-large .movie-card {
+      flex: 0 0 275px;
+      width: 275px;
+    }
+    body.tv-scale-large .card-title {
+      font-size: 18px;
+    }
+    body.tv-scale-large .card-subinfo {
+      font-size: 13.5px;
+    }
+    body.tv-scale-large .hero-title {
+      font-size: 52px;
+    }
+    body.tv-scale-large .hero-overview {
+      font-size: 18px;
+      line-height: 1.5;
+    }
+    body.tv-scale-large .btn-ctrl {
+      padding: 10px;
+    }
+    body.tv-scale-large .btn-ctrl svg {
+      width: 24px;
+      height: 24px;
+    }
+    body.tv-scale-large .grid-layout {
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+      gap: 26px !important;
     }
 
     .card-poster {
@@ -979,12 +1014,319 @@ html_content = r"""<!DOCTYPE html>
 
     .grid-layout {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
+      gap: 22px;
     }
     .grid-layout .movie-card {
       width: 100% !important;
       flex: 1 1 auto !important;
+    }
+
+    /* BOTÕES MINIMALISTAS DO HEADER */
+    .btn-header-action.primary-pill {
+      background: rgba(229, 9, 20, 0.18);
+      border: 1px solid rgba(229, 9, 20, 0.45);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .btn-header-action.primary-pill:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      box-shadow: 0 0 16px rgba(229, 9, 20, 0.4);
+    }
+    .btn-header-action.icon-only {
+      padding: 8px 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .btn-header-action.icon-only:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    /* ESTILOS DO MODAL SINCRONIZADOR DE LEGENDAS */
+    #subSyncModal {
+      z-index: 10005 !important;
+    }
+    #subSyncModal.active {
+      display: flex !important;
+      opacity: 1 !important;
+    }
+    .sub-sync-modal-box {
+      max-width: 580px !important;
+      padding: 24px !important;
+      background: #111522 !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      border-radius: 18px !important;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.95) !important;
+      position: relative !important;
+      z-index: 10006 !important;
+    }
+    .sub-sync-display-card {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .sub-sync-indicator-label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .sub-sync-big-value {
+      font-size: 42px;
+      font-weight: 900;
+      color: #ff9922;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+      text-shadow: 0 0 20px rgba(255, 153, 34, 0.35);
+    }
+    .sub-sync-status-desc {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+    .sub-sync-slider-group {
+      margin-bottom: 16px;
+    }
+    .sub-sync-range {
+      width: 100%;
+      height: 8px;
+      border-radius: 6px;
+      background: #1e2638;
+      outline: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      accent-color: #ff9922;
+    }
+    .sub-sync-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #ff9922;
+      box-shadow: 0 0 12px rgba(255, 153, 34, 0.8);
+      cursor: pointer;
+      border: 2px solid #ffffff;
+    }
+    .sub-sync-jumps-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .sub-sync-jumps-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .sub-sync-jumps-grid .jump-btn {
+      padding: 8px 4px;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .sub-sync-jumps-grid .jump-btn:hover {
+      background: rgba(255, 153, 34, 0.2);
+      border-color: #ff9922;
+      color: #fff;
+    }
+    .sub-sync-jumps-grid .reset-btn {
+      grid-column: span 5;
+      background: rgba(229, 9, 20, 0.15);
+      border-color: rgba(229, 9, 20, 0.35);
+      color: #f87171;
+    }
+    .sub-sync-jumps-grid .reset-btn:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+    .sub-sync-direct-input-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+    .sub-sync-num-input {
+      flex: 1;
+      background: #090b10;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+    .sub-sync-num-input:focus {
+      border-color: #ff9922;
+    }
+    .sub-cue-matcher-box, .sub-sync-matcher-box {
+      background: rgba(255, 153, 34, 0.06);
+      border: 1px solid rgba(255, 153, 34, 0.25);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .sub-cue-matcher-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 800;
+      color: #ff9922;
+      margin-bottom: 6px;
+    }
+    .sub-cue-matcher-desc {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    .sub-sync-btn-mini {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #f1f5f9;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .sub-sync-btn-mini:hover {
+      background: rgba(255, 153, 34, 0.3);
+      border-color: #ff9922;
+      color: #fff;
+    }
+    .sub-cue-match-list, .sub-sync-cues-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .sub-cue-match-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.15s ease;
+    }
+    .sub-cue-match-item:hover {
+      background: rgba(255, 153, 34, 0.14);
+      border-color: rgba(255, 153, 34, 0.5);
+    }
+    .sub-cue-match-item.active {
+      background: rgba(0, 255, 136, 0.08);
+      border-color: rgba(0, 255, 136, 0.4);
+    }
+    .sub-cue-match-time {
+      font-size: 11px;
+      font-weight: 800;
+      color: #ff9922;
+      font-variant-numeric: tabular-nums;
+      background: rgba(255, 153, 34, 0.15);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 153, 34, 0.3);
+    }
+    .sub-cue-match-text {
+      font-size: 13px;
+      color: #f8fafc;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+    .sub-cue-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+    .sub-cue-match-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 10px;
+      background: linear-gradient(135deg, rgba(255, 153, 34, 0.3), rgba(255, 120, 0, 0.4));
+      border: 1px solid #ff9922;
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(255, 153, 34, 0.2);
+    }
+    .sub-cue-match-action-btn:hover {
+      background: #ff9922;
+      color: #000;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 153, 34, 0.4);
+    }
+    .sub-cue-match-action-btn.sub-cue-btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: #cbd5e1;
+      box-shadow: none;
+    }
+    .sub-cue-match-action-btn.sub-cue-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: #fff;
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .sub-sync-preview-box {
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px dashed rgba(255, 153, 34, 0.45);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+    .sub-sync-preview-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .sub-sync-preview-text {
+      font-size: 14px;
+      color: #ff9922;
+      font-weight: 600;
+      min-height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.3;
     }
 
     /* MODAL DE SÉRIE ESTILO NETFLIX */
@@ -1585,7 +1927,7 @@ html_content = r"""<!DOCTYPE html>
       position: fixed;
       bottom: 30px;
       right: 30px;
-      z-index: 300;
+      z-index: 10010 !important;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -3372,42 +3714,65 @@ html_content = r"""<!DOCTYPE html>
           <button id="searchClearBtn" class="search-clear" onclick="clearSearch()">&times;</button>
         </div>
 
-        <button class="btn-header-action" onclick="openSurpriseModal()" title="Sortear Filme Aleatório (Roleta)">
-          <span style="font-size: 13px;">🎲</span> Surpreenda-me
-        </button>
-
-        <button class="btn-header-action" onclick="openStatsModal()" title="Estatísticas da Coleção CineLocal">
-          <span style="font-size: 13px;">📊</span> Estatísticas
-        </button>
-
-        <button class="btn-header-action" onclick="openQrConnectModal('remote')" title="Abrir Controle Remoto Virtual no Celular">
-          <span style="font-size: 13px;">📱</span> Controle
-        </button>
-
-        <button class="btn-header-action" id="btnHeaderTvMode" onclick="activateTvMode()" title="Ativar Navegação por Controle Remoto / D-Pad da Smart TV">
-          <span style="font-size: 13px;">🎮</span> Modo TV
-        </button>
-
-        <button class="btn-header-action" onclick="openQrConnectModal('tv')" title="Conectar Smart TV ou Celular">
+        <!-- BOTÃO DE DESTAQUE: CONECTAR SMART TV -->
+        <button class="btn-header-action primary-pill" onclick="openQrConnectModal('tv')" title="Conectar Smart TV ou Celular">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="5" y="2" width="14" height="20" rx="2"></rect>
-            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+            <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+            <polyline points="17 2 12 7 7 2"></polyline>
           </svg>
-          TV / Celular
+          <span>Conectar TV</span>
         </button>
 
-        <div id="protocolBadge" class="badge-protocol badge-local">
-          <span id="protocolText">Modo Portátil</span>
+        <!-- BOTÃO PWA: INSTALAR APP -->
+        <button class="btn-header-action" id="btnInstallPwa" onclick="triggerPwaInstall()" title="Instalar CineLocal no Dispositivo" style="display: none;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>Instalar App</span>
+        </button>
+
+        <!-- DROPDOWN COMPACTO: FERRAMENTAS & MAIS OPÇÕES -->
+        <div class="dropdown" style="position: relative;">
+          <button class="btn-header-action" onclick="toggleDropdown('headerMoreMenu')" title="Mais ferramentas e modos de exibição">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="1.5"></circle>
+              <circle cx="19" cy="12" r="1.5"></circle>
+              <circle cx="5" cy="12" r="1.5"></circle>
+            </svg>
+            <span>Mais</span>
+          </button>
+          <div id="headerMoreMenu" class="dropdown-menu" style="right: 0; left: auto; min-width: 230px;">
+            <button class="dropdown-item" onclick="toggleDropdown('headerMoreMenu'); openSurpriseModal();">
+              <span>🎲</span> Surpreenda-me (Roleta)
+            </button>
+            <button class="dropdown-item" onclick="toggleDropdown('headerMoreMenu'); openStatsModal();">
+              <span>📊</span> Meu Cinema em Números
+            </button>
+            <button class="dropdown-item" onclick="toggleDropdown('headerMoreMenu'); openMcuTrackerModal();">
+              <span>⚡</span> Linha do Tempo Marvel (MCU)
+            </button>
+            <button class="dropdown-item" onclick="toggleDropdown('headerMoreMenu'); openQrConnectModal('remote');">
+              <span>📱</span> Controle Remoto no Celular
+            </button>
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 6px 0;">
+            <button class="dropdown-item" id="btnMenuTvScale" onclick="toggleDropdown('headerMoreMenu'); toggleTvScale();">
+              <span>📺</span> <span id="tvScaleLabel">Modo Sala / Sofá (+Grande)</span>
+            </button>
+            <button class="dropdown-item" onclick="toggleDropdown('headerMoreMenu'); activateTvMode();">
+              <span>🎮</span> Ativar Navegação D-Pad (TV)
+            </button>
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 6px 0;">
+            <button class="dropdown-item" onclick="toggleDropdown('headerMoreMenu'); showHelpModal();">
+              <span>❓</span> Ajuda & Atalhos
+            </button>
+            <div style="padding: 6px 12px; font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center;">
+              <span>Modo:</span>
+              <span id="protocolBadge" class="badge-protocol badge-local" style="font-size: 10px; padding: 2px 6px;">Modo Portátil</span>
+            </div>
+          </div>
         </div>
-
-        <button class="btn-header-action" onclick="showHelpModal()" title="Instruções de Uso">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"></circle>
-            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-          </svg>
-          Ajuda
-        </button>
 
         <button id="btnMobileSearch" class="mobile-search-toggle-btn" onclick="toggleMobileSearchBar()" title="Buscar Filmes e Séries">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
@@ -3500,6 +3865,12 @@ html_content = r"""<!DOCTYPE html>
         <button class="mobile-drawer-link" onclick="openSurpriseModal(); closeMobileMenu();">
           <span class="m-link-icon">🎲</span> Surpreenda-me (Sorteador)
         </button>
+        <button class="mobile-drawer-link" onclick="toggleTvScale(); closeMobileMenu();">
+          <span class="m-link-icon">📺</span> <span id="mDrawerTvScaleLabel">Modo Sala / Sofá (+Grande)</span>
+        </button>
+        <button class="mobile-drawer-link" id="btnDrawerInstallPwa" onclick="triggerPwaInstall(); closeMobileMenu();" style="display: none;">
+          <span class="m-link-icon">📥</span> Instalar CineLocal no Dispositivo
+        </button>
         <button class="mobile-drawer-link" onclick="openQrConnectModal('remote'); closeMobileMenu();">
           <span class="m-link-icon">📱</span> Controle Remoto Celular
         </button>
@@ -3513,8 +3884,8 @@ html_content = r"""<!DOCTYPE html>
 
       <div class="mobile-drawer-footer">
         <div class="mobile-drawer-ip-box">
-          <span class="m-ip-label">Endereço na Rede Local:</span>
-          <span id="mDrawerIp" class="m-ip-val">http://localhost:8000</span>
+          <span class="m-ip-label">Endereço Universal / TV:</span>
+          <span id="mDrawerIp" class="m-ip-val">http://cinelocal.local:8000</span>
         </div>
         <div style="font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 10px;">
           CineLocal v2.4 • Streaming Doméstico
@@ -3805,6 +4176,12 @@ html_content = r"""<!DOCTYPE html>
             <span class="tool-header-label">Ambilight</span>
           </button>
 
+          <!-- SINCRONIZADOR DE LEGENDAS NO TOPO -->
+          <button id="btnTopSubSync" class="btn-ctrl btn-tool-header" onclick="openSubSyncModal()" title="Sincronizador Inteligente / Alinhador de Fala (S)" style="color: #ff9922; border-color: rgba(255, 153, 34, 0.4);">
+            <span style="font-size: 14px;">⚡</span>
+            <span class="tool-header-label">Sincronia</span>
+          </button>
+
           <!-- SLEEP TIMER (MODO SONECA) -->
           <div class="dropdown">
             <button id="btnSleepTimer" class="btn-ctrl btn-tool-header" onclick="toggleDropdown('sleepTimerMenu')" title="Modo Soneca / Temporizador (Z)">
@@ -4016,6 +4393,9 @@ html_content = r"""<!DOCTYPE html>
                 <div style="font-size: 10px; color: var(--text-muted); padding: 2px 8px 4px; line-height: 1.3;">
                   Use <strong>-</strong> para atrasar ou <strong>+</strong> para adiantar se notar delay na TV.
                 </div>
+                <button class="btn-sub-sync-advanced" onclick="openSubSyncModal()" style="width: 100%; margin: 6px 0 4px; padding: 8px 10px; background: rgba(229,9,20,0.18); border: 1px solid rgba(229,9,20,0.45); border-radius: 6px; color: #ff8888; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s;">
+                  <span>⚡</span> Sincronizador Inteligente (Alinhador de Fala)
+                </button>
                 <hr style="border: 0; border-top: 1px solid var(--border); margin: 6px 0;">
                 <button class="btn-download-sub-player" id="btnDownloadSubPlayer" onclick="downloadSubtitlesInPlayer()">
                   <span>📥</span> Baixar Legenda pt-BR Online
@@ -4023,6 +4403,13 @@ html_content = r"""<!DOCTYPE html>
                 <div id="playerSubDownloadStatus" style="font-size: 11px; padding: 4px 8px; display: none;"></div>
               </div>
             </div>
+
+            <!-- BOTÃO DIRETO DO SINCRONIZADOR DE LEGENDAS -->
+            <button class="btn-ctrl" onclick="openSubSyncModal()" title="Sincronizador Inteligente / Alinhador de Fala (S)" style="color: #ff9922;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+            </button>
 
             <!-- FULLSCREEN -->
             <button class="btn-ctrl" onclick="toggleFullscreen()" title="Tela Cheia (F)">
@@ -4080,6 +4467,7 @@ html_content = r"""<!DOCTYPE html>
         <iframe id="trailerIframe" style="position: absolute; top:0; left: 0; width: 100%; height: 100%; border: none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
     </div>
+  </div>
   <!-- MODAL DE FILME EM CARTAZ NOS CINEMAS -->
   <div id="cinemaModal" class="series-modal" onclick="closeCinemaModalOnOut(event)">
     <div class="series-modal-box" style="max-width: 760px; padding: 0; overflow: hidden; background: #0b0e14; border: 1px solid var(--border); border-radius: var(--radius-lg);">
@@ -4122,6 +4510,7 @@ html_content = r"""<!DOCTYPE html>
       <div class="qr-tab-bar">
         <button id="qrTabTv" class="qr-tab-btn active" onclick="switchQrTab('tv')">📺 Assistir na TV</button>
         <button id="qrTabRemote" class="qr-tab-btn" onclick="switchQrTab('remote')">📱 Controle no Celular</button>
+        <button id="qrTabTvInstall" class="qr-tab-btn" onclick="switchQrTab('tv_install')">💡 Como Instalar na TV</button>
       </div>
 
       <h2 id="qrModalTitle" style="font-size: 1.3rem; color: #fff; margin-bottom: 6px;">Conectar Smart TV ou Celular</h2>
@@ -4129,17 +4518,50 @@ html_content = r"""<!DOCTYPE html>
         Conecte seu dispositivo na mesma rede Wi-Fi e aponte a câmera para abrir o CineLocal:
       </p>
 
-      <div class="qr-container-box">
-        <div id="qrSvgWrapper"></div>
+      <div id="qrStandardContainer">
+        <div class="qr-container-box">
+          <div id="qrSvgWrapper"></div>
+        </div>
+
+        <div style="margin: 14px 0 6px;">
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Endereço Universal (Não muda mesmo trocando de Wi-Fi):</div>
+          <div class="onboarding-code" id="qrGenericUrlDisplay" style="font-size: 1.15rem; font-weight: 800; color: #00ff88; margin: 4px 0;">
+            http://cinelocal.local:8000/
+          </div>
+        </div>
+
+        <div style="margin: 6px 0 12px;">
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Endereço por IP Direto:</div>
+          <div class="onboarding-code" id="qrLocalUrlDisplay" style="font-size: 0.95rem; font-weight: 700; color: #60a5fa; margin: 4px 0;">
+            http://localhost:8000/
+          </div>
+        </div>
+
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0;">
+          Acesse diretamente pelo navegador da Smart TV sem fios nem configurações complexas.
+        </p>
       </div>
 
-      <div class="onboarding-code" id="qrLocalUrlDisplay" style="font-size: 1.1rem; font-weight: 800; color: #00ff88; margin: 12px 0;">
-        http://localhost:8000/
+      <!-- PAINEL GUIA DE INSTALAÇÃO NA SMART TV -->
+      <div id="qrTvInstallGuide" style="display: none; text-align: left; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-top: 10px;">
+        <h4 style="color: #ff9922; font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+          <span>📺</span> Como usar como aplicativo na sua Smart TV:
+        </h4>
+        <div style="font-size: 13px; line-height: 1.6; color: #e2e8f0;">
+          <p style="margin-bottom: 10px;">
+            As Smart TVs (Samsung Tizen, LG webOS, etc.) não permitem instalar programas externos fora da loja oficial. Porém, você pode transformá-lo em um app com um clique:
+          </p>
+          <ol style="padding-left: 20px; margin-bottom: 12px;">
+            <li style="margin-bottom: 6px;">Abra o <strong>Navegador de Internet</strong> da sua TV.</li>
+            <li style="margin-bottom: 6px;">Digite o endereço <strong>cinelocal.local:8000</strong> na barra de endereços.</li>
+            <li style="margin-bottom: 6px;">Nas opções do navegador da TV, selecione <strong>"Adicionar à Tela Inicial"</strong> ou <strong>"Fixar nos Favoritos"</strong>.</li>
+            <li>Pronto! Um ícone oficial do CineLocal aparecerá na barra principal de apps da TV, abrindo direto sem digitar nada.</li>
+          </ol>
+          <div style="background: rgba(0,255,136,0.1); border-left: 3px solid #00ff88; padding: 8px 12px; border-radius: 4px; font-size: 12px; color: #a7f3d0;">
+            💡 Em TVs com <strong>Android TV</strong>, <strong>Google TV</strong> ou computadores/celulares, o CineLocal pode ser instalado como <strong>PWA nativo</strong> pelo botão "Instalar App".
+          </div>
+        </div>
       </div>
-
-      <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0;">
-        Disponível na sua rede local sem necessidade de instalação.
-      </p>
     </div>
   </div>
 
@@ -4212,6 +4634,114 @@ html_content = r"""<!DOCTYPE html>
     </div>
   </div>
 
+  <!-- MODAL SINCRONIZADOR DE LEGENDAS & ALINHADOR DE FALA -->
+  <div id="subSyncModal" class="series-modal" onclick="closeSubSyncModalOnOut(event)">
+    <div class="sub-sync-modal-box">
+      <button class="series-modal-close" onclick="closeSubSyncModal()">&times;</button>
+      
+      <div class="sub-sync-header">
+        <span class="sub-sync-badge">FERRAMENTA INTELIGENTE</span>
+        <h2 class="sub-sync-title">⚡ Sincronizador de Legendas & Alinhador de Fala</h2>
+        <p class="sub-sync-subtitle">
+          Pause o vídeo no exato momento da fala e clique em <strong>🎯 Começou agora</strong> ou <strong>🏁 Terminou agora</strong> na frase correspondente. A legenda se ajusta na hora com 1 clique!
+        </p>
+      </div>
+
+      <!-- PRÉVIA EM TEMPO REAL DA LEGENDA NO PONTO ATUAL DO VÍDEO -->
+      <div class="sub-sync-preview-box">
+        <div class="sub-sync-preview-label">👁️ Legenda ativa neste segundo (<span id="subSyncPreviewTime">00:00</span>):</div>
+        <div id="subSyncPreviewText" class="sub-sync-preview-text">...</div>
+      </div>
+
+      <!-- SEÇÃO 1: ALINHADOR DE FALA INTELIGENTE (SPEECH MATCHER) -->
+      <div class="sub-cue-matcher-box">
+        <div class="sub-cue-matcher-title">
+          <span>🎯 Alinhador de Fala (One-Click Matcher)</span>
+          <button class="sub-sync-btn-mini" onclick="refreshSpeechMatcher()" title="Atualizar diálogos próximos ao ponto atual do vídeo">
+            🔄 Recarregar Falas
+          </button>
+        </div>
+        <p class="sub-cue-matcher-desc">
+          Frases identificadas próximas a este ponto do vídeo. Se necessário, pesquise palavras-chave da cena:
+        </p>
+
+        <!-- CAMPO DE BUSCA RÁPIDA DE DIÁLOGOS -->
+        <div style="display: flex; gap: 8px; margin: 10px 0;">
+          <input 
+            type="text" 
+            id="subMatcherSearchInput" 
+            placeholder="🔍 Filtrar falas por texto (ex: nome, palavra ou frase)..." 
+            oninput="handleSubMatcherSearch(this.value)"
+            style="flex: 1; padding: 8px 12px; font-size: 13px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 6px; color: #fff; outline: none;"
+          >
+          <button class="sub-sync-btn-mini" onclick="clearSubMatcherSearch()" style="padding: 8px 14px; font-size: 12px;">Limpar</button>
+        </div>
+
+        <div id="subSyncCuesList" class="sub-cue-match-list">
+          <!-- Injetado dinamicamente -->
+        </div>
+      </div>
+
+      <!-- SEÇÃO 2: PAINEL DE AJUSTE DIRETO E SLIDER -->
+      <div class="sub-sync-manual-section">
+        <div class="sub-sync-display-row">
+          <div>
+            <span style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px;">Delay / Sincronia Atual:</span>
+            <div id="subSyncBigDisplay" class="sub-sync-big-value">0.0s</div>
+          </div>
+          <button class="sub-sync-jump-btn" onclick="resetSubSync()" title="Zerar atraso" style="padding: 6px 14px; font-size: 13px;">
+            ↺ Resetar para 0s
+          </button>
+        </div>
+
+        <input 
+          type="range" 
+          id="subSyncSlider" 
+          class="sub-sync-range" 
+          min="-60" 
+          max="60" 
+          step="0.1" 
+          value="0" 
+          oninput="handleSubSyncSlider(this.value)"
+        >
+        <div class="sub-sync-range-labels">
+          <span>-60s (Atrasar)</span>
+          <span>-30s</span>
+          <span>0s (Original)</span>
+          <span>+30s</span>
+          <span>+60s (Adiantar)</span>
+        </div>
+
+        <!-- BOTÕES DE SALTO RÁPIDO -->
+        <div class="sub-sync-jumps-grid">
+          <button class="sub-sync-jump-btn" onclick="adjustSubSync(-10.0)">-10s</button>
+          <button class="sub-sync-jump-btn" onclick="adjustSubSync(-5.0)">-5s</button>
+          <button class="sub-sync-jump-btn" onclick="adjustSubSync(-2.0)">-2s</button>
+          <button class="sub-sync-jump-btn" onclick="adjustSubSync(-1.0)">-1s</button>
+          <button class="sub-sync-jump-btn" onclick="adjustSubSync(-0.5)">-0.5s</button>
+          <button class="sub-sync-jump-btn" onclick="adjustSubSync(-0.1)">-0.1s</button>
+          <button class="sub-sync-jump-btn" onclick="adjustSubSync(0.1)">+0.1s</button>
+          <button class="sub-sync-jump-btn" onclick="adjustSubSync(0.5)">+0.5s</button>
+          <button class="sub-sync-jump-btn" onclick="adjustSubSync(1.0)">+1s</button>
+          <button class="sub-sync-jump-btn" onclick="adjustSubSync(2.0)">+2s</button>
+          <button class="sub-sync-jump-btn" onclick="adjustSubSync(5.0)">+5s</button>
+          <button class="sub-sync-jump-btn" onclick="adjustSubSync(10.0)">+10s</button>
+        </div>
+
+        <!-- DIGITAÇÃO DIRETA DO VALOR -->
+        <div class="sub-sync-direct-input-box">
+          <span>Ou digite o valor exato (segundos):</span>
+          <input type="number" id="subSyncDirectInput" step="0.1" placeholder="ex: -1.8 ou 3.2" class="sub-sync-input-field">
+          <button class="sub-sync-apply-btn" onclick="applyDirectSubSync()">Aplicar</button>
+        </div>
+
+        <div class="sub-sync-footer-hint">
+          💾 <strong>Salvo automaticamente:</strong> Esta sincronização fica gravada individualmente para este filme/episódio no CineLocal.
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- TOASTS -->
   <div id="toastContainer" class="toast-container"></div>
 
@@ -4250,6 +4780,9 @@ html_content = r"""<!DOCTYPE html>
       ffmpegAvailable: true,
       localIp: 'localhost',
       localUrl: 'http://localhost:8000/',
+      genericUrl: 'http://cinelocal.local:8000/',
+      deferredInstallPrompt: null,
+      tvScale: localStorage.getItem('cinelocal_tv_scale') === 'true',
       nextEpCountdownActive: false,
       nextEpDismissed: false,
       currentSurpriseMovie: null,
@@ -4274,6 +4807,26 @@ html_content = r"""<!DOCTYPE html>
       setupSeekHoverPreview();
       setupPlayerEvents();
 
+      // Aplica Modo Sala (Elementos maiores para TV e sofá) se ativo
+      if (state.tvScale) {
+        document.body.classList.add('tv-scale-large');
+      }
+      updateTvScaleUI();
+
+      // Registro de PWA Service Worker (Cache offline & Instalação)
+      if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration skipped:', err));
+      }
+
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        state.deferredInstallPrompt = e;
+        const btnHeader = document.getElementById('btnInstallPwa');
+        if (btnHeader) btnHeader.style.display = 'inline-flex';
+        const btnDrawer = document.getElementById('btnDrawerInstallPwa');
+        if (btnDrawer) btnDrawer.style.display = 'flex';
+      });
+
       // Se rodando via HTTP, consulta capacidades de VLC, FFmpeg e IP LAN
       if (window.location.protocol.startsWith('http')) {
         try {
@@ -4283,6 +4836,13 @@ html_content = r"""<!DOCTYPE html>
             state.vlcAvailable = caps.vlcAvailable;
             state.ffmpegAvailable = caps.ffmpegAvailable;
             if (caps.localIp) state.localIp = caps.localIp;
+            if (caps.genericUrl) {
+              state.genericUrl = caps.genericUrl;
+              const qrGenDisplay = document.getElementById('qrGenericUrlDisplay');
+              if (qrGenDisplay) qrGenDisplay.innerText = caps.genericUrl;
+              const mDrawerIp = document.getElementById('mDrawerIp');
+              if (mDrawerIp) mDrawerIp.innerText = caps.genericUrl;
+            }
             if (caps.localUrl) {
               state.localUrl = caps.localUrl;
               const qrDisplay = document.getElementById('qrLocalUrlDisplay');
@@ -4299,6 +4859,12 @@ html_content = r"""<!DOCTYPE html>
             if (userData.watchProgress) {
               for (const [id, item] of Object.entries(userData.watchProgress)) {
                 if (!item.id) item.id = id;
+                if (item.epNum == null && item.episodeNumber != null) {
+                  item.epNum = item.episodeNumber;
+                }
+                if (item.episodeNumber == null && item.epNum != null) {
+                  item.episodeNumber = item.epNum;
+                }
                 if (item.pct == null) {
                   item.pct = item.duration > 0 ? Math.round((item.currentTime / item.duration) * 100) : 0;
                 }
@@ -4557,29 +5123,45 @@ html_content = r"""<!DOCTYPE html>
     }
 
     function saveWatchProgress(id, currentTime, duration, media) {
-      if (!id || !duration || duration <= 0) return;
-      const pct = Math.min(100, Math.max(0, Math.round((currentTime / duration) * 100)));
+      if (!id) return;
+      let dur = Number(duration) || 0;
+      if (dur <= 0 || !isFinite(dur)) {
+        if (media && media.duration && media.duration > 0) dur = media.duration;
+        else if (state.mediaTotalDuration && state.mediaTotalDuration > 0) dur = state.mediaTotalDuration;
+        else if (state.currentEpisodeSeries || (media && (media.type === 'episode' || media.isEpisode))) dur = 3000;
+        else dur = 7200;
+      }
+      const curTime = Math.max(0, Number(currentTime) || 0);
+      const pct = Math.min(100, Math.max(0, Math.round((curTime / dur) * 100)));
       const completed = pct >= 90;
+
+      const isEp = !!state.currentEpisodeSeries || (media && (media.type === 'episode' || media.isEpisode));
+      const sId = state.currentEpisodeSeries ? state.currentEpisodeSeries.series.id : (media ? (media.seriesId || null) : null);
+      const sTitle = state.currentEpisodeSeries ? state.currentEpisodeSeries.series.title : (media ? (media.seriesTitle || null) : null);
+      const sIdx = state.currentEpisodeSeries ? state.currentEpisodeSeries.seasonIdx : (media ? (media.seasonIdx || 0) : 0);
+      const epNum = state.currentEpisodeSeries ? state.currentEpisodeSeries.epNum : (media ? (media.epNum || media.episodeNumber || null) : null);
 
       state.watchProgress[id] = {
         id: id,
-        currentTime: Math.floor(currentTime),
-        duration: Math.floor(duration),
+        currentTime: Math.floor(curTime),
+        duration: Math.floor(dur),
         pct: pct,
         completed: completed,
         timestamp: Date.now(),
-        title: media.title || '',
-        posterPath: media.posterPath || '',
-        type: state.currentEpisodeSeries ? 'episode' : (media.type || 'movie'),
-        resolution: media.resolution || '1080p',
-        seriesId: state.currentEpisodeSeries ? state.currentEpisodeSeries.series.id : null,
-        seriesTitle: state.currentEpisodeSeries ? state.currentEpisodeSeries.series.title : null,
-        seasonIdx: state.currentEpisodeSeries ? state.currentEpisodeSeries.seasonIdx : null,
-        epNum: state.currentEpisodeSeries ? state.currentEpisodeSeries.epNum : null
+        title: (media && media.title) || '',
+        posterPath: (media && media.posterPath) || '',
+        type: isEp ? 'episode' : ((media && media.type) || 'movie'),
+        resolution: (media && media.resolution) || '1080p',
+        seriesId: sId,
+        seriesTitle: sTitle,
+        seasonIdx: sIdx,
+        epNum: epNum,
+        episodeNumber: epNum
       };
 
       if (completed) {
         state.watchedList[id] = true;
+        if (sId) state.watchedList[sId] = true;
         localStorage.setItem('cinelocal_watched_list', JSON.stringify(state.watchedList));
       }
 
@@ -4592,18 +5174,19 @@ html_content = r"""<!DOCTYPE html>
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
             id: id,
-            currentTime: currentTime,
-            duration: duration,
+            currentTime: curTime,
+            duration: dur,
             pct: pct,
             completed: completed,
             item: {
-              title: media.title || '',
-              posterPath: media.posterPath || '',
-              isEpisode: !!state.currentEpisodeSeries,
-              seriesId: state.currentEpisodeSeries ? state.currentEpisodeSeries.series.id : null,
-              seriesTitle: state.currentEpisodeSeries ? state.currentEpisodeSeries.series.title : null,
-              seasonIdx: state.currentEpisodeSeries ? state.currentEpisodeSeries.seasonIdx : null,
-              episodeNumber: state.currentEpisodeSeries ? state.currentEpisodeSeries.epNum : null
+              title: (media && media.title) || '',
+              posterPath: (media && media.posterPath) || '',
+              isEpisode: isEp,
+              seriesId: sId,
+              seriesTitle: sTitle,
+              seasonIdx: sIdx,
+              epNum: epNum,
+              episodeNumber: epNum
             }
           }),
           keepalive: true
@@ -4804,22 +5387,27 @@ html_content = r"""<!DOCTYPE html>
         .filter(p => p.pct >= 2 && p.pct < 90 && !p.completed && !state.watchedList[p.id])
         .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
         .map(p => {
-          if (p.type === 'episode' && p.seriesId) {
-            const s = state.series.find(x => x.id === p.seriesId);
-            if (s && s.seasons && s.seasons[p.seasonIdx]) {
-              const ep = s.seasons[p.seasonIdx].episodes.find(e => e.episodeNumber === p.epNum);
-              if (ep) {
-                return {
-                  ...ep,
-                  id: p.id,
-                  title: `${s.title}: E${String(p.epNum).padStart(2,'0')}`,
-                  posterPath: s.posterPath,
-                  type: 'episode',
-                  seriesId: p.seriesId,
-                  seasonIdx: p.seasonIdx,
-                  epNum: p.epNum,
-                  savedTime: p.currentTime
-                };
+          const epNum = p.epNum != null ? p.epNum : p.episodeNumber;
+          if (p.type === 'episode' || p.seriesId || (p.id && p.id.startsWith('ser_'))) {
+            const s = state.series.find(x => x.id === p.seriesId || (p.id && p.id.startsWith(x.id)));
+            if (s && s.seasons) {
+              const sIdx = p.seasonIdx != null ? p.seasonIdx : 0;
+              const season = s.seasons[sIdx] || s.seasons[0];
+              if (season && season.episodes) {
+                const ep = (epNum != null ? season.episodes.find(e => e.episodeNumber === epNum) : null) || season.episodes[0];
+                if (ep) {
+                  return {
+                    ...ep,
+                    id: p.id,
+                    title: `${s.title}: E${String(ep.episodeNumber || epNum || 1).padStart(2,'0')}`,
+                    posterPath: s.posterPath,
+                    type: 'episode',
+                    seriesId: s.id,
+                    seasonIdx: sIdx,
+                    epNum: ep.episodeNumber || epNum || 1,
+                    savedTime: p.currentTime
+                  };
+                }
               }
             }
           }
@@ -4836,13 +5424,40 @@ html_content = r"""<!DOCTYPE html>
       const watchedMap = new Map();
       progressEntries.forEach(p => {
         if (p.completed || p.pct >= 90 || state.watchedList[p.id]) {
-          const item = state.movies.find(x => x.id === p.id) || state.series.find(x => x.id === p.id);
+          let item = state.movies.find(x => x.id === p.id) || state.series.find(x => x.id === p.id);
+          if (!item && (p.type === 'episode' || p.seriesId || (p.id && p.id.startsWith('ser_')))) {
+            const s = state.series.find(x => x.id === p.seriesId || (p.id && p.id.startsWith(x.id)));
+            if (s) {
+              const epNum = p.epNum != null ? p.epNum : p.episodeNumber;
+              item = {
+                ...s,
+                id: p.id,
+                title: epNum ? `${s.title}: E${String(epNum).padStart(2,'0')}` : s.title,
+                isEpisode: true,
+                seriesId: s.id,
+                seasonIdx: p.seasonIdx || 0,
+                epNum: epNum || 1
+              };
+            }
+          }
           if (item) watchedMap.set(item.id, { ...item, watchedAt: p.timestamp });
         }
       });
       Object.keys(state.watchedList).forEach(id => {
         if (state.watchedList[id] && !watchedMap.has(id)) {
-          const item = state.movies.find(x => x.id === id) || state.series.find(x => x.id === id);
+          let item = state.movies.find(x => x.id === id) || state.series.find(x => x.id === id);
+          if (!item && id.startsWith('ser_')) {
+            const s = state.series.find(x => id.startsWith(x.id));
+            if (s) {
+              item = {
+                ...s,
+                id: id,
+                title: s.title,
+                isEpisode: true,
+                seriesId: s.id
+              };
+            }
+          }
           if (item) watchedMap.set(item.id, { ...item, watchedAt: 0 });
         }
       });
@@ -6476,28 +7091,14 @@ html_content = r"""<!DOCTYPE html>
         video.play().catch(() => {});
       };
 
+      // Carrega offset de sincronia específico desta mídia
+      state.subSyncOffset = parseFloat(localStorage.getItem('cinelocal_sub_sync_' + media.id)) || 0.0;
+
       // Legendas
       state.subtitleCues = [];
-      const subList = document.getElementById('subtitlesList');
-      subList.innerHTML = '';
+      renderPlayerSubtitlesList(media);
 
       if (media.subtitles && media.subtitles.length > 0) {
-        media.subtitles.forEach((s) => {
-          const btn = document.createElement('button');
-          btn.className = 'dropdown-item';
-          btn.innerText = s.label;
-          btn.dataset.path = s.path;
-          btn.onclick = () => selectSubtitle(s.path, true);
-          subList.appendChild(btn);
-        });
-
-        // Adiciona opção Desligada
-        const offBtn = document.createElement('button');
-        offBtn.className = 'dropdown-item';
-        offBtn.innerText = 'Desativada';
-        offBtn.onclick = () => disableSubtitles(true);
-        subList.appendChild(offBtn);
-
         // Se houver legenda em português, ativa automaticamente
         const ptSub = media.subtitles.find(s => s.label.toLowerCase().includes('portugu') && !s.label.toLowerCase().includes('forçada')) || media.subtitles[0];
         if (ptSub) {
@@ -6506,8 +7107,36 @@ html_content = r"""<!DOCTYPE html>
           disableSubtitles(false);
         }
       } else {
-        subList.innerHTML = '<div style="font-size: 12px; color: var(--text-muted); padding: 4px 8px;">Sem legendas externas</div>';
         disableSubtitles(false);
+      }
+
+      // Se for MKV, extrai legendas oficiais embutidas em segundo plano via servidor
+      if (media.videoPath && media.videoPath.toLowerCase().endsWith('.mkv') && window.location.protocol.startsWith('http')) {
+        fetch(`/api/extract_subtitles?path=${encodeURIComponent(media.videoPath)}`)
+          .then(r => r.ok ? r.json() : Promise.reject())
+          .then(data => {
+            if (data.status === 'ok' && data.subtitles && data.subtitles.length > 0) {
+              let added = false;
+              if (!media.subtitles) media.subtitles = [];
+              data.subtitles.forEach(sub => {
+                if (!media.subtitles.some(s => s.path === sub.path)) {
+                  media.subtitles.unshift({
+                    name: sub.filename,
+                    path: sub.path,
+                    label: sub.label || 'Português (Oficial MKV)'
+                  });
+                  added = true;
+                }
+              });
+              if (added) {
+                renderPlayerSubtitlesList(media);
+                if (!state.activeSubtitle && media.subtitles[0]) {
+                  selectSubtitle(media.subtitles[0].path, false);
+                }
+              }
+            }
+          })
+          .catch(() => {});
       }
 
       // Faixas de Áudio
@@ -6929,6 +7558,7 @@ html_content = r"""<!DOCTYPE html>
     }
 
     function selectSubtitle(subPath, fromUserClick = false) {
+      if (!subPath || typeof subPath !== 'string') return;
       state.activeSubtitle = subPath;
       let cues = null;
 
@@ -6952,6 +7582,10 @@ html_content = r"""<!DOCTYPE html>
         state.subtitleCues = cues;
         renderSubtitles(getEffectiveCurrentTime());
         if (fromUserClick) showToast('Legenda ativada');
+        if (document.getElementById('subSyncModal')?.classList.contains('active')) {
+          refreshSpeechMatcher();
+          updateSubSyncPreview();
+        }
       } else {
         // Tenta buscar o arquivo .srt diretamente se não estiver no banco
         fetch(encodeURI(subPath))
@@ -6962,6 +7596,10 @@ html_content = r"""<!DOCTYPE html>
               state.subtitleCues = parsed;
               renderSubtitles(getEffectiveCurrentTime());
               if (fromUserClick) showToast('Legenda carregada');
+              if (document.getElementById('subSyncModal')?.classList.contains('active')) {
+                refreshSpeechMatcher();
+                updateSubSyncPreview();
+              }
             }
           })
           .catch(() => {});
@@ -7000,27 +7638,285 @@ html_content = r"""<!DOCTYPE html>
       if (el) el.className = `subtitle-display size-${sz}`;
     }
 
+    function renderPlayerSubtitlesList(media) {
+      const subList = document.getElementById('subtitlesList');
+      if (!subList) return;
+      subList.innerHTML = '';
+
+      if (media && media.subtitles && media.subtitles.length > 0) {
+        media.subtitles.forEach((s) => {
+          const btn = document.createElement('button');
+          btn.className = 'dropdown-item' + (state.activeSubtitle === s.path ? ' active' : '');
+          btn.innerText = s.label;
+          btn.dataset.path = s.path;
+          btn.onclick = () => selectSubtitle(s.path, true);
+          subList.appendChild(btn);
+        });
+
+        // Adiciona opção Desligada
+        const offBtn = document.createElement('button');
+        offBtn.className = 'dropdown-item' + (!state.activeSubtitle ? ' active' : '');
+        offBtn.innerText = 'Desativada';
+        offBtn.onclick = () => disableSubtitles(true);
+        subList.appendChild(offBtn);
+      } else {
+        subList.innerHTML = '<div style="font-size: 12px; color: var(--text-muted); padding: 4px 8px;">Sem legendas externas</div>';
+      }
+    }
+
+    function getMediaSubSyncKey() {
+      if (!state.currentPlaying) return 'cinelocal_sub_sync_offset';
+      return 'cinelocal_sub_sync_' + state.currentPlaying.id;
+    }
+
     function updateSubSyncUI() {
       const lbl = document.getElementById('subSyncValueLabel');
-      if (lbl) {
+      const big = document.getElementById('subSyncBigDisplay');
+      const slider = document.getElementById('subSyncSlider');
+      const direct = document.getElementById('subSyncDirectInput');
+      const sign = state.subSyncOffset > 0 ? '+' : '';
+      const formatted = `${sign}${state.subSyncOffset.toFixed(1)}s`;
+
+      if (lbl) lbl.innerText = formatted;
+      if (big) big.innerText = formatted;
+      if (slider) slider.value = Math.max(-60, Math.min(60, state.subSyncOffset));
+      if (direct && document.activeElement !== direct) direct.value = state.subSyncOffset;
+      updateSubSyncPreview();
+    }
+
+    function updateSubSyncPreview() {
+      const previewTime = document.getElementById('subSyncPreviewTime');
+      const previewText = document.getElementById('subSyncPreviewText');
+      if (!previewText) return;
+      const curr = getEffectiveCurrentTime();
+      if (previewTime) previewTime.innerText = formatTime(curr);
+      
+      if (!state.subtitleCues || state.subtitleCues.length === 0) {
+        previewText.innerHTML = '<span style="color: var(--text-muted); font-style: italic;">Nenhuma legenda ativa no momento.</span>';
+        return;
+      }
+      const adjusted = curr + state.subSyncOffset;
+      const cue = state.subtitleCues.find(c => adjusted >= (c[0] - 0.05) && adjusted <= (c[1] + 0.05));
+      if (cue) {
+        const clean = cue[2].replace(/<[^>]+>/g, '').replace(/\n/g, ' ');
+        previewText.innerHTML = `"${clean}"`;
+        previewText.style.color = '#ff9922';
+      } else {
+        previewText.innerHTML = '<span style="color: var(--text-muted); font-style: italic;">(Silêncio / Nenhum diálogo neste instante)</span>';
+      }
+    }
+
+    function setSubSyncOffset(val, showToastMsg = false) {
+      state.subSyncOffset = Math.round(Number(val) * 10) / 10;
+      localStorage.setItem(getMediaSubSyncKey(), state.subSyncOffset);
+      localStorage.setItem('cinelocal_sub_sync_offset', state.subSyncOffset);
+      updateSubSyncUI();
+      renderSubtitles(getEffectiveCurrentTime());
+      updateSubSyncPreview();
+      if (showToastMsg) {
         const sign = state.subSyncOffset > 0 ? '+' : '';
-        lbl.innerText = `${sign}${state.subSyncOffset.toFixed(1)}s`;
+        showToast(`Sincronia: ${sign}${state.subSyncOffset.toFixed(1)}s`);
       }
     }
 
     function adjustSubSync(delta) {
-      state.subSyncOffset = Math.round((state.subSyncOffset + delta) * 10) / 10;
-      localStorage.setItem('cinelocal_sub_sync_offset', state.subSyncOffset);
-      updateSubSyncUI();
-      const sign = state.subSyncOffset > 0 ? '+' : '';
-      showToast(`Sincronia da legenda: ${sign}${state.subSyncOffset.toFixed(1)}s`);
+      setSubSyncOffset(state.subSyncOffset + delta, true);
     }
 
     function resetSubSync() {
-      state.subSyncOffset = 0.0;
-      localStorage.setItem('cinelocal_sub_sync_offset', 0.0);
-      updateSubSyncUI();
+      setSubSyncOffset(0.0, true);
       showToast('Sincronia da legenda redefinida (0.0s)');
+    }
+
+    /* MODAL SINCRONIZADOR DE LEGENDAS & ALINHADOR DE FALA */
+    function openSubSyncModal() {
+      const modal = document.getElementById('subSyncModal');
+      if (!modal) {
+        console.error('Modal #subSyncModal não encontrado no documento.');
+        alert('Janela do sincronizador não encontrada.');
+        return;
+      }
+      
+      // Abre o modal IMEDIATAMENTE (visibilidade garantida acima de tudo)
+      modal.style.display = 'flex';
+      modal.style.opacity = '1';
+      modal.style.zIndex = '10005';
+      modal.classList.add('active');
+
+      // Fecha o menu de legendas para desobstruir a tela
+      const subMenu = document.getElementById('subtitlesMenu');
+      if (subMenu) subMenu.classList.remove('active');
+
+      // Pausa o vídeo no momento atual para permitir alinhamento exato
+      const video = document.getElementById('mainVideo');
+      if (video && !video.paused) {
+        try { video.pause(); } catch (err) {}
+      }
+
+      try {
+        // Se não houver legendas no state, tenta recuperar da mídia atual
+        if ((!state.subtitleCues || state.subtitleCues.length === 0) && state.currentPlaying) {
+          if (state.activeSubtitle && typeof state.activeSubtitle === 'string') {
+            selectSubtitle(state.activeSubtitle, false);
+          } else if (state.currentPlaying.subtitles && state.currentPlaying.subtitles.length > 0) {
+            const ptSub = state.currentPlaying.subtitles.find(s => s.label && s.label.toLowerCase().includes('portugu') && !s.label.toLowerCase().includes('forçada')) || state.currentPlaying.subtitles[0];
+            if (ptSub && ptSub.path) {
+              selectSubtitle(ptSub.path, false);
+            }
+          }
+        }
+
+        const searchInput = document.getElementById('subMatcherSearchInput');
+        if (searchInput) searchInput.value = '';
+
+        updateSubSyncUI();
+        refreshSpeechMatcher();
+        updateSubSyncPreview();
+      } catch (err) {
+        console.error('Erro ao popular dados do sincronizador:', err);
+      }
+    }
+
+    function closeSubSyncModal() {
+      const modal = document.getElementById('subSyncModal');
+      if (modal) {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+      }
+    }
+
+    function closeSubSyncModalOnOut(e) {
+      if (e.target.id === 'subSyncModal') closeSubSyncModal();
+    }
+
+    function handleSubSyncSlider(val) {
+      setSubSyncOffset(parseFloat(val), false);
+    }
+
+    function applyDirectSubSync() {
+      const input = document.getElementById('subSyncDirectInput');
+      if (!input) return;
+      const val = parseFloat(input.value);
+      if (!isNaN(val)) {
+        setSubSyncOffset(val, true);
+      }
+    }
+
+    function handleSubMatcherSearch(query) {
+      if (!state.subtitleCues || state.subtitleCues.length === 0) return;
+      const q = (query || '').trim().toLowerCase();
+      if (!q) {
+        refreshSpeechMatcher();
+        return;
+      }
+      const curr = getEffectiveCurrentTime();
+      const matches = state.subtitleCues.filter(c => {
+        const clean = c[2].replace(/<[^>]+>/g, '').toLowerCase();
+        return clean.includes(q);
+      });
+      matches.sort((a, b) => Math.abs(a[0] - curr) - Math.abs(b[0] - curr));
+      renderSpeechMatcherList(matches.slice(0, 25), curr, true);
+    }
+
+    function clearSubMatcherSearch() {
+      const input = document.getElementById('subMatcherSearchInput');
+      if (input) input.value = '';
+      refreshSpeechMatcher();
+    }
+
+    function refreshSpeechMatcher() {
+      const listEl = document.getElementById('subSyncCuesList');
+      if (!listEl) return;
+      if (!state.subtitleCues || state.subtitleCues.length === 0) {
+        listEl.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 13px;">Nenhuma legenda carregada no momento. Selecione uma legenda no player primeiro.</div>';
+        return;
+      }
+      const curr = getEffectiveCurrentTime();
+      // Encontra frases ditas entre 60s antes e 90s depois do tempo atual do vídeo
+      const nearby = state.subtitleCues.filter(c => c[0] >= Math.max(0, curr - 60) && c[0] <= curr + 90);
+
+      if (nearby.length === 0) {
+        const sorted = [...state.subtitleCues].sort((a, b) => Math.abs(a[0] - curr) - Math.abs(b[0] - curr)).slice(0, 10);
+        sorted.sort((a, b) => a[0] - b[0]);
+        renderSpeechMatcherList(sorted, curr, false);
+      } else {
+        renderSpeechMatcherList(nearby, curr, false);
+      }
+    }
+
+    function renderSpeechMatcherList(cues, curr, isSearch = false) {
+      const listEl = document.getElementById('subSyncCuesList');
+      if (!listEl) return;
+      if (cues.length === 0) {
+        if (isSearch) {
+          listEl.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 13px;">🔍 Nenhum diálogo encontrado com esse texto. Tente outra palavra-chave.</div>';
+        } else {
+          listEl.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 13px;">Nenhuma fala próxima identificada. Experimente buscar uma palavra dita na cena no campo acima.</div>';
+        }
+        return;
+      }
+
+      listEl.innerHTML = cues.map(c => {
+        if (!c || !Array.isArray(c)) return '';
+        const isNearbyNow = Math.abs(c[0] - curr) < 2.0 || (curr >= c[0] && curr <= c[1]);
+        const diffStart = Math.round((c[0] - curr) * 10) / 10;
+        const diffEnd = Math.round((c[1] - curr) * 10) / 10;
+        const signStart = diffStart > 0 ? '+' : '';
+        const signEnd = diffEnd > 0 ? '+' : '';
+        
+        let statusBadge = '';
+        if (curr >= c[0] && curr <= c[1]) {
+          statusBadge = '<span style="font-size: 11px; color: #00ff88; font-weight: 700;">✨ No ar agora</span>';
+        } else if (c[0] < curr) {
+          statusBadge = `<span style="font-size: 11px; color: #94a3b8; font-weight: 700;">(${Math.abs(diffStart).toFixed(1)}s atrás no arquivo)</span>`;
+        } else {
+          statusBadge = `<span style="font-size: 11px; color: #ff9922; font-weight: 700;">(${diffStart.toFixed(1)}s adiante no arquivo)</span>`;
+        }
+
+        const rawText = c[2] ? (typeof c[2] === 'string' ? c[2] : String(c[2])) : '';
+        const cleanText = rawText.replace(/<[^>]+>/g, '').replace(/\n/g, ' ');
+        return `
+          <div class="sub-cue-match-item ${isNearbyNow ? 'active' : ''}">
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 3px; flex-wrap: wrap;">
+                <span class="sub-cue-match-time">${formatTime(c[0])} - ${formatTime(c[1])}</span>
+                ${statusBadge}
+              </div>
+              <div class="sub-cue-match-text">"${cleanText}"</div>
+            </div>
+            <div class="sub-cue-actions">
+              <button class="sub-cue-match-action-btn" onclick="alignSubWithCue(${c[0]})" title="Clique se o personagem começou a falar esta frase agora">
+                🎯 Começou (${signStart}${diffStart.toFixed(1)}s)
+              </button>
+              <button class="sub-cue-match-action-btn sub-cue-btn-secondary" onclick="alignSubWithCueEnd(${c[1]})" title="Clique se o personagem terminou de falar esta frase agora">
+                🏁 Terminou (${signEnd}${diffEnd.toFixed(1)}s)
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function alignSubWithCue(cueStartTime) {
+      const curr = getEffectiveCurrentTime();
+      // Para alinhar o início da legenda com o tempo atual do vídeo:
+      // adjusted = curr + offset => offset = cueStartTime - curr
+      const diff = Math.round((cueStartTime - curr) * 10) / 10;
+      setSubSyncOffset(diff, false);
+      const sign = diff > 0 ? '+' : '';
+      showToast(`🎯 Início alinhado com sucesso! (${sign}${diff.toFixed(1)}s)`);
+      refreshSpeechMatcher();
+    }
+
+    function alignSubWithCueEnd(cueEndTime) {
+      const curr = getEffectiveCurrentTime();
+      // Para alinhar o término da frase com o tempo atual do vídeo:
+      // adjusted = curr + offset => offset = cueEndTime - curr
+      const diff = Math.round((cueEndTime - curr) * 10) / 10;
+      setSubSyncOffset(diff, false);
+      const sign = diff > 0 ? '+' : '';
+      showToast(`🏁 Fim alinhado com sucesso! (${sign}${diff.toFixed(1)}s)`);
+      refreshSpeechMatcher();
     }
 
     function renderSubtitles(currTime) {
@@ -7033,7 +7929,7 @@ html_content = r"""<!DOCTYPE html>
         return;
       }
       const adjusted = currTime + state.subSyncOffset;
-      const cue = state.subtitleCues.find(c => adjusted >= c[0] && adjusted <= c[1]);
+      const cue = state.subtitleCues.find(c => adjusted >= (c[0] - 0.05) && adjusted <= (c[1] + 0.05));
       if (cue) {
         if (textEl.dataset.currentCue !== cue[2]) {
           textEl.dataset.currentCue = cue[2];
@@ -7524,10 +8420,14 @@ html_content = r"""<!DOCTYPE html>
     }
 
     /* VLC INTEGRATION */
-    function launchVlc(videoPath) {
+    function launchVlc(videoPath, mediaItem = null) {
       if (state.vlcAvailable === false) {
         showToast('VLC não detectado. Reproduzindo no player web nativo.');
         return;
+      }
+      const media = mediaItem || state.currentPlaying || (state.heroMedia && state.heroMedia.videoPath === videoPath ? state.heroMedia : null) || state.movies.find(m => m.videoPath === videoPath);
+      if (media) {
+        saveWatchProgress(media.id, 60, media.duration || 3000, media);
       }
       showToast('Iniciando VLC (Áudio 5.1)...');
       fetch(`/api/open_vlc?path=${encodeURIComponent(videoPath)}`)
@@ -7683,13 +8583,33 @@ html_content = r"""<!DOCTYPE html>
 
     function switchQrTab(tabName) {
       const isRemote = (tabName === 'remote');
+      const isInstall = (tabName === 'tv_install');
       const baseIpUrl = state.localUrl || `http://${window.location.hostname || 'localhost'}:8000/`;
-      const targetUrl = isRemote ? `${baseIpUrl.replace(/\/$/, '')}/remote` : baseIpUrl;
+      const genericUrl = state.genericUrl || 'http://cinelocal.local:8000/';
+      const targetUrl = isRemote ? `${baseIpUrl.replace(/\/$/, '')}/remote` : (state.genericUrl || baseIpUrl);
 
       const tabTv = document.getElementById('qrTabTv');
       const tabRemote = document.getElementById('qrTabRemote');
-      if (tabTv) tabTv.classList.toggle('active', !isRemote);
+      const tabTvInstall = document.getElementById('qrTabTvInstall');
+      if (tabTv) tabTv.classList.toggle('active', tabName === 'tv');
       if (tabRemote) tabRemote.classList.toggle('active', isRemote);
+      if (tabTvInstall) tabTvInstall.classList.toggle('active', isInstall);
+
+      const standardBox = document.getElementById('qrStandardContainer');
+      const guideBox = document.getElementById('qrTvInstallGuide');
+
+      if (isInstall) {
+        if (standardBox) standardBox.style.display = 'none';
+        if (guideBox) guideBox.style.display = 'block';
+        const titleEl = document.getElementById('qrModalTitle');
+        if (titleEl) titleEl.innerText = '💡 Como Usar o CineLocal na Smart TV';
+        const descEl = document.getElementById('qrModalDesc');
+        if (descEl) descEl.innerText = 'Instruções simples para adicionar o CineLocal à tela inicial da sua televisão:';
+        return;
+      }
+
+      if (standardBox) standardBox.style.display = 'block';
+      if (guideBox) guideBox.style.display = 'none';
 
       const titleEl = document.getElementById('qrModalTitle');
       if (titleEl) {
@@ -7703,8 +8623,11 @@ html_content = r"""<!DOCTYPE html>
           : 'Conecte seu dispositivo na mesma rede Wi-Fi e aponte a câmera para abrir o CineLocal:';
       }
 
+      const genUrlEl = document.getElementById('qrGenericUrlDisplay');
+      if (genUrlEl) genUrlEl.innerText = genericUrl;
+
       const urlEl = document.getElementById('qrLocalUrlDisplay');
-      if (urlEl) urlEl.innerText = targetUrl;
+      if (urlEl) urlEl.innerText = baseIpUrl;
 
       const qrWrapper = document.getElementById('qrSvgWrapper');
       if (qrWrapper) {
@@ -7712,6 +8635,39 @@ html_content = r"""<!DOCTYPE html>
         qrWrapper.innerHTML = `
           <img src="${qrApiUrl}" alt="QR Code CineLocal" style="width: 220px; height: 220px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.6);" onerror="this.onerror=null; this.parentElement.innerHTML='<div style=\\'padding: 24px; color: var(--text-muted); font-size: 0.9rem; text-align: center;\\'>📡 Acesse este endereço no celular: <br><strong>${targetUrl}</strong></div>';">
         `;
+      }
+    }
+
+    function toggleTvScale() {
+      state.tvScale = !state.tvScale;
+      localStorage.setItem('cinelocal_tv_scale', state.tvScale ? 'true' : 'false');
+      document.body.classList.toggle('tv-scale-large', state.tvScale);
+      updateTvScaleUI();
+      showToast(state.tvScale ? '📺 Modo Sala / Sofá Ativado (Elementos e Posters Maiores)' : '📺 Modo Sala Desativado');
+    }
+
+    function updateTvScaleUI() {
+      const lbl = document.getElementById('tvScaleLabel');
+      if (lbl) lbl.innerText = state.tvScale ? '✓ Modo Sala / Sofá (Ativo)' : 'Modo Sala / Sofá (+Grande)';
+      const mLbl = document.getElementById('mDrawerTvScaleLabel');
+      if (mLbl) mLbl.innerText = state.tvScale ? '✓ Modo Sala / Sofá (Ativo)' : 'Modo Sala / Sofá (+Grande)';
+    }
+
+    function triggerPwaInstall() {
+      if (state.deferredInstallPrompt) {
+        state.deferredInstallPrompt.prompt();
+        state.deferredInstallPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            showToast('🎉 CineLocal instalado com sucesso!');
+          }
+          state.deferredInstallPrompt = null;
+          const b1 = document.getElementById('btnInstallPwa');
+          if (b1) b1.style.display = 'none';
+          const b2 = document.getElementById('btnDrawerInstallPwa');
+          if (b2) b2.style.display = 'none';
+        });
+      } else {
+        showToast('Para instalar, abra as opções do seu navegador e escolha "Adicionar à Tela Inicial" ou "Instalar CineLocal".');
       }
     }
 
@@ -8278,10 +9234,18 @@ html_content = r"""<!DOCTYPE html>
             toggleDropdown('subtitlesMenu');
           } else if (typeof normKey === 'string' && normKey.toLowerCase() === 'g') {
             e.preventDefault();
-            adjustSubSync(-0.1);
+            adjustSubSync(e.shiftKey ? -2.0 : -0.5);
           } else if (typeof normKey === 'string' && normKey.toLowerCase() === 'h') {
             e.preventDefault();
-            adjustSubSync(0.1);
+            adjustSubSync(e.shiftKey ? 2.0 : 0.5);
+          } else if (typeof normKey === 'string' && normKey.toLowerCase() === 's') {
+            e.preventDefault();
+            const introToast = document.getElementById('skipIntroToast');
+            if (introToast && introToast.style.display !== 'none' && !e.shiftKey) {
+              skipEpisodeIntro();
+            } else {
+              openSubSyncModal();
+            }
           }
         } else {
           // Fora do player: Atalho / para Busca, Smart TV D-Pad e Enter

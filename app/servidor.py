@@ -397,6 +397,220 @@ def get_local_ip():
     except Exception:
         return '127.0.0.1'
 
+CACHED_CATALOG_DATA = None
+
+def get_cached_catalog(force_refresh=False):
+    """Carrega o catálogo compilado em cache na memória para resposta instantânea em < 2ms."""
+    global CACHED_CATALOG_DATA
+    if not force_refresh and CACHED_CATALOG_DATA is not None:
+        return CACHED_CATALOG_DATA
+    
+    catalog_json_path = os.path.join(DATA_DIR, 'catalog.json')
+    if not force_refresh and os.path.exists(catalog_json_path):
+        try:
+            with open(catalog_json_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                if data and 'catalog' in data:
+                    CACHED_CATALOG_DATA = data
+                    return CACHED_CATALOG_DATA
+        except Exception:
+            pass
+            
+    try:
+        data = build_catalog()
+        CACHED_CATALOG_DATA = data
+        return data
+    except Exception as e:
+        log_event("⚠️", "CATÁLOGO", f"Erro ao compilar catálogo: {e}")
+        return {"catalog": [], "movies": [], "series": []}
+
+def extract_embedded_subtitles(video_rel):
+    """Extrai legendas embutidas em formato SRT de arquivos MKV/MP4 via FFmpeg."""
+    clean_rel = urllib.parse.unquote(video_rel).replace('../', '').lstrip('/').replace('/', os.sep)
+    full_video_path = os.path.join(MOVIES_DIR, clean_rel)
+    if not os.path.exists(full_video_path):
+        return {"success": False, "message": "Arquivo de vídeo não encontrado"}
+    
+    ffmpeg_bin = get_ffmpeg_bin()
+    if not ffmpeg_bin:
+        return {"success": False, "message": "FFmpeg não disponível para extração"}
+    
+    try:
+        res = subprocess.run([ffmpeg_bin, "-i", full_video_path], capture_output=True, text=True, encoding="utf-8", errors="ignore")
+        lines = res.stderr.split("\n")
+        
+        extracted_subs = []
+        target_dir = os.path.dirname(full_video_path)
+        base_name = os.path.splitext(os.path.basename(full_video_path))[0]
+        
+        for l in lines:
+            m = re.search(r"Stream #0:(\d+)(?:\(([a-zA-Z]+)\))?.*?: Subtitle: (subrip|srt|text)", l, re.IGNORECASE)
+            if m:
+                stream_id = m.group(1)
+                lang = (m.group(2) or "und").lower()
+                is_forced = "forced" in l.lower()
+                
+                if lang in ("por", "pob", "pt", "bra") or lang in ("eng", "en"):
+                    suffix = ".forced.srt" if is_forced else (".en.srt" if lang.startswith("en") else ".srt")
+                    out_filename = f"{base_name}{suffix}"
+                    out_path = os.path.join(target_dir, out_filename)
+                    
+                    extract_cmd = [
+                        ffmpeg_bin, "-y", "-i", full_video_path,
+                        "-map", f"0:{stream_id}",
+                        "-c:s", "srt",
+                        out_path
+                    ]
+                    subprocess.run(extract_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=20)
+                    
+                    if os.path.exists(out_path) and os.path.getsize(out_path) > 100:
+                        rel_sub_path = os.path.relpath(out_path, MOVIES_DIR).replace('\\', '/')
+                        if not rel_sub_path.startswith('../'):
+                            rel_sub_path = f"../{rel_sub_path}"
+                        extracted_subs.append({
+                            "stream": stream_id,
+                            "lang": lang,
+                            "filename": out_filename,
+                            "path": rel_sub_path,
+                            "label": ("Português (Forçada)" if is_forced else "Português (Oficial)") if lang in ("por", "pob", "pt", "bra") else "Inglês (Oficial)"
+                        })
+        return {
+            "success": len(extracted_subs) > 0,
+            "status": "ok" if len(extracted_subs) > 0 else "empty",
+            "extracted": extracted_subs,
+            "subtitles": extracted_subs
+        }
+    except Exception as e:
+        return {"success": False, "message": f"Erro na extração: {e}"}
+
+def record_watch_for_path(full_path):
+    """Grava o início de reprodução no user_state para que exiba em Últimos Assistidos mesmo ao abrir no VLC."""
+    try:
+        catalog_data = get_cached_catalog()
+        all_items = catalog_data.get('catalog', [])
+        norm_target = os.path.normpath(full_path)
+        
+        matched_item = None
+        matched_ep = None
+        matched_series = None
+        matched_s_idx = 0
+        
+        for item in all_items:
+            vpath = item.get('videoPath', '')
+            if vpath:
+                clean_v = urllib.parse.unquote(vpath).replace('../', '').lstrip('/').replace('/', os.sep)
+                if os.path.normpath(os.path.join(MOVIES_DIR, clean_v)) == norm_target:
+                    matched_item = item
+                    break
+            for s_idx, season in enumerate(item.get('seasons', [])):
+                for ep in season.get('episodes', []):
+                    ep_vpath = ep.get('videoPath', '')
+                    if ep_vpath:
+                        clean_ep = urllib.parse.unquote(ep_vpath).replace('../', '').lstrip('/').replace('/', os.sep)
+                        if os.path.normpath(os.path.join(MOVIES_DIR, clean_ep)) == norm_target:
+                            matched_ep = ep
+                            matched_series = item
+                            matched_s_idx = s_idx
+                            break
+                if matched_ep:
+                    break
+            if matched_ep:
+                break
+                
+        state_data = load_user_state()
+        wp = state_data.get('watchProgress', {})
+        now_ts = int(time.time() * 1000)
+        
+        if matched_ep and matched_series:
+            ep_id = matched_ep.get('id')
+            ep_num = matched_ep.get('episodeNumber', 1)
+            wp[str(ep_id)] = {
+                "id": str(ep_id),
+                "currentTime": 60,
+                "duration": matched_ep.get('duration', 3000),
+                "pct": 10,
+                "completed": False,
+                "timestamp": now_ts,
+                "updatedAt": int(time.time()),
+                "title": f"{matched_series.get('title')}: E{ep_num:02d}",
+                "posterPath": matched_series.get('posterPath', ''),
+                "type": 'episode',
+                "isEpisode": True,
+                "seriesId": matched_series.get('id'),
+                "seriesTitle": matched_series.get('title'),
+                "seasonIdx": matched_s_idx,
+                "epNum": ep_num,
+                "episodeNumber": ep_num
+            }
+            state_data['watchProgress'] = wp
+            save_user_state(state_data)
+        elif matched_item:
+            m_id = matched_item.get('id')
+            wp[str(m_id)] = {
+                "id": str(m_id),
+                "currentTime": 60,
+                "duration": matched_item.get('duration', 7200),
+                "pct": 10,
+                "completed": False,
+                "timestamp": now_ts,
+                "updatedAt": int(time.time()),
+                "title": matched_item.get('title', ''),
+                "posterPath": matched_item.get('posterPath', ''),
+                "type": 'movie',
+                "isEpisode": False
+            }
+            state_data['watchProgress'] = wp
+            save_user_state(state_data)
+    except Exception as e:
+        log_event("⚠️", "VLC WATCH", f"Aviso ao registrar progresso VLC: {e}")
+
+def start_mdns_responder(ip_address, host="cinelocal"):
+    """Responde a consultas mDNS na rede local para permitir acesso via http://cinelocal.local:8000/"""
+    def _mdns_worker():
+        MCAST_GRP = '224.0.0.251'
+        MCAST_PORT = 5353
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            if hasattr(socket, "SO_REUSEPORT"):
+                try:
+                    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+                except Exception:
+                    pass
+            sock.bind(('', MCAST_PORT))
+            mreq = socket.inet_aton(MCAST_GRP) + socket.inet_aton(ip_address)
+            sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+        except Exception:
+            return
+
+        encoded_name = b"".join([bytes([len(part)]) + part.encode('ascii') for part in [host, 'local']]) + b'\x00'
+        ip_bytes = socket.inet_aton(ip_address)
+        response_packet = (
+            b'\x00\x00'
+            b'\x84\x00'
+            b'\x00\x00'
+            b'\x00\x01'
+            b'\x00\x00'
+            b'\x00\x00'
+            + encoded_name
+            + b'\x00\x01'
+            + b'\x80\x01'
+            + b'\x00\x00\x00\x78'
+            + b'\x00\x04'
+            + ip_bytes
+        )
+
+        while True:
+            try:
+                data, addr = sock.recvfrom(1024)
+                if encoded_name in data or host.encode('ascii') in data.lower():
+                    sock.sendto(response_packet, (MCAST_GRP, MCAST_PORT))
+            except Exception:
+                time.sleep(1)
+
+    t = threading.Thread(target=_mdns_worker, daemon=True)
+    t.start()
+
 class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=MOVIES_DIR, **kwargs)
@@ -417,6 +631,15 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             super().copyfile(source, outputfile)
         except (BrokenPipeError, ConnectionResetError):
             pass
+
+    def end_headers(self):
+        clean_path = self.path.split('?')[0].lower()
+        if clean_path.endswith(('.html', '.js', '.json')) or clean_path in ('/', '/app', '/app/'):
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            self.send_header('Pragma', 'no-cache')
+            self.send_header('Expires', '0')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        super().end_headers()
 
     def do_OPTIONS(self):
         self.send_response(200)
@@ -465,10 +688,16 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                 wp = state_data.get('watchProgress', {})
                 wl = state_data.get('watchedList', {})
                 
+                # Se duration for 0 ou desconhecida, estima com base no tipo
+                if duration <= 0:
+                    duration = 3000.0 if item_info.get('isEpisode') else 7200.0
+                
                 pct = int(round((current_time / duration) * 100)) if duration > 0 else int(payload.get('pct', 0))
                 pct = max(0, min(100, pct))
                 completed = bool(duration > 0 and (pct >= 90 or (current_time / duration) > 0.90 or payload.get('completed')))
                 now_ts = int(time.time() * 1000)
+                
+                ep_num = item_info.get('epNum', item_info.get('episodeNumber', None))
                 
                 wp[str(media_id)] = {
                     "id": str(media_id),
@@ -485,7 +714,8 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                     "seriesId": item_info.get('seriesId', None),
                     "seriesTitle": item_info.get('seriesTitle', None),
                     "seasonIdx": item_info.get('seasonIdx', None),
-                    "episodeNumber": item_info.get('episodeNumber', None)
+                    "epNum": ep_num,
+                    "episodeNumber": ep_num
                 }
                 if completed:
                     wl[str(media_id)] = True
@@ -565,6 +795,47 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         client_ip = self.client_address[0]
         parsed = urllib.parse.urlparse(self.path)
+
+        # Suporte a PWA Manifest e Service Worker
+        if parsed.path == '/manifest.json':
+            manifest_file = os.path.join(APP_DIR, 'manifest.json')
+            if os.path.exists(manifest_file):
+                with open(manifest_file, 'rb') as f:
+                    data = f.read()
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/manifest+json; charset=utf-8')
+                self.send_header('Content-Length', str(len(data)))
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(data)
+                return
+
+        if parsed.path == '/sw.js':
+            sw_file = os.path.join(APP_DIR, 'sw.js')
+            if os.path.exists(sw_file):
+                with open(sw_file, 'rb') as f:
+                    data = f.read()
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/javascript; charset=utf-8')
+                self.send_header('Content-Length', str(len(data)))
+                self.send_header('Service-Worker-Allowed', '/')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(data)
+                return
+
+        if parsed.path in ('/icon-192.png', '/icon-512.png'):
+            icon_file = os.path.join(APP_DIR, os.path.basename(parsed.path))
+            if os.path.exists(icon_file):
+                with open(icon_file, 'rb') as f:
+                    data = f.read()
+                self.send_response(200)
+                self.send_header('Content-Type', 'image/png')
+                self.send_header('Content-Length', str(len(data)))
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(data)
+                return
 
         # Atalho para o Controle Remoto Virtual
         if parsed.path in ('/remote', '/remote/', '/controle', '/controle/'):
@@ -689,6 +960,21 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Location', '/app/index.html')
             self.end_headers()
             return
+
+        # Suporte a arquivos estáticos do PWA na raiz
+        if parsed.path in ('/manifest.json', '/sw.js', '/icon-192.png', '/icon-512.png'):
+            target_f = os.path.join(APP_DIR, parsed.path.lstrip('/'))
+            if os.path.exists(target_f):
+                content_type = 'application/manifest+json' if parsed.path.endswith('.json') else ('application/javascript' if parsed.path.endswith('.js') else 'image/png')
+                with open(target_f, 'rb') as f:
+                    data = f.read()
+                self.send_response(200)
+                self.send_header('Content-Type', content_type)
+                self.send_header('Content-Length', str(len(data)))
+                self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                self.end_headers()
+                self.wfile.write(data)
+                return
             
         if parsed.path in ('/app/index.html', '/app/'):
             if should_log_activity(('ui', client_ip), 10):
@@ -705,13 +991,17 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             vlc_bin = get_vlc_path()
             ffmpeg_bin = get_ffmpeg_bin()
             local_ip = get_local_ip()
+            hostname = socket.gethostname().lower()
             data = json.dumps({
                 "vlcAvailable": bool(vlc_bin),
                 "vlcPath": vlc_bin or "",
                 "ffmpegAvailable": bool(ffmpeg_bin),
                 "ffmpegPath": ffmpeg_bin or "",
                 "localIp": local_ip,
-                "localUrl": f"http://{local_ip}:{PORT}/"
+                "localUrl": f"http://{local_ip}:{PORT}/",
+                "genericUrl": f"http://cinelocal.local:{PORT}/",
+                "hostname": hostname,
+                "hostnameUrl": f"http://{hostname}.local:{PORT}/"
             }, ensure_ascii=False).encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -721,12 +1011,32 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(data)
             return
 
-        # API para sincronizar catálogo dinamicamente
+        # API para extrair legendas embutidas em MKV/MP4
+        if parsed.path == '/api/extract_subtitles':
+            try:
+                query_params = urllib.parse.parse_qs(parsed.query)
+                video_rel = query_params.get('path', [''])[0]
+                res = extract_embedded_subtitles(video_rel) if video_rel else {"success": False, "message": "Caminho não fornecido"}
+                data = json.dumps(res, ensure_ascii=False).encode('utf-8')
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Content-Length', str(len(data)))
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(data)
+                return
+            except Exception as e:
+                self.send_error(500, f'Erro na extração de legendas: {e}')
+                return
+
+        # API para sincronizar catálogo dinamicamente (Cache em memória instantâneo)
         if parsed.path == '/api/filmes':
             try:
-                if should_log_activity(('catalog', client_ip), 5):
-                    log_event("⚡", "CATÁLOGO", f"Sincronização solicitada por {client_ip}")
-                catalog = build_catalog()
+                query_params = urllib.parse.parse_qs(parsed.query)
+                force_refresh = query_params.get('refresh', ['0'])[0] in ('1', 'true', 'True')
+                if force_refresh and should_log_activity(('catalog_refresh', client_ip), 5):
+                    log_event("⚡", "CATÁLOGO", f"Recompilação de catálogo solicitada por {client_ip}")
+                catalog = get_cached_catalog(force_refresh=force_refresh)
                 data = json.dumps(catalog, ensure_ascii=False).encode('utf-8')
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -751,6 +1061,8 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                     
                     vlc_bin = get_vlc_path()
                     if os.path.exists(full_movie_path) and vlc_bin and os.path.exists(vlc_bin):
+                        # Registra reprodução no histórico e últimos assistidos
+                        record_watch_for_path(full_movie_path)
                         creation_flag = (subprocess.CREATE_NEW_PROCESS_GROUP | 0x00000008) if sys.platform == 'win32' else 0
                         vlc_cmd = [vlc_bin, full_movie_path]
                         
@@ -947,8 +1259,11 @@ def run():
         open_browser = True
 
     local_ip = get_local_ip()
+    hostname = socket.gethostname().lower()
     local_url = f'http://localhost:{PORT}/'
     tv_url = f'http://{local_ip}:{PORT}/'
+    generic_url = f'http://cinelocal.local:{PORT}/'
+    hostname_url = f'http://{hostname}.local:{PORT}/'
 
     # Se o servidor já estiver rodando, não duplica nem trava com erro de socket
     if is_port_in_use(PORT):
@@ -956,7 +1271,8 @@ def run():
         print(f"  🍿 CINELOCAL • O SERVIDOR JÁ ESTÁ EM EXECUÇÃO NA PORTA {PORT}")
         print("=" * 76)
         print(f"\n  🌐 No seu Computador:   {local_url}")
-        print(f"  📺 Na sua Smart TV:     {tv_url}\n")
+        print(f"  📺 Endereço Genérico:   {generic_url}")
+        print(f"  📱 Na sua Smart TV:     {tv_url}\n")
         if open_browser:
             print("  🚀 Abrindo o CineLocal no navegador...\n")
             try:
@@ -965,14 +1281,24 @@ def run():
                 pass
         return
 
-    # Sincroniza o catálogo apenas se catalogo.js ainda não existir (primeira vez)
+    # Inicia o responder mDNS em segundo plano para que cinelocal.local funcione na rede Wi-Fi
+    try:
+        start_mdns_responder(local_ip, host="cinelocal")
+    except Exception:
+        pass
+
+    # Sincroniza o catálogo apenas se catalogo.js ou data/catalog.json ainda não existirem
     catalog_path = os.path.join(APP_DIR, 'catalogo.js')
-    if not os.path.exists(catalog_path):
+    catalog_json = os.path.join(DATA_DIR, 'catalog.json')
+    if not os.path.exists(catalog_path) or not os.path.exists(catalog_json):
         print("\n📦 Primeiro uso detectado: gerando catálogo inicial...")
         try:
-            build_catalog()
+            get_cached_catalog(force_refresh=True)
         except Exception as e:
             log_event("⚠️", "CATÁLOGO", f"Aviso ao compilar catálogo: {e}")
+    else:
+        # Carrega o catálogo na memória em < 2ms
+        get_cached_catalog(force_refresh=False)
     
     vlc_bin = get_vlc_path()
     ffmpeg_bin = get_ffmpeg_bin()
@@ -985,9 +1311,9 @@ def run():
 ================================================================================
 
   🌐 No seu Computador:   {local_url}
-  📺 Na sua Smart TV:     {tv_url}
-  📱 No Celular / Tablet: {tv_url}
-  🎮 Controle Remoto:     {tv_url}remote
+  📺 Endereço Genérico:   {generic_url}
+  📱 Na Smart TV / Cel:   {tv_url} ou {hostname_url}
+  🎮 Controle Remoto:     {generic_url}remote
 
   ⚡ HTTP 206 Streaming:  Ativo (seek instantâneo em 1080p e 4K)
   🚀 VLC Media Player:    {vlc_status}

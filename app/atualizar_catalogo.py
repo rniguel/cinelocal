@@ -47,19 +47,47 @@ def get_ffmpeg_bin():
             return candidate
     return None
 
+def normalize_cache_key(path_str):
+    if not path_str:
+        return ''
+    norm = str(path_str).replace('\\', '/')
+    idx = norm.lower().find('media/')
+    if idx != -1:
+        return norm[idx:]
+    return norm
+
+def get_cache_key(filepath):
+    try:
+        rel = os.path.relpath(filepath, ROOT_DIR).replace('\\', '/')
+        return normalize_cache_key(rel)
+    except Exception:
+        return normalize_cache_key(filepath)
+
 def load_audio_cache():
     if os.path.exists(AUDIO_CACHE_FILE):
         try:
             with open(AUDIO_CACHE_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
+                raw_data = json.load(f)
+            cache = {}
+            for k, v in raw_data.items():
+                rel_k = normalize_cache_key(k)
+                cache[rel_k] = v
+                cache[k] = v
+                cache[os.path.normpath(k)] = v
+            return cache
         except Exception:
             return {}
     return {}
 
 def save_audio_cache(cache):
     try:
+        # Salva apenas chaves relativas para portabilidade total entre computadores
+        cleaned = {}
+        for k, v in cache.items():
+            rel_k = normalize_cache_key(k)
+            cleaned[rel_k] = v
         with open(AUDIO_CACHE_FILE, 'w', encoding='utf-8') as f:
-            json.dump(cache, f, ensure_ascii=False, indent=2)
+            json.dump(cleaned, f, ensure_ascii=False, indent=2)
     except Exception:
         pass
 
@@ -70,10 +98,13 @@ def probe_audio_and_subs(filepath, cache, stats=None):
         return {'audio': 'DUB', 'audioLabel': 'Dublado', 'hasEmbeddedSubtitles': False}
     
     norm_path = os.path.normpath(filepath)
-    if norm_path in cache and cache[norm_path].get('mtime') == mtime:
+    rel_key = get_cache_key(filepath)
+    
+    cached_item = cache.get(rel_key) or cache.get(norm_path) or cache.get(filepath)
+    if cached_item and cached_item.get('mtime') == mtime:
         if stats is not None:
             stats['cache_hits'] += 1
-        return cache[norm_path]
+        return cached_item
     
     if stats is not None:
         stats['new_probes'] += 1
@@ -121,6 +152,7 @@ def probe_audio_and_subs(filepath, cache, stats=None):
         'audioTracks': audio_langs,
         'hasEmbeddedSubtitles': has_sub
     }
+    cache[rel_key] = info
     cache[norm_path] = info
     return info
 
@@ -551,6 +583,20 @@ def build_catalog():
         out.write('window.LEGENDAS_DB = ')
         json.dump(subtitles_db, out, ensure_ascii=False)
         out.write(';\n')
+
+    # Salva também versão compacta em JSON para leitura em milissegundos pelo servidor
+    data_dir = os.path.join(APP_DIR, 'data')
+    os.makedirs(data_dir, exist_ok=True)
+    catalog_json_path = os.path.join(data_dir, 'catalog.json')
+    try:
+        with open(catalog_json_path, 'w', encoding='utf-8') as jf:
+            json.dump({
+                'catalog': unified_catalog,
+                'movies': movies_catalog,
+                'series': series_catalog
+            }, jf, ensure_ascii=False)
+    except Exception:
+        pass
         
     print("\n" + "=" * 76)
     print(f"🎉 CATÁLOGO ATUALIZADO COM SUCESSO EM {elapsed:.2f}s!")

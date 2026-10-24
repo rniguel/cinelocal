@@ -128,6 +128,33 @@ SERIES_METADATA = {
 # =====================================================================
 MOVIES_METADATA = {
     # Standalones clássicos
+    '10 coisas que eu odeio em você': {
+        'overview': 'Em seu primeiro dia no novo colégio, Cameron se apaixona perdidamente por Bianca. Porém, o pai superprotetor dela só permite que ela namore se sua irmã mais velha, a rebelde e antissocial Kat, também arrumar um pretendente. Para driblar a regra, Cameron arquiteta um audacioso plano e suborna o misterioso Patrick Verona para conquistar o coração de Kat.',
+        'cast': ['Heath Ledger', 'Julia Stiles', 'Joseph Gordon-Levitt', 'Larisa Oleynik', 'David Krumholtz'],
+        'director': 'Gil Junger',
+        'genres': ['Comédia', 'Romance', 'Drama'],
+        'rating': 7.6,
+        'tmdbUrl': 'https://www.themoviedb.org/movie/4951-10-things-i-hate-about-you',
+        'imdbUrl': 'https://www.imdb.com/title/tt0147800/'
+    },
+    'encontro marcado': {
+        'overview': 'O poderoso magnata da mídia William Parrish recebe uma visita sobrenatural inesperada: a própria Morte em forma humana, adotando a identidade de Joe Black. Eles firmam um pacto no qual a Morte concede tempo adicional para William ordenar sua vida e despedir-se da família, em troca de experimentar a vida terrestre — até que Joe apaixona-se intensamente pela filha de William.',
+        'cast': ['Brad Pitt', 'Anthony Hopkins', 'Claire Forlani', 'Jake Weber', 'Marcia Gay Harden', 'Jeffrey Tambor'],
+        'director': 'Martin Brest',
+        'genres': ['Romance', 'Fantasia', 'Drama'],
+        'rating': 7.3,
+        'tmdbUrl': 'https://www.themoviedb.org/movie/297-meet-joe-black',
+        'imdbUrl': 'https://www.imdb.com/title/tt0119643/'
+    },
+    'de repente 30': {
+        'overview': 'Insatisfeita com sua idade e humilhada em sua festa de 13 anos, Jenna Rink faz o desejo desesperado de ter 30 anos e ser bem-sucedida. Graças a um pó mágico, ela acorda milagrosamente em 2004 com 30 anos, tornando-se uma poderosa editora de moda em Nova York, mas logo descobre que a vida adulta dos sonhos tem um preço alto e que seu melhor amigo de infância, Matt, se distanciou.',
+        'cast': ['Jennifer Garner', 'Mark Ruffalo', 'Judy Greer', 'Andy Serkis', 'Kathy Baker'],
+        'director': 'Gary Winick',
+        'genres': ['Comédia', 'Romance', 'Fantasia'],
+        'rating': 7.0,
+        'tmdbUrl': 'https://www.themoviedb.org/movie/10096-13-going-on-30',
+        'imdbUrl': 'https://www.imdb.com/title/tt0337563/'
+    },
     'a origem': {
         'overview': 'Em um mundo onde é possível entrar na mente humana através dos sonhos, Dom Cobb é um ladrão experiente e o melhor na arte da extração. Ele recebe uma chance de redenção se conseguir realizar o inverso: a inserção de uma ideia.',
         'cast': ['Leonardo DiCaprio', 'Joseph Gordon-Levitt', 'Elliot Page', 'Tom Hardy'],
