@@ -595,12 +595,45 @@
       }
     }
 
-    // Vincula eventos com resposta instantânea ao toque (sem delay de 300ms de click)
+    // Vincula eventos distinguindo toques rápidos (tap) de gestos de scroll/arraste
     document.querySelectorAll('[data-action]').forEach(btn => {
       const action = btn.getAttribute('data-action');
-      
+      let startX = 0;
+      let startY = 0;
+      let isScrolling = false;
+      let pointerId = null;
+
       btn.addEventListener('pointerdown', (e) => {
-        sendAction(action);
+        startX = e.clientX;
+        startY = e.clientY;
+        isScrolling = false;
+        pointerId = e.pointerId;
+      });
+
+      btn.addEventListener('pointermove', (e) => {
+        if (pointerId !== null && !isScrolling) {
+          const dist = Math.hypot(e.clientX - startX, e.clientY - startY);
+          if (dist > 8) {
+            isScrolling = true;
+          }
+        }
+      });
+
+      btn.addEventListener('pointerup', (e) => {
+        if (!isScrolling && pointerId !== null) {
+          sendAction(action);
+        }
+        pointerId = null;
+      });
+
+      btn.addEventListener('pointercancel', () => {
+        isScrolling = true;
+        pointerId = null;
+      });
+
+      // Evita disparo duplicado por emulação de clique do navegador
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
       });
     });
 
