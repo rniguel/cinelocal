@@ -282,6 +282,7 @@ def download_online_subtitle(video_rel, query_title, imdb_id=None, season=None, 
 
 DATA_DIR = os.path.join(APP_DIR, "data")
 USER_STATE_FILE = os.path.join(DATA_DIR, "user_state.json")
+USER_STATE_LOCK = threading.Lock()
 
 class RemoteControllerHub:
     """Distribui comandos do controle remoto virtual via Server-Sent Events (SSE) e polling."""
@@ -328,25 +329,26 @@ CINEMA_CACHE_FILE = os.path.join(DATA_DIR, "cinema_releases.json")
 TMDB_API_KEY = "1cf50e6248dc270629e802686245c2c8"
 
 def load_user_state():
-    """Carrega o progresso e favoritos globais sincronizados entre dispositivos."""
+    """Carrega o progresso e favoritos globais sincronizados entre dispositivos com thread-lock."""
     if not os.path.exists(DATA_DIR):
         os.makedirs(DATA_DIR, exist_ok=True)
-    if os.path.exists(USER_STATE_FILE):
-        try:
-            with open(USER_STATE_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                if not isinstance(data, dict):
-                    data = {}
-                if "watchProgress" not in data:
-                    data["watchProgress"] = {}
-                if "favorites" not in data:
-                    data["favorites"] = []
-                if "watchedList" not in data:
-                    data["watchedList"] = {}
-                return data
-        except Exception:
-            pass
-    return {"watchProgress": {}, "favorites": [], "watchedList": {}}
+    with USER_STATE_LOCK:
+        if os.path.exists(USER_STATE_FILE):
+            try:
+                with open(USER_STATE_FILE, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    if not isinstance(data, dict):
+                        data = {}
+                    if "watchProgress" not in data:
+                        data["watchProgress"] = {}
+                    if "favorites" not in data:
+                        data["favorites"] = []
+                    if "watchedList" not in data:
+                        data["watchedList"] = {}
+                    return data
+            except Exception:
+                pass
+        return {"watchProgress": {}, "favorites": [], "watchedList": {}}
 
 def get_cinema_releases():
     """Obtém lançamentos de cinema e filmes em cartaz (com cache local de 6h)."""
@@ -408,14 +410,17 @@ def get_cinema_releases():
         return {"status": "error", "releases": []}
 
 def save_user_state(state_data):
-    """Persiste o progresso e favoritos globais em disco."""
+    """Persiste o progresso e favoritos globais em disco de forma atômica e thread-safe."""
     if not os.path.exists(DATA_DIR):
         os.makedirs(DATA_DIR, exist_ok=True)
-    try:
-        with open(USER_STATE_FILE, "w", encoding="utf-8") as f:
-            json.dump(state_data, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        print(f"Erro ao salvar user_state: {e}")
+    with USER_STATE_LOCK:
+        try:
+            temp_file = USER_STATE_FILE + f".tmp.{os.getpid()}_{threading.get_ident()}"
+            with open(temp_file, "w", encoding="utf-8") as f:
+                json.dump(state_data, f, ensure_ascii=False, indent=2)
+            os.replace(temp_file, USER_STATE_FILE)
+        except Exception as e:
+            print(f"Erro ao salvar user_state: {e}")
 
 def get_vlc_path():
     """Detecta o VLC Media Player de forma dinamica e agnostica de sistema."""
@@ -449,32 +454,59 @@ def get_local_ip():
     except Exception:
         return '127.0.0.1'
 
+CATALOG_LOCK = threading.Lock()
 CACHED_CATALOG_DATA = None
+_LAST_CATALOG_SCAN_TIME = 0
+_CATALOG_MTIME = 0
 
 def get_cached_catalog(force_refresh=False):
-    """Carrega o catálogo compilado em cache na memória para resposta instantânea em < 2ms."""
-    global CACHED_CATALOG_DATA
-    if not force_refresh and CACHED_CATALOG_DATA is not None:
-        return CACHED_CATALOG_DATA
-    
+    """Carrega o catálogo compilado em cache na memória para resposta instantânea em < 2ms com proteção concorrente."""
+    global CACHED_CATALOG_DATA, _LAST_CATALOG_SCAN_TIME, _CATALOG_MTIME
     catalog_json_path = os.path.join(DATA_DIR, 'catalog.json')
-    if not force_refresh and os.path.exists(catalog_json_path):
-        try:
-            with open(catalog_json_path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                if data and 'catalog' in data:
-                    CACHED_CATALOG_DATA = data
-                    return CACHED_CATALOG_DATA
-        except Exception:
-            pass
+    now = time.time()
+    
+    with CATALOG_LOCK:
+        # Se force_refresh foi solicitado recentemente (< 10s), reutiliza cache para prevenir DoS
+        if force_refresh and (now - _LAST_CATALOG_SCAN_TIME < 10) and CACHED_CATALOG_DATA is not None:
+            return CACHED_CATALOG_DATA
             
-    try:
-        data = build_catalog()
-        CACHED_CATALOG_DATA = data
-        return data
-    except Exception as e:
-        log_event("⚠️", "CATÁLOGO", f"Erro ao compilar catálogo: {e}")
-        return {"catalog": [], "movies": [], "series": []}
+        # Se não for force_refresh e já tiver cache em memória, verifica se o arquivo em disco foi atualizado
+        if not force_refresh and CACHED_CATALOG_DATA is not None:
+            if os.path.exists(catalog_json_path):
+                try:
+                    current_mtime = os.path.getmtime(catalog_json_path)
+                    if current_mtime <= _CATALOG_MTIME:
+                        return CACHED_CATALOG_DATA
+                except Exception:
+                    return CACHED_CATALOG_DATA
+            else:
+                return CACHED_CATALOG_DATA
+
+        # Tenta carregar do arquivo catalog.json compilado sem re-escanear disco
+        if not force_refresh and os.path.exists(catalog_json_path):
+            try:
+                with open(catalog_json_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    if data and 'catalog' in data:
+                        CACHED_CATALOG_DATA = data
+                        _CATALOG_MTIME = os.path.getmtime(catalog_json_path)
+                        return CACHED_CATALOG_DATA
+            except Exception:
+                pass
+                
+        # Compila catálogo sob demanda com lock garantindo execução única
+        try:
+            _LAST_CATALOG_SCAN_TIME = now
+            data = build_catalog()
+            CACHED_CATALOG_DATA = data
+            if os.path.exists(catalog_json_path):
+                _CATALOG_MTIME = os.path.getmtime(catalog_json_path)
+            return data
+        except Exception as e:
+            log_event("⚠️", "CATÁLOGO", f"Erro ao compilar catálogo: {e}")
+            if CACHED_CATALOG_DATA is not None:
+                return CACHED_CATALOG_DATA
+            return {"catalog": [], "movies": [], "series": []}
 
 def extract_embedded_subtitles(video_rel):
     """Extrai legendas embutidas em formato SRT de arquivos MKV/MP4 via FFmpeg."""
