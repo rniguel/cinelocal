@@ -130,12 +130,14 @@ def process_file(filepath, ffmpeg_bin, best_audio, duration_secs):
     temp_filepath = os.path.join(dir_name, base_name + ".temp.mkv")
     
     _, a_streams, _ = get_mkv_details(filepath, ffmpeg_bin)
+    other_audios = [a for a in a_streams if a["index"] != best_audio["index"]]
     
     # Monta comando FFmpeg:
     # 1. Copia vídeo 100% sem perdas (copy)
-    # 2. Injeta AAC estéreo (192kbps) como faixa padrão #0
-    # 3. Preserva todas as faixas originais de áudio (TrueHD Atmos, DTS, AC3)
+    # 2. Converte a faixa selecionada em AAC estéreo (192kbps) como faixa padrão #0
+    # 3. Preserva as demais faixas de áudio sem duplicar a faixa selecionada
     # 4. Preserva todas as legendas embutidas
+    # 5. Preserva fontes e anexos originais Matroska (animes e legendas estilizadas)
     cmd = [
         ffmpeg_bin,
         "-y",
@@ -146,7 +148,12 @@ def process_file(filepath, ffmpeg_bin, best_audio, duration_secs):
         "-map", "0:v:0",
         "-c:v", "copy",
         "-map", f"0:{best_audio['index']}",
-        "-map", "0:a",
+    ]
+    
+    for other in other_audios:
+        cmd.extend(["-map", f"0:{other['index']}"])
+        
+    cmd.extend([
         "-c:a", "copy",
         "-c:a:0", "aac",
         "-b:a:0", "192k",
@@ -154,14 +161,16 @@ def process_file(filepath, ffmpeg_bin, best_audio, duration_secs):
         "-metadata:s:a:0", f"title={best_audio['lang'].upper()} [AAC Web]",
         "-metadata:s:a:0", f"language={best_audio['lang']}",
         "-disposition:a:0", "default"
-    ]
+    ])
     
-    for idx in range(1, len(a_streams) + 1):
+    for idx in range(1, len(other_audios) + 1):
         cmd.extend([f"-disposition:a:{idx}", "0"])
         
     cmd.extend([
         "-map", "0:s?",
         "-c:s", "copy",
+        "-map", "0:t?",
+        "-c:t", "copy",
         temp_filepath
     ])
     
