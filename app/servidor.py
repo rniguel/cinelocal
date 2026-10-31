@@ -50,6 +50,44 @@ def log_event(icon, tag, message):
     ts = datetime.now().strftime("%H:%M:%S")
     print(f"[{ts}] {icon}  {tag:<13} {message}")
 
+def safe_resolve_media_path(base_dir, req_path):
+    """
+    Resolve com segurança um caminho de mídia relativo garantindo que ele
+    permaneça estritamente contido dentro do diretório 'media' (proteção contra Path Traversal).
+    Retorna o caminho canônico absoluto ou None se for inválido/malicioso.
+    """
+    if not req_path:
+        return None
+    try:
+        unquoted = urllib.parse.unquote(str(req_path)).strip()
+        normalized = unquoted.replace('\\', '/')
+        parts = [p for p in normalized.split('/') if p and p != '.']
+        
+        # Remove prefixo legítimo '../' gerado pelo frontend em /app/
+        if parts and parts[0] == '..':
+            parts.pop(0)
+            
+        # Todo caminho de mídia deve obrigatoriamente iniciar com a pasta 'media'
+        if not parts or parts[0] != 'media':
+            return None
+            
+        # Bloqueia se houver '..' ou pontos extras/colons em qualquer segmento
+        for p in parts:
+            if '..' in p or ':' in p:
+                return None
+                
+        safe_rel = os.path.join(*parts)
+        real_media_base = os.path.realpath(os.path.join(base_dir, 'media'))
+        full_path = os.path.realpath(os.path.abspath(os.path.join(base_dir, safe_rel)))
+        
+        # Garante que o caminho final resolvido está estritamente dentro de media/
+        if full_path == real_media_base or full_path.startswith(real_media_base + os.sep):
+            return full_path
+        return None
+    except Exception as e:
+        log_event("⚠️", "SEGURANÇA", f"Tentativa de path traversal rejeitada: {req_path} ({e})")
+        return None
+
 def get_ffmpeg_bin():
     """Localiza o FFmpeg na pasta app/bin, no PATH do sistema ou em caminhos padroes."""
     local_bin = os.path.join(APP_DIR, "bin", "ffmpeg.exe")
@@ -153,9 +191,8 @@ def get_audio_streams_info(movie_path):
 
 def download_online_subtitle(video_rel, query_title, imdb_id=None, season=None, episode=None):
     """Busca e baixa automaticamente legendas em pt-BR via OpenSubtitles/Cinemeta."""
-    clean_rel = urllib.parse.unquote(video_rel).replace('../', '').lstrip('/').replace('/', os.sep)
-    full_video_path = os.path.join(MOVIES_DIR, clean_rel)
-    if not os.path.exists(full_video_path):
+    full_video_path = safe_resolve_media_path(MOVIES_DIR, video_rel)
+    if not full_video_path or not os.path.exists(full_video_path):
         return {"success": False, "message": "Arquivo de vídeo não encontrado no disco"}
     
     target_dir = os.path.dirname(full_video_path)
@@ -426,9 +463,8 @@ def get_cached_catalog(force_refresh=False):
 
 def extract_embedded_subtitles(video_rel):
     """Extrai legendas embutidas em formato SRT de arquivos MKV/MP4 via FFmpeg."""
-    clean_rel = urllib.parse.unquote(video_rel).replace('../', '').lstrip('/').replace('/', os.sep)
-    full_video_path = os.path.join(MOVIES_DIR, clean_rel)
-    if not os.path.exists(full_video_path):
+    full_video_path = safe_resolve_media_path(MOVIES_DIR, video_rel)
+    if not full_video_path or not os.path.exists(full_video_path):
         return {"success": False, "message": "Arquivo de vídeo não encontrado"}
     
     ffmpeg_bin = get_ffmpeg_bin()
@@ -498,16 +534,16 @@ def record_watch_for_path(full_path):
         for item in all_items:
             vpath = item.get('videoPath', '')
             if vpath:
-                clean_v = urllib.parse.unquote(vpath).replace('../', '').lstrip('/').replace('/', os.sep)
-                if os.path.normpath(os.path.join(MOVIES_DIR, clean_v)) == norm_target:
+                v_res = safe_resolve_media_path(MOVIES_DIR, vpath)
+                if v_res and os.path.normpath(v_res) == norm_target:
                     matched_item = item
                     break
             for s_idx, season in enumerate(item.get('seasons', [])):
                 for ep in season.get('episodes', []):
                     ep_vpath = ep.get('videoPath', '')
                     if ep_vpath:
-                        clean_ep = urllib.parse.unquote(ep_vpath).replace('../', '').lstrip('/').replace('/', os.sep)
-                        if os.path.normpath(os.path.join(MOVIES_DIR, clean_ep)) == norm_target:
+                        ep_res = safe_resolve_media_path(MOVIES_DIR, ep_vpath)
+                        if ep_res and os.path.normpath(ep_res) == norm_target:
                             matched_ep = ep
                             matched_series = item
                             matched_s_idx = s_idx
@@ -914,8 +950,10 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
         if parsed.path == '/api/audio_info':
             query_params = urllib.parse.parse_qs(parsed.query)
             video_rel = query_params.get('path', [''])[0]
-            clean_rel = urllib.parse.unquote(video_rel).replace('../', '').lstrip('/').replace('/', os.sep)
-            full_movie_path = os.path.join(MOVIES_DIR, clean_rel)
+            full_movie_path = safe_resolve_media_path(MOVIES_DIR, video_rel)
+            if not full_movie_path or not os.path.exists(full_movie_path):
+                self.send_error(404, 'Arquivo de vídeo não encontrado ou caminho inválido')
+                return
             info_data = get_audio_streams_info(full_movie_path)
             data = json.dumps(info_data, ensure_ascii=False).encode('utf-8')
             self.send_response(200)
@@ -929,11 +967,22 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
         # Busca e download automático de legendas online
         if parsed.path == '/api/buscar_legendas':
             query_params = urllib.parse.parse_qs(parsed.query)
-            video_rel = query_params.get('path', [''])[0]
+            video_rel = query_params.get('path', query_params.get('video', ['']))[0]
             title = query_params.get('title', [''])[0]
             imdb = query_params.get('imdb', [''])[0]
             season = query_params.get('season', [None])[0]
             episode = query_params.get('episode', [None])[0]
+            
+            if not video_rel or not safe_resolve_media_path(MOVIES_DIR, video_rel):
+                res_data = {"success": False, "status": "error", "message": "Caminho de vídeo inválido ou não fornecido"}
+                data = json.dumps(res_data, ensure_ascii=False).encode('utf-8')
+                self.send_response(400)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Content-Length', str(len(data)))
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(data)
+                return
             
             res_data = download_online_subtitle(
                 video_rel=video_rel,
@@ -1016,7 +1065,10 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             try:
                 query_params = urllib.parse.parse_qs(parsed.query)
                 video_rel = query_params.get('path', [''])[0]
-                res = extract_embedded_subtitles(video_rel) if video_rel else {"success": False, "message": "Caminho não fornecido"}
+                if not video_rel or not safe_resolve_media_path(MOVIES_DIR, video_rel):
+                    res = {"success": False, "message": "Caminho de vídeo inválido ou não fornecido"}
+                else:
+                    res = extract_embedded_subtitles(video_rel)
                 data = json.dumps(res, ensure_ascii=False).encode('utf-8')
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -1055,10 +1107,8 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             try:
                 query_params = urllib.parse.parse_qs(parsed.query)
                 video_rel = query_params.get('path', [''])[0]
-                if video_rel:
-                    clean_rel = urllib.parse.unquote(video_rel).replace('../', '').lstrip('/').replace('/', os.sep)
-                    full_movie_path = os.path.join(MOVIES_DIR, clean_rel)
-                    
+                full_movie_path = safe_resolve_media_path(MOVIES_DIR, video_rel) if video_rel else None
+                if full_movie_path:
                     vlc_bin = get_vlc_path()
                     if os.path.exists(full_movie_path) and vlc_bin and os.path.exists(vlc_bin):
                         # Registra reprodução no histórico e últimos assistidos
@@ -1097,6 +1147,14 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                         self.end_headers()
                         self.wfile.write(response_data)
                         return
+                else:
+                    response_data = json.dumps({"status": "error", "message": "Caminho de vídeo inválido ou não fornecido"}).encode('utf-8')
+                    self.send_response(400)
+                    self.send_header('Content-Type', 'application/json; charset=utf-8')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.end_headers()
+                    self.wfile.write(response_data)
+                    return
             except Exception as e:
                 self.send_error(500, f'Erro ao abrir no VLC: {e}')
         # API de streaming em tempo real com áudio compatível para navegador/TV
@@ -1107,11 +1165,9 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                 ss = query_params.get('ss', ['0'])[0]
                 audio_idx = query_params.get('audio', [''])[0]
                 
-                clean_rel = urllib.parse.unquote(video_rel).replace('../', '').lstrip('/').replace('/', os.sep)
-                full_movie_path = os.path.join(MOVIES_DIR, clean_rel)
-                
+                full_movie_path = safe_resolve_media_path(MOVIES_DIR, video_rel)
                 ffmpeg_bin = get_ffmpeg_bin()
-                if not os.path.exists(full_movie_path) or not ffmpeg_bin:
+                if not full_movie_path or not os.path.exists(full_movie_path) or not ffmpeg_bin:
                     self.send_error(404, 'Arquivo ou FFmpeg não encontrado')
                     return
                 
@@ -1172,6 +1228,12 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
     def send_head(self):
         """Suporte a HTTP 206 Partial Content / Range para seek rápido em vídeos"""
         path = self.translate_path(self.path)
+        real_base = os.path.realpath(MOVIES_DIR)
+        real_target = os.path.realpath(path)
+        if not (real_target == real_base or real_target.startswith(real_base + os.sep)):
+            self.send_error(403, 'Acesso proibido')
+            return None
+
         if os.path.isdir(path):
             return super().send_head()
             
