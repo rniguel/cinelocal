@@ -200,8 +200,12 @@ def download_online_subtitle(video_rel, query_title, imdb_id=None, season=None, 
     sub_filename = f"{base_name}.pt.srt"
     sub_path = os.path.join(target_dir, sub_filename)
 
-    # 1. Tenta identificar IMDb ID caso não venha informado
-    if not imdb_id or not str(imdb_id).startswith('tt'):
+    # 1. Tenta identificar IMDb ID caso não venha informado ou venha como URL
+    if imdb_id:
+        m = re.search(r'(tt\d+)', str(imdb_id))
+        imdb_id = m.group(1) if m else None
+
+    if not imdb_id:
         try:
             clean_title = re.sub(r'\s*\(\d{4}\).*', '', query_title).strip()
             search_type = "series" if (season is not None and episode is not None) else "movie"
@@ -216,7 +220,7 @@ def download_online_subtitle(video_rel, query_title, imdb_id=None, season=None, 
             print(f"Erro ao buscar IMDb ID: {e}")
 
     if not imdb_id:
-        return {"success": False, "message": f"Não foi possível identificar '{query_title}' online para buscar legendas"}
+        return {"success": False, "status": "error", "message": f"Não foi possível identificar '{query_title}' online para buscar legendas"}
 
     # 2. Busca legendas no OpenSubtitles v3
     try:
@@ -233,12 +237,12 @@ def download_online_subtitle(video_rel, query_title, imdb_id=None, season=None, 
             
         por_subs = [s for s in subs if s.get('lang') in ('pob', 'por', 'pt-br', 'pt')]
         if not por_subs:
-            return {"success": False, "message": "Nenhuma legenda em português encontrada online"}
+            return {"success": False, "status": "error", "message": "Nenhuma legenda em português encontrada online"}
         
         # Pega a melhor legenda em português
         download_url = por_subs[0].get('url')
         if not download_url:
-            return {"success": False, "message": "URL de download da legenda indisponível"}
+            return {"success": False, "status": "error", "message": "URL de download da legenda indisponível"}
         
         # Baixa a legenda
         req_dl = urllib.request.Request(download_url, headers={'User-Agent': 'Mozilla/5.0 (CineLocal/2.4)'})
@@ -254,16 +258,27 @@ def download_online_subtitle(video_rel, query_title, imdb_id=None, season=None, 
         
         cues = parse_srt(text_str)
         log_event("📥", "LEGENDA", f"Legenda pt-BR baixada com sucesso para '{base_name}'")
-        return {
-            "success": True,
+        sub_info = {
             "filename": sub_filename,
+            "name": sub_filename,
             "path": rel_sub_path,
+            "relative_path": rel_sub_path,
             "label": "Português (Brasil)",
             "cues": cues
         }
+        return {
+            "success": True,
+            "status": "ok",
+            "filename": sub_filename,
+            "path": rel_sub_path,
+            "relative_path": rel_sub_path,
+            "label": "Português (Brasil)",
+            "cues": cues,
+            "subtitle": sub_info
+        }
     except Exception as e:
         print(f"Erro ao baixar legenda: {e}")
-        return {"success": False, "message": f"Erro ao baixar legenda: {e}"}
+        return {"success": False, "status": "error", "message": f"Erro ao baixar legenda: {e}"}
 
 DATA_DIR = os.path.join(APP_DIR, "data")
 USER_STATE_FILE = os.path.join(DATA_DIR, "user_state.json")
@@ -969,7 +984,7 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             query_params = urllib.parse.parse_qs(parsed.query)
             video_rel = query_params.get('path', query_params.get('video', ['']))[0]
             title = query_params.get('title', [''])[0]
-            imdb = query_params.get('imdb', [''])[0]
+            imdb = query_params.get('imdb', query_params.get('imdb_id', query_params.get('imdbUrl', [''])))[0]
             season = query_params.get('season', [None])[0]
             episode = query_params.get('episode', [None])[0]
             

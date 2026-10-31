@@ -7949,20 +7949,25 @@
       }
 
       try {
-        const res = await fetch(`/api/buscar_legendas?video=${encodeURIComponent(movie.videoPath)}&title=${encodeURIComponent(movie.title)}`);
+        const imdbParam = encodeURIComponent(movie.imdbUrl || movie.imdbId || '');
+        const res = await fetch(`/api/buscar_legendas?path=${encodeURIComponent(movie.videoPath)}&video=${encodeURIComponent(movie.videoPath)}&title=${encodeURIComponent(movie.title)}&imdb=${imdbParam}`);
         const data = await res.json();
-        if (data.status === 'ok' && data.subtitle) {
+        if ((data.status === 'ok' || data.success) && (data.subtitle || data.path)) {
+          const subObj = data.subtitle || data;
+          const subRelPath = subObj.relative_path || subObj.path;
+          const subFilename = subObj.filename || subObj.name;
+          const subCues = subObj.cues || data.cues;
           showToast('✅ Legenda pt-BR baixada com sucesso!');
           if (!movie.subtitles) movie.subtitles = [];
-          if (!movie.subtitles.some(s => s.path === data.subtitle.relative_path)) {
+          if (!movie.subtitles.some(s => s.path === subRelPath)) {
             movie.subtitles.push({
-              name: data.subtitle.filename,
-              path: data.subtitle.relative_path,
+              name: subFilename,
+              path: subRelPath,
               label: 'Português (Download)'
             });
           }
-          if (window.LEGENDAS_DB && data.subtitle.cues) {
-            window.LEGENDAS_DB[data.subtitle.relative_path] = data.subtitle.cues;
+          if (window.LEGENDAS_DB && subCues) {
+            window.LEGENDAS_DB[subRelPath] = subCues;
           }
           if (btn) {
             btn.innerText = '✅ Legenda Instalada';
@@ -8002,19 +8007,24 @@
       }
 
       try {
-        const res = await fetch(`/api/buscar_legendas?video=${encodeURIComponent(state.currentPlaying.videoPath)}&title=${encodeURIComponent(state.currentPlaying.title)}`);
+        const imdbParam = encodeURIComponent(state.currentPlaying.imdbUrl || state.currentPlaying.imdbId || '');
+        const res = await fetch(`/api/buscar_legendas?path=${encodeURIComponent(state.currentPlaying.videoPath)}&video=${encodeURIComponent(state.currentPlaying.videoPath)}&title=${encodeURIComponent(state.currentPlaying.title)}&imdb=${imdbParam}`);
         const data = await res.json();
-        if (data.status === 'ok' && data.subtitle) {
+        if ((data.status === 'ok' || data.success) && (data.subtitle || data.path)) {
+          const subObj = data.subtitle || data;
+          const subRelPath = subObj.relative_path || subObj.path;
+          const subFilename = subObj.filename || subObj.name;
+          const subCues = subObj.cues || data.cues;
           showToast('✅ Legenda pt-BR instalada e ativada!');
           if (!state.currentPlaying.subtitles) state.currentPlaying.subtitles = [];
           const newSub = {
-            name: data.subtitle.filename,
-            path: data.subtitle.relative_path,
+            name: subFilename,
+            path: subRelPath,
             label: 'Português (pt-BR)'
           };
           state.currentPlaying.subtitles.push(newSub);
-          if (window.LEGENDAS_DB && data.subtitle.cues) {
-            window.LEGENDAS_DB[data.subtitle.relative_path] = data.subtitle.cues;
+          if (window.LEGENDAS_DB && subCues) {
+            window.LEGENDAS_DB[subRelPath] = subCues;
           }
           const subList = document.getElementById('subtitlesList');
           if (subList) {
