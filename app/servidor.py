@@ -6,6 +6,7 @@ e integração com VLC para reprodução de formatos avançados (Dolby TrueHD, A
 
 import http.server
 import socketserver
+import atexit
 import os
 import sys
 import socket
@@ -31,6 +32,63 @@ from atualizar_catalogo import build_catalog, parse_srt
 
 PORTABLE_VLC = os.path.join(APP_DIR, "vlc", "vlc.exe")
 SYSTEM_VLC = r"C:\Program Files\VideoLAN\VLC\vlc.exe"
+
+TORRENT_PROC = None
+
+def ensure_torrent_engine():
+    """Garante que a engine de streaming BitTorrent/WebTorrent em Node.js esteja ativa na porta 8888."""
+    global TORRENT_PROC
+    try:
+        req = urllib.request.Request("http://127.0.0.1:8888/api/torrent/health")
+        with urllib.request.urlopen(req, timeout=0.8) as res:
+            if res.status == 200:
+                return True
+    except Exception:
+        pass
+
+    node_bin = shutil.which("node")
+    if not node_bin:
+        log_event("⚠️", "TORRENT", "Node.js não encontrado no PATH para executar a engine de torrent")
+        return False
+
+    script_path = os.path.join(APP_DIR, "torrent", "engine.mjs")
+    if not os.path.exists(script_path):
+        log_event("⚠️", "TORRENT", f"Arquivo não encontrado: {script_path}")
+        return False
+
+    try:
+        TORRENT_PROC = subprocess.Popen(
+            [node_bin, script_path],
+            cwd=APP_DIR,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        log_event("⚡", "TORRENT", "Engine de Streaming BitTorrent iniciada em segundo plano (porta 8888)")
+        for _ in range(15):
+            time.sleep(0.2)
+            try:
+                req = urllib.request.Request("http://127.0.0.1:8888/api/torrent/health")
+                with urllib.request.urlopen(req, timeout=0.8) as res:
+                    if res.status == 200:
+                        return True
+            except Exception:
+                pass
+        return True
+    except Exception as e:
+        log_event("❌", "TORRENT", f"Falha ao iniciar engine de torrent: {e}")
+        return False
+
+def cleanup_torrent_engine():
+    """Encerra a engine de torrent ao fechar o servidor CineLocal."""
+    global TORRENT_PROC
+    if TORRENT_PROC and TORRENT_PROC.poll() is None:
+        try:
+            TORRENT_PROC.terminate()
+            TORRENT_PROC.wait(timeout=2)
+        except Exception:
+            pass
+
+atexit.register(cleanup_torrent_engine)
 
 AUDIO_CACHE = {}
 AUDIO_INFO_CACHE = {}
@@ -195,15 +253,24 @@ def get_audio_streams_info(movie_path):
         return {"streams": [], "duration": 0}
 
 def download_online_subtitle(video_rel, query_title, imdb_id=None, season=None, episode=None):
-    """Busca e baixa automaticamente legendas em pt-BR via OpenSubtitles/Cinemeta."""
-    full_video_path = safe_resolve_media_path(MOVIES_DIR, video_rel)
-    if not full_video_path or not os.path.exists(full_video_path):
-        return {"success": False, "message": "Arquivo de vídeo não encontrado no disco"}
+    """Busca e baixa automaticamente legendas em pt-BR via OpenSubtitles/Cinemeta (suporta arquivos locais e streams de torrent)."""
+    is_torrent = not video_rel or video_rel.startswith('webtorrent') or video_rel.startswith('torrent') or not safe_resolve_media_path(MOVIES_DIR, video_rel)
     
-    target_dir = os.path.dirname(full_video_path)
-    base_name = os.path.splitext(os.path.basename(full_video_path))[0]
-    sub_filename = f"{base_name}.pt.srt"
-    sub_path = os.path.join(target_dir, sub_filename)
+    if is_torrent:
+        target_dir = os.path.join(APP_DIR, "data", "torrent_cache")
+        os.makedirs(target_dir, exist_ok=True)
+        safe_name = re.sub(r'[^\w\s-]', '', query_title or 'torrent_stream').strip()
+        base_name = safe_name or 'torrent_stream'
+        sub_filename = f"{base_name}.pt.srt"
+        sub_path = os.path.join(target_dir, sub_filename)
+    else:
+        full_video_path = safe_resolve_media_path(MOVIES_DIR, video_rel)
+        if not full_video_path or not os.path.exists(full_video_path):
+            return {"success": False, "message": "Arquivo de vídeo não encontrado no disco"}
+        target_dir = os.path.dirname(full_video_path)
+        base_name = os.path.splitext(os.path.basename(full_video_path))[0]
+        sub_filename = f"{base_name}.pt.srt"
+        sub_path = os.path.join(target_dir, sub_filename)
 
     # 1. Tenta identificar IMDb ID caso não venha informado ou venha como URL
     if imdb_id:
@@ -257,9 +324,12 @@ def download_online_subtitle(video_rel, query_title, imdb_id=None, season=None, 
             with open(sub_path, 'w', encoding='utf-8-sig') as f:
                 f.write(text_str)
         
-        rel_sub_path = os.path.relpath(sub_path, MOVIES_DIR).replace('\\', '/')
-        if not rel_sub_path.startswith('../'):
-            rel_sub_path = f"../{rel_sub_path}"
+        if is_torrent:
+            rel_sub_path = f"/app/data/torrent_cache/{sub_filename}"
+        else:
+            rel_sub_path = os.path.relpath(sub_path, MOVIES_DIR).replace('\\', '/')
+            if not rel_sub_path.startswith('../'):
+                rel_sub_path = f"../{rel_sub_path}"
         
         cues = parse_srt(text_str)
         log_event("📥", "LEGENDA", f"Legenda pt-BR baixada com sucesso para '{base_name}'")
@@ -736,11 +806,90 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')
         super().end_headers()
 
+    def proxy_torrent_api(self, method, body=None):
+        """Encaminha requisições de controle para a engine BitTorrent local."""
+        if not ensure_torrent_engine():
+            err_data = json.dumps({"active": False, "error": "Motor BitTorrent/Node.js não disponível"}).encode('utf-8')
+            self.send_response(503)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(err_data)
+            return
+
+        target_url = f"http://127.0.0.1:8888{self.path}"
+        headers = {}
+        if 'Content-Type' in self.headers:
+            headers['Content-Type'] = self.headers['Content-Type']
+        
+        req = urllib.request.Request(target_url, data=body, headers=headers, method=method)
+        try:
+            with urllib.request.urlopen(req, timeout=20) as res:
+                res_body = res.read()
+                self.send_response(res.status)
+                for k, v in res.getheaders():
+                    if k.lower() in ('content-type', 'content-length', 'access-control-allow-origin'):
+                        self.send_header(k, v)
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(res_body)
+        except urllib.error.HTTPError as e:
+            err_body = e.read()
+            self.send_response(e.code)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(err_body)
+        except Exception as ex:
+            err_data = json.dumps({"active": False, "error": f"Erro de comunicação com Torrent Engine: {ex}"}).encode('utf-8')
+            self.send_response(502)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(err_data)
+
+    def proxy_webtorrent_stream(self):
+        """Transmite blocos de vídeo do torrent com Range Requests HTTP 206."""
+        if not ensure_torrent_engine():
+            self.send_error(503, "Motor BitTorrent não disponível")
+            return
+
+        target_url = f"http://127.0.0.1:8888{self.path}"
+        headers = {}
+        if 'Range' in self.headers:
+            headers['Range'] = self.headers['Range']
+
+        req = urllib.request.Request(target_url, headers=headers)
+        try:
+            with urllib.request.urlopen(req, timeout=30) as res:
+                self.send_response(res.status)
+                for k, v in res.getheaders():
+                    if k.lower() in ('content-type', 'content-length', 'content-range', 'accept-ranges', 'content-disposition'):
+                        self.send_header(k, v)
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                shutil.copyfileobj(res, self.wfile, length=64*1024)
+        except urllib.error.HTTPError as e:
+            self.send_response(e.code)
+            for k, v in e.headers.items():
+                if k.lower() in ('content-type', 'content-length', 'content-range', 'accept-ranges'):
+                    self.send_header(k, v)
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            try:
+                shutil.copyfileobj(e, self.wfile, length=64*1024)
+            except (BrokenPipeError, ConnectionResetError):
+                pass
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+        except Exception as ex:
+            self.send_error(502, f"Erro ao transmitir dados do torrent: {ex}")
+
     def do_OPTIONS(self):
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Range, Authorization')
         self.end_headers()
 
     def do_POST(self):
@@ -764,6 +913,11 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             payload = json.loads(body.decode('utf-8')) if body else {}
         except Exception:
             payload = {}
+
+        # Rotas de Torrent Streaming (Issue #16)
+        if parsed.path.startswith('/api/torrent/'):
+            self.proxy_torrent_api('POST', body=body)
+            return
 
         # 1. Comando do Controle Remoto Virtual
         if parsed.path == '/api/remote/action':
@@ -962,6 +1116,15 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
         client_ip = self.client_address[0]
         parsed = urllib.parse.urlparse(self.path)
 
+        # Rotas de Torrent Streaming (Issue #16)
+        if parsed.path.startswith('/api/torrent/'):
+            self.proxy_torrent_api('GET')
+            return
+
+        if parsed.path.startswith('/webtorrent/'):
+            self.proxy_webtorrent_stream()
+            return
+
         # Suporte a PWA Manifest e Service Worker
         if parsed.path == '/manifest.json':
             manifest_file = os.path.join(APP_DIR, 'manifest.json')
@@ -1118,8 +1281,8 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             season = query_params.get('season', [None])[0]
             episode = query_params.get('episode', [None])[0]
             
-            if not video_rel or not safe_resolve_media_path(MOVIES_DIR, video_rel):
-                res_data = {"success": False, "status": "error", "message": "Caminho de vídeo inválido ou não fornecido"}
+            if not video_rel and not title and not imdb:
+                res_data = {"success": False, "status": "error", "message": "Identificador do vídeo ou título não fornecido"}
                 data = json.dumps(res_data, ensure_ascii=False).encode('utf-8')
                 self.send_response(400)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')

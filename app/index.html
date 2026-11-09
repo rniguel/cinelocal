@@ -1323,7 +1323,95 @@
       line-height: 1.3;
     }
 
-    /* MODAL DE SÉRIE ESTILO NETFLIX */
+    
+/* HUD DE MONITORAMENTO DE STREAMING TORRENT (ISSUE #16) */
+.torrent-hud {
+  position: absolute;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  padding: 8px 18px;
+  border-radius: 9999px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7);
+  z-index: 60;
+  pointer-events: auto;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  max-width: 92vw;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.torrent-hud-badge {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #000;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.torrent-hud-metric {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: #e2e8f0;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.torrent-hud-metric .dot-online {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  display: inline-block;
+}
+.torrent-hud-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.torrent-hud-btn:hover {
+  background: #10b981;
+  border-color: #10b981;
+  color: #fff;
+  transform: translateY(-1px);
+}
+.torrent-hud-btn.btn-stop:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+}
+@media (max-width: 768px) {
+  .torrent-hud {
+    top: 60px;
+    padding: 6px 12px;
+    gap: 8px;
+  }
+  .torrent-hud-metric {
+    font-size: 11px;
+  }
+}
+
+/* MODAL DE SÉRIE ESTILO NETFLIX */
     .series-modal {
       position: fixed;
       inset: 0;
@@ -3709,7 +3797,16 @@
         </div>
 
         <!-- BOTÃO DE DESTAQUE: CONECTAR PASTA LOCAL (ISSUE #15) -->
-        <button id="btnConnectLocalMedia" class="btn-header-action primary-pill" onclick="openMediaManagerModal()" title="Conectar Pasta de Filmes do Computador">
+        
+<!-- BOTÃO DE DESTAQUE: ASSISTIR VIA TORRENT (ISSUE #16) -->
+<button id="btnTorrentStream" class="btn-header-action" onclick="openTorrentModal()" title="Assistir via Magnet / Torrent (Estilo Stremio)">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+  </svg>
+  <span>Torrent</span>
+</button>
+
+<button id="btnConnectLocalMedia" class="btn-header-action primary-pill" onclick="openMediaManagerModal()" title="Conectar Pasta de Filmes do Computador">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
           </svg>
@@ -3882,7 +3979,15 @@
         <button class="mobile-drawer-link" onclick="openQrConnectModal('remote'); closeMobileMenu();">
           <span class="m-link-icon">📱</span> Controle Remoto Celular
         </button>
-        <button class="mobile-drawer-link" onclick="openMediaManagerModal(); closeMobileMenu();">
+        
+<button class="mobile-drawer-link" onclick="openTorrentModal(); closeMobileMenu();">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+  </svg>
+  Assistir via Torrent (Magnet)
+</button>
+
+<button class="mobile-drawer-link" onclick="openMediaManagerModal(); closeMobileMenu();">
           <span class="m-link-icon">📁</span> Conectar Pasta de Filmes
         </button>
         <button class="mobile-drawer-link" onclick="openQrConnectModal('tv'); closeMobileMenu();">
@@ -4217,7 +4322,31 @@
       </div>
 
       <div class="video-viewport" id="videoViewport" onclick="handleViewportClick(event)">
-        <canvas id="playerAmbientGlowCanvas" class="player-ambient-canvas active" width="64" height="36"></canvas>
+        
+<!-- HUD DE MONITORAMENTO DE STREAMING TORRENT (ISSUE #16) -->
+<div id="torrentStreamingHud" class="torrent-hud" style="display: none;">
+  <div class="torrent-hud-badge">⚡ STREMIO ENGINE</div>
+  <div class="torrent-hud-metric" title="Peers e Sementes Conectadas">
+    <span class="dot-online"></span>
+    <span id="torrentPeersCount">0</span> seeds
+  </div>
+  <div class="torrent-hud-metric" title="Velocidade de Download em Tempo Real">
+    <span>🚀</span>
+    <span id="torrentSpeed">0 KB/s</span>
+  </div>
+  <div class="torrent-hud-metric" title="Buffer Carregado">
+    <span>📦</span>
+    <span id="torrentProgress">0%</span> (<span id="torrentDownloaded">0 MB</span> / <span id="torrentTotal">0 GB</span>)
+  </div>
+  <button id="btnTorrentSaveHud" class="torrent-hud-btn" onclick="saveTorrentToCollection()" title="Transferir arquivo baixado no cache para a biblioteca permanente">
+    💾 Salvar na Coleção
+  </button>
+  <button class="torrent-hud-btn btn-stop" onclick="closePlayer()" title="Encerrar streaming">
+    ⏹ Fechar
+  </button>
+</div>
+
+<canvas id="playerAmbientGlowCanvas" class="player-ambient-canvas active" width="64" height="36"></canvas>
         <video id="mainVideo" playsinline crossorigin="anonymous" style="position: relative; z-index: 2; width: 100%; height: 100%; object-fit: contain;"></video>
         <video id="previewVideo" preload="metadata" muted playsinline style="display: none;"></video>
 
@@ -4645,7 +4774,81 @@
     </div>
   </div>
 
-  <!-- MODAL DE BACKUP E RESTAURAÇÃO (ISSUE #14) -->
+  
+<!-- MODAL DE STREAMING VIA TORRENT / MAGNET (ISSUE #16) -->
+<div id="torrentModal" class="series-modal" onclick="closeTorrentModalOnOut(event)">
+  <div class="series-modal-box" style="max-width: 640px; padding: 28px;">
+    <button class="series-modal-close" onclick="closeTorrentModal()">&times;</button>
+
+    <div style="margin-bottom: 20px; text-align: left;">
+      <span class="badge-tag" style="background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #fbbf24;">STREAMING SEQUENCIAL</span>
+      <h2 style="font-size: 1.45rem; color: #fff; margin: 6px 0 4px; display: flex; align-items: center; gap: 8px;">
+        ⚡ Assistir via Torrent (Estilo Stremio)
+      </h2>
+      <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">
+        Cole um Magnet Link para assistir instantaneamente sem esperar o download completo. Download inteligente com priorização de buffer (cabeçalhos e índice seek) e legendas automáticas em português.
+      </p>
+    </div>
+
+    <!-- INPUT DE MAGNET LINK -->
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; text-align: left;">
+      <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #cbd5e1; margin-bottom: 8px;">
+        Magnet Link ou Hash do Torrent:
+      </label>
+      <div style="position: relative; margin-bottom: 12px;">
+        <textarea
+          id="torrentMagnetInput"
+          rows="3"
+          placeholder="Cole aqui o link magnet:?xt=urn:btih:..."
+          style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; padding: 10px 12px; font-family: monospace; font-size: 0.82rem; resize: vertical;"
+          oninput="handleMagnetInputChange(this.value)"
+        ></textarea>
+      </div>
+
+      <!-- PREVIEW AUTOMÁTICO DO FILME (TMDB / CINEMETA) -->
+      <div id="torrentPreviewBox" style="display: none; background: rgba(0,0,0,0.3); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
+        <div style="display: flex; gap: 14px; align-items: flex-start;">
+          <img id="torrentPreviewPoster" src="" alt="Poster" style="width: 65px; height: 95px; object-fit: cover; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-shrink: 0;" />
+          <div style="flex: 1; min-width: 0;">
+            <div id="torrentPreviewTitle" style="font-weight: 700; color: #fff; font-size: 1rem; margin-bottom: 4px;"></div>
+            <div id="torrentPreviewMeta" style="font-size: 0.8rem; color: #fbbf24; margin-bottom: 6px;"></div>
+            <div id="torrentPreviewOverview" style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTÃO INICIAR REPRODUÇÃO -->
+      <div style="display: flex; gap: 10px;">
+        <button id="btnStartTorrent" class="btn-primary" style="flex: 1; padding: 12px; font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="startTorrentPlayback()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          Iniciar Streaming Imediato
+        </button>
+        <button class="btn-secondary" style="padding: 12px 16px;" onclick="clearTorrentInput()" title="Limpar">
+          Limpar
+        </button>
+      </div>
+
+      <div id="torrentStatusFeedback" style="margin-top: 12px; font-size: 0.85rem; display: none;"></div>
+    </div>
+
+    <!-- DICA DE RECURSOS INTEGRADOS -->
+    <div style="display: flex; gap: 12px; justify-content: space-between; font-size: 0.78rem; color: var(--text-muted); padding: 0 4px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <span>🇧🇷</span> Legendas pt-BR automáticas
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <span>🔊</span> Booster de Áudio 300%
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <span>💾</span> Salvar na Biblioteca ao final
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE BACKUP E RESTAURAÇÃO (ISSUE #14) -->
   <div id="backupModal" class="series-modal" onclick="closeBackupModalOnOut(event)">
     <div class="series-modal-box" style="max-width: 520px; padding: 28px;">
       <button class="series-modal-close" onclick="closeBackupModal()">&times;</button>
@@ -7377,6 +7580,7 @@
     }
 
     function closePlayer() {
+      stopTorrentHud();
       stopAmbilightLoop();
       const previewVid = document.getElementById('previewVideo');
       if (previewVid) {
@@ -9930,6 +10134,376 @@
     function showHelpModal() {
       alert("CineLocal Home Theater:\n\n• Início: Destaques, Continuar Assistindo, carrosséis e MCU.\n• Filmes & Séries: Grade completa com filtros por gênero, ano e status.\n• Estatísticas: Veja métricas detalhadas em 'Meu Cinema em Números'.\n• Player: Espaço (Play/Pause), Setas (Pular 10s e Volume), F (Fullscreen), P (PiP), [ e ] (Velocidade), A (Ambilight), Z (Modo Soneca), C (Legendas & Download Online), G/H (Sincronia), V (VLC).\n• Smart TV: Navegue facilmente com as setas do controle remoto e OK/Enter.");
     }
-  </script>
+  
+/* ========================================================================= */
+/* ENGINE DE STREAMING DE TORRENT & MAGNET (ISSUE #16)                      */
+/* ========================================================================= */
+window.isTorrentStream = false;
+window.torrentHudInterval = null;
+window.currentTorrentTitle = '';
+window.currentTorrentYear = '';
+window.currentTorrentInfoHash = '';
+window.currentTorrentImdb = '';
+
+function openTorrentModal() {
+  const modal = document.getElementById('torrentModal');
+  if (modal) {
+    modal.classList.add('active');
+    setTimeout(() => {
+      const input = document.getElementById('torrentMagnetInput');
+      if (input) input.focus();
+    }, 150);
+  }
+}
+
+function closeTorrentModal() {
+  const modal = document.getElementById('torrentModal');
+  if (modal) modal.classList.remove('active');
+}
+
+function closeTorrentModalOnOut(e) {
+  if (e.target.id === 'torrentModal') closeTorrentModal();
+}
+
+function clearTorrentInput() {
+  const input = document.getElementById('torrentMagnetInput');
+  if (input) input.value = '';
+  const preview = document.getElementById('torrentPreviewBox');
+  if (preview) preview.style.display = 'none';
+  const fb = document.getElementById('torrentStatusFeedback');
+  if (fb) fb.style.display = 'none';
+  window.currentTorrentTitle = '';
+  window.currentTorrentYear = '';
+  window.currentTorrentImdb = '';
+}
+
+function cleanTorrentName(raw) {
+  if (!raw) return { title: '', year: '' };
+  let name = decodeURIComponent(raw.replace(/\+/g, ' '));
+  const yearMatch = name.match(/\b(19\d{2}|20\d{2})\b/);
+  const year = yearMatch ? yearMatch[1] : '';
+
+  // Remove extensões, resoluções, tags de release
+  name = name.replace(/\.(mp4|mkv|avi|webm|ts|mov)$/i, '');
+  name = name.replace(/[\._]/g, ' ');
+  if (year) {
+    const parts = name.split(year);
+    name = parts[0];
+  }
+  name = name.replace(/\b(1080p|720p|2160p|4k|bluray|web-dl|webrip|hdrip|x264|x265|hevc|aac|dts|yify|yts|rarbg)\b.*/i, '');
+  const title = name.trim();
+  return { title, year };
+}
+
+let magnetDebounceTimer = null;
+function handleMagnetInputChange(val) {
+  clearTimeout(magnetDebounceTimer);
+  const feedback = document.getElementById('torrentStatusFeedback');
+  if (feedback) feedback.style.display = 'none';
+
+  if (!val || val.trim().length < 10) {
+    const preview = document.getElementById('torrentPreviewBox');
+    if (preview) preview.style.display = 'none';
+    return;
+  }
+
+  magnetDebounceTimer = setTimeout(async () => {
+    let rawTitle = '';
+    const dnMatch = val.match(/[?&]dn=([^&]+)/i);
+    if (dnMatch) {
+      rawTitle = dnMatch[1];
+    } else {
+      const hashMatch = val.match(/urn:btih:([a-fA-F0-9]{40}|[a-zA-Z2-7]{32})/i);
+      if (hashMatch) rawTitle = 'Torrent ' + hashMatch[1].slice(0, 8);
+    }
+
+    const { title, year } = cleanTorrentName(rawTitle);
+    window.currentTorrentTitle = title || 'Filme Torrent';
+    window.currentTorrentYear = year || '';
+
+    // Consulta Cinemeta / TMDb para pré-visualização ao vivo
+    if (title && title.length > 2) {
+      try {
+        const queryUrl = `https://v3-cinemeta.strem.io/catalog/movie/top/search=${encodeURIComponent(title)}.json`;
+        const res = await fetch(queryUrl);
+        if (res.ok) {
+          const data = await res.json();
+          const metas = data.metas || [];
+          if (metas.length > 0) {
+            const meta = metas[0];
+            window.currentTorrentImdb = meta.id || '';
+            window.currentTorrentTitle = meta.name || title;
+            window.currentTorrentYear = meta.year || year;
+
+            const preview = document.getElementById('torrentPreviewBox');
+            const poster = document.getElementById('torrentPreviewPoster');
+            const pTitle = document.getElementById('torrentPreviewTitle');
+            const pMeta = document.getElementById('torrentPreviewMeta');
+            const pOver = document.getElementById('torrentPreviewOverview');
+
+            if (preview && poster && pTitle) {
+              poster.src = meta.poster || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="65" height="95" viewBox="0 0 65 95"><rect width="100%" height="100%" fill="%231a1a24"/><text x="50%" y="50%" fill="%23888" font-size="12" text-anchor="middle" dy=".3em">CineLocal</text></svg>';
+              pTitle.innerText = meta.name || title;
+              pMeta.innerText = `${meta.year || year || ''} ${meta.genres ? '• ' + meta.genres.slice(0, 2).join(', ') : ''} ${meta.imdbRating ? '• ⭐ ' + meta.imdbRating : ''}`;
+              pOver.innerText = meta.description || 'Pronto para reprodução via streaming sequencial.';
+              preview.style.display = 'block';
+            }
+          }
+        }
+      } catch (e) {
+        // Fallback silencioso
+      }
+    }
+  }, 450);
+}
+
+async function startTorrentPlayback() {
+  const input = document.getElementById('torrentMagnetInput');
+  const magnet = input ? input.value.trim() : '';
+  const feedback = document.getElementById('torrentStatusFeedback');
+  const btn = document.getElementById('btnStartTorrent');
+
+  if (!magnet) {
+    if (feedback) {
+      feedback.style.display = 'block';
+      feedback.style.color = '#ef4444';
+      feedback.innerText = '⚠️ Por favor, cole um Magnet Link ou hash válido.';
+    }
+    return;
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner" style="display:inline-block;width:14px;height:14px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></span> Conectando a sementes...';
+  }
+  if (feedback) {
+    feedback.style.display = 'block';
+    feedback.style.color = '#f59e0b';
+    feedback.innerText = '⚡ Conectando aos trackers e negociando peças de cabeçalho...';
+  }
+
+  try {
+    const res = await fetch('/api/torrent/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        magnet: magnet,
+        title: window.currentTorrentTitle || 'Filme Torrent',
+        year: window.currentTorrentYear || ''
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || 'Falha ao iniciar motor de streaming de torrent');
+    }
+
+    window.currentTorrentInfoHash = data.infoHash || '';
+
+    // Polling do status do buffer de metadados
+    let pollCount = 0;
+    const pollTimer = setInterval(async () => {
+      pollCount++;
+      try {
+        const sRes = await fetch('/api/torrent/status');
+        const sData = await sRes.json();
+
+        if (sData.error) {
+          clearInterval(pollTimer);
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '▶ Iniciar Streaming Imediato';
+          }
+          if (feedback) {
+            feedback.style.color = '#ef4444';
+            feedback.innerText = '❌ Erro no torrent: ' + sData.error;
+          }
+          return;
+        }
+
+        if (feedback && sData.numPeers !== undefined) {
+          feedback.innerText = `🟢 Conectado a ${sData.numPeers} sementes | Baixando índice (${sData.downloadSpeedFormatted})...`;
+        }
+
+        // Quando o stream estiver pronto
+        if (sData.ready && sData.streamUrl) {
+          clearInterval(pollTimer);
+          closeTorrentModal();
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '▶ Iniciar Streaming Imediato';
+          }
+
+          // Inicia o player com a mídia do torrent
+          launchTorrentInPlayer(sData);
+        } else if (pollCount > 40) {
+          // Timeout de 32s se nenhuma semente responder
+          clearInterval(pollTimer);
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '▶ Tentar Novamente';
+          }
+          if (feedback) {
+            feedback.style.color = '#ef4444';
+            feedback.innerText = '⚠️ O torrent está demorando para encontrar sementes ativas. Tente outro link.';
+          }
+        }
+      } catch (err) {
+        console.error('Erro no polling de torrent:', err);
+      }
+    }, 800);
+
+  } catch (err) {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '▶ Iniciar Streaming Imediato';
+    }
+    if (feedback) {
+      feedback.style.display = 'block';
+      feedback.style.color = '#ef4444';
+      feedback.innerText = '❌ ' + err.message;
+    }
+  }
+}
+
+function launchTorrentInPlayer(statusData) {
+  window.isTorrentStream = true;
+  const streamUrl = statusData.streamUrl;
+  const videoName = (statusData.videoFile && statusData.videoFile.name) || statusData.name || 'Filme Torrent';
+  const displayTitle = window.currentTorrentTitle || statusData.title || statusData.name || 'Filme Torrent';
+
+  const torrentMedia = {
+    id: 'torrent_' + (statusData.infoHash || Date.now()),
+    title: displayTitle,
+    videoPath: streamUrl,
+    resolution: 'Torrent 1080p',
+    year: window.currentTorrentYear || '',
+    isTorrent: true,
+    infoHash: statusData.infoHash,
+    subtitles: []
+  };
+
+  openPlayer(torrentMedia, false, 0);
+
+  // Inicia HUD de monitoramento de peças e sementes
+  startTorrentHud();
+
+  // Busca e ativa legendas em pt-BR automaticamente
+  fetchTorrentSubtitles(displayTitle, window.currentTorrentImdb);
+}
+
+function startTorrentHud() {
+  const hud = document.getElementById('torrentStreamingHud');
+  if (hud) hud.style.display = 'flex';
+
+  clearInterval(window.torrentHudInterval);
+  window.torrentHudInterval = setInterval(async () => {
+    if (!window.isTorrentStream) {
+      stopTorrentHud();
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/torrent/status');
+      if (!res.ok) return;
+      const s = await res.json();
+
+      const elSeeds = document.getElementById('torrentPeersCount');
+      const elSpeed = document.getElementById('torrentSpeed');
+      const elProg = document.getElementById('torrentProgress');
+      const elDl = document.getElementById('torrentDownloaded');
+      const elTot = document.getElementById('torrentTotal');
+
+      if (elSeeds) elSeeds.innerText = s.numPeers || 0;
+      if (elSpeed) elSpeed.innerText = s.downloadSpeedFormatted || '0 KB/s';
+      if (elProg) elProg.innerText = s.progressPercent || '0%';
+      if (elDl) elDl.innerText = s.downloadedFormatted || '0 MB';
+      if (elTot) elTot.innerText = s.totalFormatted || '0 GB';
+    } catch (e) {
+      // Ignora erro momentâneo de rede
+    }
+  }, 1500);
+}
+
+function stopTorrentHud() {
+  window.isTorrentStream = false;
+  clearInterval(window.torrentHudInterval);
+  const hud = document.getElementById('torrentStreamingHud');
+  if (hud) hud.style.display = 'none';
+}
+
+async function saveTorrentToCollection() {
+  const btn = document.getElementById('btnTorrentSaveHud');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = '💾 Salvando...';
+  }
+
+  showToast('💾 Movendo arquivo de vídeo para media/filmes/...');
+
+  try {
+    const res = await fetch('/api/torrent/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: window.currentTorrentTitle || 'Filme Torrent',
+        year: window.currentTorrentYear || ''
+      })
+    });
+
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showToast('✅ Filme salvo com sucesso na sua biblioteca local!');
+      if (btn) btn.innerText = '✅ Salvo na Coleção';
+    } else {
+      showToast('⚠️ ' + (data.error || 'Aguarde o download de mais blocos antes de salvar.'));
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = '💾 Salvar na Coleção';
+      }
+    }
+  } catch (err) {
+    showToast('Erro ao salvar na coleção: ' + err.message);
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = '💾 Salvar na Coleção';
+    }
+  }
+}
+
+async function fetchTorrentSubtitles(title, imdbId) {
+  try {
+    const imdbParam = encodeURIComponent(imdbId || '');
+    const titleParam = encodeURIComponent(title || '');
+    const res = await fetch(`/api/buscar_legendas?path=torrent_stream&title=${titleParam}&imdb=${imdbParam}`);
+    const data = await res.json();
+
+    if ((data.status === 'ok' || data.success) && (data.subtitle || data.path)) {
+      const subObj = data.subtitle || data;
+      const subRelPath = subObj.relative_path || subObj.path;
+      const subFilename = subObj.filename || subObj.name;
+      const subCues = subObj.cues || data.cues;
+
+      if (window.LEGENDAS_DB && subCues) {
+        window.LEGENDAS_DB[subRelPath] = subCues;
+      }
+
+      if (state.currentPlaying) {
+        if (!state.currentPlaying.subtitles) state.currentPlaying.subtitles = [];
+        state.currentPlaying.subtitles.push({
+          name: subFilename,
+          path: subRelPath,
+          label: 'Português (Brasil)'
+        });
+        selectSubtitle(subRelPath, false);
+        showToast('🇧🇷 Legenda em Português sincronizada automaticamente!');
+      }
+    }
+  } catch (e) {
+    console.log('Busca de legenda online de torrent finalizada sem correspondência imediata');
+  }
+}
+
+</script>
 </body>
 </html>

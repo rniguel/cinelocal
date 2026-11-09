@@ -59,3 +59,8 @@ ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 .DS_Store
+
+# Dependências Node.js e Torrent Cache
+node_modules/
+app/torrent/node_modules/
+app/data/torrent_cache/
