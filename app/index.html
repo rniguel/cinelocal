@@ -1281,7 +1281,7 @@
     }
     
     /* ========================================================================= */
-    /* 🍿 SIDEBAR NETFLIX - ÍCONES COM ALINHAMENTO PRECISO (QUADRADINHO 44px) */
+    /* 🍿 SIDEBAR NETFLIX - DESIGN PREMIUM COM INDICADOR LATERAL & ÍCONE NÍTIDO  */
     /* ========================================================================= */
     .sidebar-icon-box {
       width: 48px;
@@ -1293,8 +1293,9 @@
       border-radius: 14px;
       background: rgba(255, 255, 255, 0.04);
       flex-shrink: 0;
-      transition: all 0.15s ease-out;
+      transition: all 0.18s cubic-bezier(0.2, 0, 0, 1);
       box-sizing: border-box;
+      color: #94a3b8;
     }
 
     .sidebar-avatar-box {
@@ -1308,7 +1309,7 @@
       align-items: center;
       gap: 16px;
       padding: 6px;
-      border-radius: 18px;
+      border-radius: 16px;
       background: transparent;
       border: 2px solid transparent;
       color: #94a3b8;
@@ -1316,38 +1317,75 @@
       font-weight: 700;
       cursor: pointer;
       text-align: left;
-      transition: all 0.15s cubic-bezier(0.2, 0, 0, 1);
+      transition: all 0.18s cubic-bezier(0.2, 0, 0, 1);
       outline: none;
       width: 100%;
       box-sizing: border-box;
+      position: relative;
     }
 
+    .sidebar-icon {
+      min-width: 22px;
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      transition: transform 0.18s ease-out, stroke 0.18s ease-out;
+    }
+
+    /* TV Focused & Hover State */
     .sidebar-item:hover,
     .sidebar-item.tv-focused {
-      background: rgba(255, 255, 255, 0.16);
-      color: #fff;
-      border-color: #fff;
-      transform: scale(1.05);
-      box-shadow: 0 0 25px rgba(229, 9, 20, 0.55);
+      background: rgba(255, 255, 255, 0.14) !important;
+      color: #ffffff !important;
+      border-color: rgba(255, 255, 255, 0.45) !important;
+      transform: scale(1.04);
+      box-shadow: 0 0 22px rgba(229, 9, 20, 0.35);
     }
 
     .sidebar-item:hover .sidebar-icon-box,
     .sidebar-item.tv-focused .sidebar-icon-box {
-      background: rgba(229, 9, 20, 0.4);
-      color: #fff;
-      transform: scale(1.06);
+      background: rgba(255, 255, 255, 0.12) !important;
+      color: #ffffff !important;
+      transform: scale(1.05);
     }
 
+    .sidebar-item:hover .sidebar-icon,
+    .sidebar-item.tv-focused .sidebar-icon {
+      stroke: #ffffff !important;
+      color: #ffffff !important;
+    }
+
+    /* Active State: Indicador vertical vermelho Netflix + ícone branco ultra nítido */
     .sidebar-item.active {
-      color: #fff;
-      background: rgba(229, 9, 20, 0.22);
-      border-color: var(--primary);
+      color: #ffffff !important;
+      background: rgba(255, 255, 255, 0.08) !important;
+      border-color: rgba(255, 255, 255, 0.14) !important;
+    }
+
+    .sidebar-item.active::before {
+      content: '';
+      position: absolute;
+      left: 1px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 28px;
+      border-radius: 4px;
+      background: var(--primary);
+      box-shadow: 0 0 14px var(--primary);
     }
 
     .sidebar-item.active .sidebar-icon-box {
-      background: var(--primary);
-      color: #fff;
-      box-shadow: 0 0 18px rgba(229, 9, 20, 0.8);
+      background: rgba(229, 9, 20, 0.22) !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(229, 9, 20, 0.5) !important;
+      box-shadow: 0 0 16px rgba(229, 9, 20, 0.35);
+    }
+
+    .sidebar-item.active .sidebar-icon {
+      color: #ffffff !important;
+      stroke: #ffffff !important;
+      filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
     }
     
     /* ========================================================================= */
@@ -5501,55 +5539,6 @@
       margin: 20px 0;
     }
 
-    .sidebar-item {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: transparent;
-      border: 2px solid transparent;
-      color: #94a3b8;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      text-align: left;
-      transition: all 0.12s ease-out;
-      outline: none;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .sidebar-item:hover,
-    .sidebar-item.tv-focused {
-      background: rgba(255, 255, 255, 0.12);
-      color: #fff;
-      border-color: rgba(255, 255, 255, 0.3);
-      transform: scale(1.03);
-    }
-
-    .sidebar-item.active {
-      color: #fff;
-      background: rgba(229, 9, 20, 0.18);
-      border-color: var(--primary);
-    }
-
-    .sidebar-item.active .sidebar-icon {
-      color: var(--primary);
-    }
-
-    .sidebar-icon {
-      min-width: 22px;
-      width: 22px;
-      height: 22px;
-      transition: transform 0.15s ease-out;
-    }
-
-    .sidebar-item:hover .sidebar-icon,
-    .sidebar-item.tv-focused .sidebar-icon {
-      transform: scale(1.1);
-    }
-
     .sidebar-label {
       opacity: 0;
       transition: opacity 0.18s ease-out;
@@ -6299,6 +6288,7 @@
 
       <div class="filter-chips">
         <button class="chip active" data-filter="all" onclick="setMovieFilter('all')">Todos</button>
+        <button class="chip" data-filter="kids" onclick="setMovieFilter('kids')">🧸 Infantil</button>
         <button class="chip" data-filter="favorites" onclick="setMovieFilter('favorites')">⭐ Minha Lista</button>
         <button class="chip" data-filter="unwatched" onclick="setMovieFilter('unwatched')">Não Assistidos</button>
         <button class="chip" data-filter="franchise" onclick="setMovieFilter('franchise')">Franquias</button>
@@ -6352,6 +6342,7 @@
       <!-- CHIPS DE FILTRO RÁPIDO DE GÊNERO -->
       <div class="search-chips-row" id="searchChipsRow">
         <button class="search-chip active dpad-focusable" onclick="filterSearchByChip('all', this)">🔥 Todos</button>
+        <button class="search-chip dpad-focusable" onclick="filterSearchByChip('kids', this)">🧸 Infantil & Família</button>
         <button class="search-chip dpad-focusable" onclick="filterSearchByChip('movie', this)">🎬 Filmes</button>
         <button class="search-chip dpad-focusable" onclick="filterSearchByChip('series', this)">📺 Séries</button>
         <button class="search-chip dpad-focusable" onclick="filterSearchByChip('4k', this)">✨ 4K UHD</button>
@@ -6485,6 +6476,29 @@
             <span>Editar Foto</span>
           </button>
         </div>
+      </div>
+
+      <!-- Painel: Controle Parental & Filtro Etário Kids -->
+      <div class="settings-panel">
+        <div>
+          <div class="settings-panel-title">🧸 Controle Parental & Modo Kids</div>
+          <div class="settings-panel-desc">Restrinja o catálogo apenas para produções infantis, animações e familiares (livre até 10-12 anos).</div>
+          
+          <div class="settings-seg-row">
+            <span class="settings-seg-label">Filtro Etário:</span>
+            <div class="settings-seg-group" id="segAgeFilter">
+              <button class="settings-seg-btn active dpad-focusable" onclick="setAgeFilterPref('all', this)">🔓 Geral (Todos)</button>
+              <button class="settings-seg-btn dpad-focusable" onclick="setAgeFilterPref('kids', this)">🧸 Infantil & Família</button>
+            </div>
+          </div>
+          <div class="settings-field-row" style="margin-top: 10px;">
+            <span class="settings-field-label">Status do Catálogo:</span>
+            <span class="settings-field-value" id="settingsAgeFilterStatus" style="color: #38bdf8;">Catálogo Geral Completo</span>
+          </div>
+        </div>
+        <button class="settings-btn-primary dpad-focusable" onclick="toggleKidsModeQuick()">
+          <span>🧸 Alternar para Perfil Crianças ↗</span>
+        </button>
       </div>
 
       <!-- Painel 5: Torrents & P2P -->
@@ -8175,6 +8189,96 @@ function escapeHtml(str) {
       renderSearchResults();
     }
 
+    function isKidsSafeMedia(item) {
+      if (!item) return false;
+      const titleLower = (item.title || '').toLowerCase();
+      
+      // 1. Blacklist explícito de temas adultos / pesados
+      const adultKeywords = [
+        'arcane', 'cyberpunk', 'deadpool', 'logan', 'chernobyl', 'dexter', 
+        'the boys', 'breaking bad', 'game of thrones', 'peaky blinders', 
+        'exterminador', 'alien', 'predador', 'coringa', 'joker', 'oppenheimer', 
+        'bastardos inglórios', 'django', 'kill bill', 'pulp fiction', 'clube da luta', 
+        'john wick', 'mad max', 'blade runner', 'matrix', 'demolidor', 'punisher', 
+        'justiceiro', 'invencível', 'invincible', 'the last of us', 'walking dead'
+      ];
+      for (let i = 0; i < adultKeywords.length; i++) {
+        if (titleLower.includes(adultKeywords[i])) return false;
+      }
+
+      const genres = (item.genres || []).map(g => g.toLowerCase());
+      const adultGenres = ['terror', 'horror', 'crime', 'guerra', 'cyberpunk', 'erótico'];
+      if (genres.some(g => adultGenres.some(ag => g.includes(ag)))) return false;
+
+      // 2. Classificação Indicativa (se informada)
+      if (item.classification && (item.classification.includes('16') || item.classification.includes('18'))) {
+        return false;
+      }
+
+      // 3. Critérios de Inclusão Infantil & Família
+      const kidsGenres = ['animação', 'animacao', 'família', 'familia', 'infantil'];
+      if (genres.some(g => kidsGenres.some(kg => g.includes(kg)))) return true;
+
+      // Franquias e títulos familiares canônicos (com regex de palavra inteira)
+      const familyPatterns = [
+        /\bcarros\b/, /\bshrek\b/, /harry potter/, /f[aá]brica de chocolate/, /percy jackson/,
+        /kung fu panda/, /como treinar/, /toy story/, /divertida mente/, /procurando nemo/,
+        /\bmoana\b/, /enrolados/, /zootopia/, /\bfrozen\b/, /\bminions\b/, /meu malvado favorito/,
+        /ratatouille/, /wall-e/, /monstros\b/, /\bviva\b/, /encanto/, /aranhaverso/,
+        /paddington/, /peter pan/, /rei le[aã]o/, /aladdin/, /mulan/, /tarzan/, /pin[oó]quio/,
+        /\bmogli\b/, /madagascar/, /era do gelo/, /\brio\b/, /hotel transilv[aâ]nia/, /croods/,
+        /\bsing\b/, /patrulha canina/, /\bsonic\b/
+      ];
+      for (let i = 0; i < familyPatterns.length; i++) {
+        if (familyPatterns[i].test(titleLower)) return true;
+      }
+
+      return false;
+    }
+
+    function isKidsModeActive() {
+      if (typeof getActiveProfileId === 'function' && getActiveProfileId() === 'kids') return true;
+      try {
+        if (localStorage.getItem('cinelocal_age_filter') === 'kids') return true;
+      } catch (e) {}
+      return false;
+    }
+
+    function setAgeFilterPref(pref, btn) {
+      try {
+        localStorage.setItem('cinelocal_age_filter', pref);
+      } catch (e) {}
+
+      if (btn) {
+        document.querySelectorAll('#segAgeFilter .settings-seg-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      }
+
+      const statusEl = document.getElementById('settingsAgeFilterStatus');
+      if (statusEl) {
+        statusEl.innerText = pref === 'kids' ? '🧸 Modo Infantil Ativo (Livre / Família)' : 'Catálogo Geral Completo';
+        statusEl.style.color = pref === 'kids' ? '#10b981' : '#38bdf8';
+      }
+
+      if (pref === 'kids') {
+        showToast('🧸 Modo Infantil ativado! Exibindo apenas conteúdos familiares.');
+      } else {
+        showToast('🔓 Catálogo completo liberado.');
+      }
+
+      if (typeof renderMoviesGrid === 'function') renderMoviesGrid();
+      if (typeof renderSeriesGrid === 'function') renderSeriesGrid();
+      if (typeof renderSearchResults === 'function') renderSearchResults();
+      if (typeof renderContinuarAssistindo === 'function') renderContinuarAssistindo();
+    }
+
+    function toggleKidsModeQuick() {
+      if (typeof switchProfile === 'function') {
+        switchProfile('kids');
+        switchView('home');
+      }
+    }
+
     function findMediaById(id, type) {
       if (type === 'series') {
         return (state.series || []).find(s => s.id === id);
@@ -8198,7 +8302,9 @@ function escapeHtml(str) {
       let filtered = allItems;
 
       // Filtro por Chip
-      if (chip === 'movie') {
+      if (chip === 'kids') {
+        filtered = filtered.filter(item => isKidsSafeMedia(item));
+      } else if (chip === 'movie') {
         filtered = filtered.filter(item => item.type === 'movie');
       } else if (chip === 'series') {
         filtered = filtered.filter(item => item.type === 'series');
@@ -8208,6 +8314,11 @@ function escapeHtml(str) {
         filtered = filtered.filter(item => item.franchise === 'Marvel' || (item.title && item.title.includes('Marvel')));
       } else if (chip !== 'all') {
         filtered = filtered.filter(item => (item.genres && item.genres.some(g => g.toLowerCase().includes(chip.toLowerCase()))));
+      }
+
+      // Restrição global se Modo Infantil estiver ativo
+      if (isKidsModeActive()) {
+        filtered = filtered.filter(item => isKidsSafeMedia(item));
       }
 
       // Filtro por Texto digitado
@@ -8222,7 +8333,9 @@ function escapeHtml(str) {
 
         if (countLabel) countLabel.textContent = `Resultados para "${currentSearchQuery}" (${filtered.length} títulos)`;
       } else {
-        if (countLabel) countLabel.textContent = `🔥 Títulos em Destaque no CineLocal (${filtered.length} disponíveis)`;
+        if (countLabel) countLabel.textContent = isKidsModeActive()
+          ? `🧸 Títulos Infantis & Família (${filtered.length} disponíveis)`
+          : `🔥 Títulos em Destaque no CineLocal (${filtered.length} disponíveis)`;
       }
 
       if (filtered.length === 0) {
@@ -8230,43 +8343,15 @@ function escapeHtml(str) {
           <div class="search-empty-state">
             <div style="font-size: 3rem; margin-bottom: 12px;">🔍</div>
             <h3 style="font-size: 22px; font-weight: 800; color: #fff;">Nenhum título encontrado</h3>
-            <p style="color: #94a3b8; font-size: 15px; margin-top: 6px;">Tente buscar por outro termo, ator, diretor ou limpe os filtros.</p>
+            <p style="color: #94a3b8; font-size: 15px; margin-top: 6px;">Tente buscar por outro termo ou limpe os filtros selecionados.</p>
           </div>
         `;
         return;
       }
 
-      container.innerHTML = filtered.map(item => {
-        const isSeries = item.type === 'series';
-        const poster = item.posterPath ? encodeURI(item.posterPath) : '';
-        const rating = item.rating ? `⭐ ${item.rating}` : '⭐ 8.0';
-        const tag = isSeries ? 'SÉRIE' : (item.resolution || '1080p');
-
-        return `
-          <div class="movie-card dpad-focusable" tabindex="0" onclick="openMediaDetailPage(findMediaById('${item.id}', '${item.type}'))" onmouseenter="if (typeof setTvFocus === 'function') setTvFocus(this)">
-            <div class="movie-card-thumb">
-              <img class="movie-card-img" src="${poster}" alt="${escapeHtml(item.title)}" loading="lazy">
-              <span class="badge-card-res ${isSeries ? 'badge-series' : ''}">${tag}</span>
-              <span class="badge-card-rating">${rating}</span>
-            </div>
-            <div class="movie-card-info">
-              <div class="movie-card-title">${escapeHtml(item.title)}</div>
-              <div class="movie-card-meta">${item.year || ''} • ${isSeries ? `${item.totalSeasons || 1} Temp.` : (item.format || 'MKV')}</div>
-            </div>
-          </div>
-        `;
-      }).join('');
+      // RENDERIZAÇÃO PADRÃO OFICIAL CINELOCAL (PÔSTER HD 2:3, OVERLAY, BADGES E FOCO TV)
+      container.innerHTML = filtered.map(item => createCardHtml(item, false)).join('');
     }
-
-    /* ========================================================================= */
-    /* 🎬 ENRIQUECEDOR ASSÍNCRONO DE BACKDROP OFICIAL TMDB */
-    /* ========================================================================= */
-    
-    /* ========================================================================= */
-    /* 📺 SMART TV QUICK ACTION RAIL LOGIC                                      */
-    /* ========================================================================= */
-    let tvQuickRailTimeout = null;
-
     function toggleTvQuickRail() {
       const rail = document.getElementById('tvPlayerQuickRail');
       if (!rail) return;
@@ -10022,7 +10107,9 @@ function escapeHtml(str) {
         );
       }
 
-      if (state.movieFilter === 'favorites') {
+      if (state.movieFilter === 'kids' || isKidsModeActive()) {
+        filtered = filtered.filter(m => isKidsSafeMedia(m));
+      } else if (state.movieFilter === 'favorites') {
         filtered = filtered.filter(m => isItemFavorite(m.id));
       } else if (state.movieFilter === 'unwatched') {
         filtered = filtered.filter(m => !isItemWatched(m.id));
@@ -15264,7 +15351,15 @@ function switchProfile(profileId) {
   const menu = document.getElementById('profileMenu');
   if (menu) menu.classList.remove('active');
 
-  showToast(`👤 Perfil alternado para: ${profile.name}`);
+  if (profileId === 'kids') {
+    showToast(`🧸 Modo Infantil Ativo! Olá, ${profile.name}!`);
+  } else {
+    showToast(`👤 Perfil alternado para: ${profile.name}`);
+  }
+
+  if (typeof renderMoviesGrid === 'function') renderMoviesGrid();
+  if (typeof renderSeriesGrid === 'function') renderSeriesGrid();
+  if (typeof renderSearchResults === 'function') renderSearchResults();
 }
 
 function openManageProfilesModal() {
