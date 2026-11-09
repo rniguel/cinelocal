@@ -1,205 +1,214 @@
-# 🎬 CineLocal - Home Theater & Streaming Doméstico
+# 🎬 CineLocal - Home Theater, Streaming Doméstico & Central Multi-Torrent
 
-Bem-vindo ao **CineLocal**, uma central de streaming multimídia de alta performance feita em Python e Web moderna para você reproduzir sua coleção local de filmes e séries no seu computador, celular ou Smart TV com uma experiência visual cinematográfica estilo Netflix.
+<p align="center">
+  <img src="app/icon-192.png" alt="CineLocal Logo" width="110" />
+</p>
+
+<p align="center">
+  <strong>Uma central multimídia de alta performance inspirada na interface Netflix e Stremio para reproduzir sua coleção local e torrents em 4K/HDR no PC, Celular e Smart TV.</strong>
+</p>
+
+<p align="center">
+  <a href="#-início-rápido-1-clique"><img src="https://img.shields.io/badge/Plataforma-Windows%20%7C%20Linux%20%7C%20macOS-blue?style=flat-square" alt="Multiplataforma" /></a>
+  <a href="#-principais-funcionalidades"><img src="https://img.shields.io/badge/Tecnologias-Python%20%7C%20Node.js%20%7C%20WebTorrent%20%7C%20FFmpeg-success?style=flat-square" alt="Tecnologias" /></a>
+  <a href="docs/ARQUITETURA.md"><img src="https://img.shields.io/badge/Arquitetura-Local--First%20%7C%20HTTP%20206%20%7C%20PWA-orange?style=flat-square" alt="Arquitetura" /></a>
+  <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/Git%20Flow-develop%20%E2%86%92%20main-red?style=flat-square" alt="Git Flow" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/Licen%C3%A7a-MIT-green?style=flat-square" alt="Licença" /></a>
+</p>
 
 ---
 
-## ⚡ Início Rápido (Executáveis na Raiz)
+## ⚡ Início Rápido (1-Clique)
 
-Para usuários **Windows**, utilize os arquivos `.bat`. Para **Linux** e **macOS**, utilize os scripts equivalentes `.sh` (ex: `./run.sh` ou `./"Abrir CineLocal.sh"`).
+O **CineLocal** conta com scripts prontos para uso imediato na raiz do projeto. Não é necessário configurar portas nem instalar bancos de dados complexos:
 
-| Windows (`.bat`) | Linux / macOS (`.sh`) | Descrição |
-|---|---|---|
-| **`Abrir CineLocal.bat`** | **`Abrir CineLocal.sh`** | Inicia a interface web diretamente no seu navegador padrão. |
-| **`Iniciar Servidor (TV e Celular).bat`** | **`Iniciar Servidor (TV e Celular).sh`** | Inicia o servidor HTTP local na sua rede Wi-Fi/Ethernet para você assistir na Smart TV, celular ou tablet pelo endereço IP local (ex: `http://192.168.x.x:8000`). |
-| **`Atualizar Catalogo.bat`** | **`Atualizar Catalogo.sh`** | Escaneia sua pasta `media/`, detecta novos filmes/séries, atualiza resoluções, áudio (Dublado/Legendado), legendas e capas automaticamente ordenando por data de adição real. |
-| **`Buscar Metadados (TMDb).bat`** | **`Buscar Metadados (TMDb).sh`** | Utilitário desacoplado e opcional para buscar sinopses em pt-BR, notas e pôsteres oficiais no The Movie Database sem alterar seus vídeos. |
-| **`Otimizar Audio Web.bat`** | **`Otimizar Audio Web.sh`** | Adiciona faixa estéreo AAC sem recodificar o vídeo para reprodução com áudio perfeito em qualquer navegador web. |
-| **`run.py`** | **`run.sh`** | Inicializador unificado e direto do CineLocal no terminal. |
+### 🪟 No Windows
+| Arquivo | Descrição |
+|---|---|
+| **`Iniciar CineLocal Desktop.bat`** | **Recomendado:** Inicia o aplicativo desktop nativo maximizado (sem barras de navegação do browser e sem avisos de SmartScreen). |
+| **`Abrir CineLocal.bat`** | Inicia o servidor local e abre o CineLocal no seu navegador web padrão. |
+| **`Iniciar Servidor (TV e Celular).bat`** | Inicia o servidor na sua rede Wi-Fi/Ethernet para assistir em Smart TVs, celulares e tablets pelo IP local (`http://192.168.x.x:8000`). |
+| **`Compilar Executavel.bat`** | Compila o executável autônomo `dist/CineLocal/CineLocal.exe` com PyInstaller em 1 clique. |
+| **`Atualizar Catalogo.bat`** | Escaneia suas mídias, atualiza capas, resoluções, áudio (Dublado/Legendado) e legendas `.srt`. |
 
-### 🐳 Execução via Docker (HomeLabs, NAS e Servidores Linux)
-
-Se você utiliza **Docker** ou gerencia um servidor doméstico (HomeLab / NAS / unRAID / TrueNAS):
-
+### 🐧 No Linux & 🍎 no macOS
 ```bash
-# Iniciar o CineLocal em segundo plano
+# Iniciar o CineLocal diretamente no navegador padrão
+./run.sh
+
+# Ou para abrir o servidor de rede Wi-Fi para Smart TV / Celular
+./"Iniciar Servidor (TV e Celular).sh"
+```
+
+### 🐳 Execução via Docker (HomeLabs, NAS e Servidores)
+```bash
 docker compose up -d
 ```
-Acesse `http://localhost:8000` (ou o IP do seu servidor na rede local). As suas mídias são mapeadas em modo seguro somente leitura (`:ro`) e seus favoritos/progresso são preservados em `./app/data`.
+Acesse `http://localhost:8000` (ou o IP do seu servidor). Suas mídias são mapeadas em modo seguro somente leitura (`:ro`) e favoritos/progresso são preservados em `./app/data`.
 
 ---
 
 ## 🚀 Principais Funcionalidades
 
-### 1. 🍿 Catálogo Dinâmico & Descoberta
-* **⭐ Minha Lista (Favoritos):** Salve filmes e séries favoritos com um clique no botão flutuante sobre a capa ou na ficha técnica. Conta com carrossel exclusivo no Início e filtro dedicado na aba de Filmes.
-* **📱 Interface Responsiva & Mobile:** Experiência dedicada para smartphones e tablets com rolagem tátil (touch swipe), grid em duas colunas e modais adaptados para telas verticais.
-* **🔍 Busca Global Inteligente:** Pesquisa instantânea por título, atores (`cast`), diretores/criadores (`director`/`creator`), gêneros e termos da sinopse. Pressione `/` no teclado para focar a barra de pesquisa a qualquer momento.
-* **🎬 Trailers Oficiais Integrados:** Assista à prévia do trailer oficial em alta definição diretamente do YouTube antes de iniciar a sessão.
-* **Continuar Assistindo Sincronizado:** Salva o ponto exato da reprodução e sincroniza automaticamente entre computadores, celulares e Smart TVs na mesma rede.
-* **Filtros Avançados:** Filtre instantaneamente por **Gênero** (Ação, Drama, Ficção...), **Ano / Década**, **Favoritos** e **Não Assistidos**.
-* **🎲 Surpreenda-me (Roleta de Filmes):** Sorteie um filme do catálogo para aqueles momentos de indecisão.
-* **Adicionados Recentemente Precisos:** Ordenação baseada na data real de gravação/modificação dos arquivos no disco.
-* **Marcação de Assistido:** Marque filmes e séries como assistidos com um clique para manter sua biblioteca organizada.
-* **Tela de Onboarding Integrada:** Caso a pasta de filmes ainda esteja vazia, uma interface interativa de boas-vindas guia o usuário passo a passo.
+### 1. ⚡ Central Multi-Torrent & Streaming Sequencial (Estilo Stremio)
+* **Reprodução Imediata (Buffer de 2 MB):** Assista a qualquer Magnet Link instantaneamente sem precisar esperar o download de 100% de arquivos de vários gigabytes.
+* **🚀 Assistir no VLC (1-Clique):** Reproduza arquivos `.mkv`, 4K, HDR, Dolby Atmos e DTS 7.1 diretamente no VLC Player com decodificação de hardware e legendas sincronizadas.
+* **Remux On-the-Fly no Navegador:** Para arquivos `.mkv` ou faixas de áudio surround, o CineLocal faz remux em tempo real via FFmpeg (`-c:v copy -c:a aac`) entregando compatibilidade total para navegadores sem gastar CPU com re-encodificação de vídeo.
+* **📥 Fila de Downloads em Tempo Real:** Monitore múltiplos downloads simultâneos com taxa de transferência (MB/s), sementes ativas (seeds), progresso percentual e botões para Reproduzir, Salvar ou Remover.
+* **📁 Salvamento Automático na Pasta de Vídeos do SO:** Filmes finalizados são organizados diretamente na pasta padrão do seu sistema:
+  * Windows: `C:\Users\<SeuUsuario>\Videos\CineLocal\<Nome do Filme (Ano)>\`
+  * Linux: `~/Videos/CineLocal/<Nome do Filme (Ano)>/`
+  * macOS: `~/Movies/CineLocal/<Nome do Filme (Ano)>/`
 
-### 2. 📺 Smart TV & Conexão Rápida
-* **📱 Controle Remoto Virtual para Celular (`/remote`):** Transforme qualquer celular em um controle touch sem latência. Acesse `http://<ip>:8000/remote` ou aponte a câmera para o QR Code da aplicação.
-  * D-Pad tátil com vibração (haptic feedback) para navegar menus da Smart TV sem mouse.
-  * Comandos de Play/Pause, Seek (-10s / +10s), Volume (- / + / Mute), Fullscreen e Voltar.
-  * Ajuste de sincronia de legendas em tempo real direto da palma da mão.
-* **Navegação D-Pad Nativa para Smart TV:** Suporte total às setas do controle físico da TV (`↑`, `↓`, `←`, `→`) e `Enter / OK` para focar cards e botões. Conta com borda pulsante em vermelho vibrante (glow 4px), centralização automática no carrossel e beacon flutuante com o nome do item em foco.
-* **Conexão via QR Code:** Abra a câmera do celular ou digite o link direto na TV para carregar o CineLocal ou abrir o controle remoto instantaneamente.
-* **Detecção Automática de IP Local:** Mostra o IP do computador na rede local sem configurações complexas.
+### 2. 📱 Controle Remoto Virtual para Smart TV & Celular (`/remote`)
+* **Transforme qualquer smartphone em controle remoto touch:** Acesse `http://<ip-do-pc>:8000/remote` ou aponte a câmera para o QR Code da aplicação.
+* **D-Pad Tátil com Vibração (Haptic Feedback):** Navegue pelas capas na tela grande da TV usando o direcional touch do celular com resposta tátil.
+* **Sem Latência (< 20ms):** Comunicação baseada em **Server-Sent Events (SSE)** em tempo real.
+* **Comandos Completos:** Play/Pause, Seek (+/- 10s), Volume (+/- / Mudo), Tela Cheia, Fechar e ajuste fino de sincronia de legendas (+/- 0.1s).
 
-### 3. 🔊 Player Web Cinematográfico Avançado
-* **🎵 Seletor de Faixas de Áudio:** Identifica trilhas embutidas (Dublado / Legendado / Original) e permite alternar faixas diretamente no menu de áudio do player com cálculo de offset preciso na linha do tempo.
-* **Clique na Tela para Play/Pause:** Clique em qualquer ponto do vídeo para pausar ou reproduzir, com animação central de feedback estilo YouTube.
-* **Controles Inteligentes em Tela Cheia:** Os controles surgem instantaneamente ao mover o mouse e permanecem visíveis durante o pause.
-* **Picture-in-Picture (PiP):** Assista em janela flutuante enquanto utiliza outros programas no computador.
-* **Velocidade de Reprodução Dinâmica:** Alterne entre 0.75x, 1.0x, 1.25x, 1.5x e 2.0x com os atalhos `[` e `]`.
-* **Próximo Episódio Automático:** Contagem regressiva nos últimos 20 segundos de um episódio para iniciar o próximo sem esforço.
-* **Super Booster de Volume (até 300%):** Amplificador dinâmico via Web Audio API para filmes com áudio baixo.
-* **Legendas Inteligentes:** Renderização de legendas `.srt` com ajuste fino de sincronia (`G` e `H`) e tamanhos personalizáveis.
-* **Atalhos de Teclado:**
-  * `/`: Focar na barra de busca global
-  * `Espaço` / `K`: Pausar / Reproduzir
-  * `Setas Esquerda / Direita`: Voltar / Avançar 10 segundos
-  * `Setas Cima / Baixo`: Volume (0% a 300%)
-  * `F`: Alternar tela cheia (Fullscreen)
-  * `M`: Silenciar (Mute)
-  * `P`: Janela Flutuante (Picture-in-Picture)
-  * `[` / `]`: Diminuir / Aumentar velocidade
-  * `N`: Próximo episódio
-  * `V`: Abrir no VLC Media Player (Áudio 5.1/7.1)
-  * `C`: Abrir seletor de legendas
-  * `G` / `H`: Ajustar sincronia da legenda (-0.1s / +0.1s)
-  * `Esc`: Fechar player ou modais
+### 3. 🍿 Player Cinematográfico HTML5 Avançado
+* **HTTP 206 Partial Content:** Seek instantâneo na linha do tempo em arquivos 1080p e 4K.
+* **Super Booster de Volume (Até 300%):** Amplificador de ganho via Web Audio API para filmes com áudio baixo.
+* **Seletor de Faixas de Áudio:** Identifica e permite alternar entre trilhas de áudio embutidas (Dublado / Legendado / Original).
+* **Picture-in-Picture (PiP):** Janela flutuante para assistir enquanto usa outros programas.
+* **Legendas Inteligentes:** Renderização de `.srt` com limpeza automática de tags indesejadas e ajuste de atraso/avanço em milissegundos.
+* **Velocidade Dinâmica:** Alterne de 0.75x a 2.0x instantaneamente.
+* **Contagem Regressiva de Próximo Episódio:** Avança automaticamente para o próximo capítulo de séries.
 
-### 4. ⚡ Módulo Universo Marvel (MCU) & Rastreador Canônico (Opcional)
-* Se você adicionar produções da Marvel Studios em `media/filmes/Marvel/`, o CineLocal ativa automaticamente:
-  * **Carrossel Cronológico do MCU:** Filmes e séries ordenados pela cronologia narrativa canônica.
-  * **Guia & Rastreador (67 Títulos):** Modal interativo que rastreia os 67 lançamentos oficiais da Marvel Studios até 2026, indicando o que já está disponível na sua coleção e o que falta baixar.
+### 4. 📺 Navegação Especial para Smart TV (D-Pad Físico)
+* Navegue facilmente com as setas físicas do controle remoto da Smart TV (`↑`, `↓`, `←`, `→` e `OK`).
+* Borda pulsante luminosa em vermelho vibrante (*glow* cinemático) e centralização suave no carrossel.
 
-### 5. 🛠️ Recursos Opcionais & Detecção Automática
-* **FFmpeg (Opcional):** Utilizado para identificar precisamente faixas de áudio dublado/original e analisar canais de som.
-  * *Como obter:* Pode ser baixado em [ffmpeg.org](https://ffmpeg.org/download.html) ou instalado via Windows Terminal: `winget install Gyan.FFmpeg`.
-  * Caso não esteja presente, o CineLocal utiliza uma detecção inteligente por nome sem travar.
-* **VLC Media Player (Opcional):** Permite abrir arquivos pesados com áudio surround de cinema (Dolby Atmos, TrueHD, DTS 7.1) em 1 clique direto no VLC.
-  * *Como obter:* Baixe gratuitamente em [videolan.org/vlc](https://www.videolan.org/vlc/).
-  * Se o VLC não estiver instalado, os botões são ocultados automaticamente e toda a reprodução ocorre pelo player web nativo.
+### 5. ⚡ Linha do Tempo Canônica Marvel MCU (67 Produções)
+* **Carrossel Cronológico:** Se você tiver filmes da Marvel Studios em `media/filmes/Marvel/`, o CineLocal ativa a ordem canônica do MCU.
+* **Rastreador Oficial de Coleção:** Modal interativo que mapeia todas as 67 produções oficiais do Marvel Studios até 2026, destacando o que você já possui e o que falta baixar.
+
+### 6. 🖥️ Aplicativo Desktop Windows Autônomo
+* Executável portátil compilado em `dist/CineLocal/CineLocal.exe` (2.5 MB).
+* Inicializador dedicado `Iniciar CineLocal Desktop.bat` com bypass automático do Windows SmartScreen.
+* Script oficial Inno Setup em `installer/CineLocal.iss` para empacotar em instaladores tradicionais do Windows (`CineLocal-Setup-v2.5.0.exe`).
 
 ---
 
-## 📁 Estrutura de Pastas do Projeto
+## ⌨️ Atalhos de Teclado no Player
+
+| Tecla | Ação |
+|---|---|
+| **`/`** | Focar na barra de busca global |
+| **`Espaço`** ou **`K`** | Pausar / Reproduzir |
+| **`Setas ← / →`** | Voltar / Avançar 10 segundos |
+| **`Setas ↑ / ↓`** | Ajustar volume (0% a 300%) |
+| **`F`** | Alternar Tela Cheia (Fullscreen) |
+| **`M`** | Silenciar / Ativar Som (Mute) |
+| **`P`** | Modo Picture-in-Picture (Janela Flutuante) |
+| **`[` / `]`** | Diminuir / Aumentar velocidade de reprodução |
+| **`V`** | Abrir filme diretamente no VLC Player |
+| **`C`** | Abrir menu de seleção de legendas |
+| **`G` / `H`** | Ajustar sincronia da legenda (-0.1s / +0.1s) |
+| **`N`** | Próximo episódio da série |
+| **`Esc`** | Fechar player ou modais abertos |
+
+---
+
+## 📁 Estrutura de Pastas e Mídias
 
 ```text
 CineLocal/
-├── Abrir CineLocal.bat                # Inicia a interface no navegador
-├── Iniciar Servidor (TV e Celular).bat# Inicia o servidor local na rede
+├── Iniciar CineLocal Desktop.bat      # 🚀 Inicia como app desktop nativo
+├── Abrir CineLocal.bat                # Inicia no navegador padrão
+├── Iniciar Servidor (TV e Celular).bat# Inicia o servidor local na rede Wi-Fi
+├── Compilar Executavel.bat            # Compila o executável .exe via PyInstaller
 ├── Atualizar Catalogo.bat             # Atualiza catálogo e metadados
-├── Buscar Metadados (TMDb).bat        # Enriquecedor de metadados e pôsteres via TMDb
-├── Otimizar Audio Web.bat             # Converte áudio de vídeos incompatíveis
-├── CONTRIBUTING.md                    # Guia completo de contribuição, issues e Git Flow
-├── README.md                          # Guia completo do projeto
-├── GEMINI.md                          # Regras e convenções para assistentes IA
-├── docs/                              # Documentações técnicas e aprofundadas
-│   ├── ARQUITETURA.md                 # Arquitetura do backend e frontend
-│   ├── GUIA_MIDIA.md                  # Padrões de arquivos, codecs e legendas
-│   ├── MCU_TIMELINE.md                # Linha do tempo completa dos 67 títulos Marvel
-│   └── SCRIPTS_UTILITARIOS.md         # Detalhes dos scripts utilitários
-├── app/                               # Código-fonte da aplicação
-│   ├── index.html                     # ⭐️ Interface web oficial do CineLocal (Fonte da Verdade)
-│   ├── remote.html                    # Controle remoto mobile tátil (SSE em tempo real)
-│   ├── generate_netflix_ui.py         # Validador de integridade e compatibilidade da UI
-│   ├── atualizar_catalogo.py          # Scanner de mídia e compilador de catalogo.js
-│   ├── buscar_metadados_tmdb.py       # Utilitário desacoplado de consulta à API TMDb
-│   ├── metadata_db.py                 # Banco de metadados ricos (sinopses, elenco, links)
-│   ├── otimizar_audio_web.py          # Utilitário de conversão de áudio para AAC estéreo
-│   ├── servidor.py                    # Servidor local Python com suporte a VLC e streaming
-│   ├── catalogo.sample.js             # Modelo inicial do banco de dados JavaScript
-│   └── catalogo.js                    # Base de dados compilada localmente (ignorado no Git)
+├── run.py / run.sh                    # Inicializador multiplataforma
+├── build_desktop.py                   # Construtor do executável PyInstaller
+├── run_desktop.py                     # Launcher desktop em modo janela
+│
+├── app/
+│   ├── index.html                     # ⭐️ Interface oficial (Fonte da Verdade)
+│   ├── remote.html                    # Controle remoto mobile touch (SSE)
+│   ├── servidor.py                    # Servidor HTTP 206, SSE e Remuxer FFmpeg
+│   ├── atualizar_catalogo.py          # Scanner de mídia e indexador
+│   ├── metadata_db.py                 # Banco de metadados ricos (sinopses, elenco)
+│   ├── torrent/
+│   │   ├── engine.mjs                 # Motor WebTorrent sequencial (Porta 8888)
+│   │   └── package.json               # Dependências do motor de torrent
+│   └── data/                          # Dados de favoritos e progresso
+│
+├── docs/                              # 📚 Guias arquiteturais detalhados
+│   ├── ARQUITETURA.md                 # Arquitetura técnica e fluxos de dados
+│   ├── TORRENT_STREAMING.md           # Guia de torrents e streaming sequencial
+│   ├── CONTROLE_REMOTO.md             # Guia do controle remoto SSE para celular
+│   ├── GUIA_DESKTOP.md                # Guia de compilação .exe e Inno Setup
+│   ├── GUIA_MIDIA.md                  # Padrões de nomenclatura de filmes/séries
+│   └── MCU_TIMELINE.md                # Documentação da cronologia Marvel
+│
 └── media/
-    ├── filmes/                        # Coloque aqui seus filmes avulsos e sagas
-    └── series/                        # Coloque aqui suas séries organizadas por temporadas
+    ├── filmes/                        # Filmes avulsos e sagas em disco
+    │   └── Vídeos/                    # Link automático com a pasta de Vídeos do SO
+    └── series/                        # Séries organizadas por temporadas
 ```
 
 ---
 
-## 🍿 Como Usar com seus Próprios Filmes
+## 🍿 Organizando seus Próprios Filmes
 
-1. **Adicionar Filmes:**
-   * Crie uma pasta em `media/filmes/Nome do Filme (Ano)/`.
-   * Coloque o vídeo: `Nome do Filme (Ano) [1080p].mp4` (ou `.mkv`, `.avi`, etc.).
-   * Opcional: Adicione a imagem da capa como `poster.jpg` (proporção 2:3) e legendas externas `.srt`.
-
-2. **Adicionar Séries:**
-   * Crie uma pasta em `media/series/Nome da Serie/`.
-   * Crie pastas de temporada: `Season 01/`, `Season 02/`.
-   * Coloque os episódios: `Nome da Serie - S01E01.mkv`.
-   * Opcional: Coloque `poster.jpg` na pasta da série.
-
-3. **Atualizar e Assistir:**
-   * Dê dois cliques em **`Atualizar Catalogo.bat`** (ou rode `python app/atualizar_catalogo.py`).
-   * Dê dois cliques em **`Abrir CineLocal.bat`** (ou rode `python run.py`).
-   * Aproveite sua sessão de cinema particular!
+1. **Filmes Avulsos:**
+   `media/filmes/Nome do Filme (Ano)/Nome do Filme (Ano) [1080p].mp4`
+2. **Franquias e Sagas (Ordem Numérica):**
+   `media/filmes/Marvel/01 - Capitão América (2011)/Capitão América (2011) [1080p].mkv`
+3. **Séries de TV:**
+   `media/series/Nome da Serie/Season 01/Nome da Serie - S01E01.mkv`
+4. **Posters e Legendas:**
+   * Capas: salve como `poster.jpg` na pasta do filme/série (proporção 2:3).
+   * Legendas: arquivos `.srt` na mesma pasta do vídeo (ex: `Nome.srt` ou `Nome.pt.srt`).
 
 ---
 
-## 🤝 Como Colaborar & Git Flow
+## 📚 Documentação Técnica Aprofundada
 
-Queremos tornar o **CineLocal** cada vez melhor e aceitamos contribuições da comunidade! Adotamos uma estratégia baseada em **Git Flow**:
+Explore a pasta [`docs/`](docs/) para guias especializados:
+
+* [🏛️ **Arquitetura Geral do Sistema** (`docs/ARQUITETURA.md`)](docs/ARQUITETURA.md) — Diagramas de fluxo, SSE, HTTP 206 e remuxer.
+* [⚡ **Streaming de Torrent & Multi-Torrent** (`docs/TORRENT_STREAMING.md`)](docs/TORRENT_STREAMING.md) — Motor sequencial, buffers de 2MB e VLC.
+* [📱 **Controle Remoto Touch & Smart TV** (`docs/CONTROLE_REMOTO.md`)](docs/CONTROLE_REMOTO.md) — Pareamento QR Code e D-Pad tátil.
+* [🖥️ **Guia do Aplicativo Desktop** (`docs/GUIA_DESKTOP.md`)](docs/GUIA_DESKTOP.md) — Executável `.exe`, scripts `.bat` e Inno Setup.
+* [🗂️ **Padrões de Nomenclatura de Mídia** (`docs/GUIA_MIDIA.md`)](docs/GUIA_MIDIA.md) — Diretrizes para pastas e metadados.
+* [⚡ **Linha do Tempo Canônica Marvel** (`docs/MCU_TIMELINE.md`)](docs/MCU_TIMELINE.md) — Mapeamento das 67 produções do MCU.
+
+---
+
+## 🤝 Como Contribuir & Git Flow
+
+Adotamos a estratégia baseada em **Git Flow**:
 
 ```text
 main       ●─────────────────────────────────────● (Releases Estáveis)
             \                                   /
-develop      ●─────────●──────────────●────────● (Integração / PRs aqui)
+develop      ●─────────●──────────────●────────● (Integração & Desenvolvimento)
                         \            /
 feature/fix              ●──────────● (Sua Branch de Trabalho)
 ```
 
-### 📋 Passo a Passo Rápido
-
-1. **Faça o Fork & Clone:**
-   ```bash
-   git clone https://github.com/SEU_USUARIO/cinelocal.git
-   cd cinelocal
-   ```
-
-2. **Crie sua Branch a partir de `develop`:**
-   > ⚠️ **Importante:** Todo desenvolvimento deve partir e retornar para a branch `develop`. A branch `main` é reservada para versões consolidadas de produção.
+1. Clone o repositório e crie sua branch a partir de `develop`:
    ```bash
    git checkout develop
    git pull origin develop
    git checkout -b feature/minha-melhoria
-   # ou para correções de bugs:
-   git checkout -b fix/ajuste-player
    ```
-
-3. **Desenvolva e Respeite as Regras do CineLocal:**
-   * **Interface Web:** Todas as alterações de HTML/CSS/JS devem ser feitas diretamente no arquivo oficial `app/index.html` (Fonte da Verdade). Use `python app/generate_netflix_ui.py` para validar a integridade dos componentes.
-   * **Mídia:** Nunca crie rotinas destrutivas que apaguem arquivos de vídeo.
-   * **Codificação:** Mantenha arquivos com codificação `UTF-8`.
-
-4. **Commits Semânticos (Conventional Commits):**
+2. Respeite as regras do CineLocal:
+   * **Interface Web:** Alterações de UI devem ser aplicadas em `app/index.html` (Fonte da Verdade) e validadas com `python app/generate_netflix_ui.py`.
+   * **Preservação de Mídia:** Nunca adicione rotinas destrutivas que excluam vídeos.
+   * **Codificação:** Mantenha os arquivos em `UTF-8`.
+3. Faça commits semânticos:
    ```bash
-   git commit -m "feat(ui): adicionar novo carrossel de lancamentos"
-   git commit -m "fix(player): corrigir tecla de atalho de volume no macOS"
+   git commit -m "feat(torrent): adicionar suporte a priorizacao customizada"
    ```
+4. Abra um Pull Request apontando para a branch `develop`.
 
-5. **Envie sua Branch e Abra o Pull Request:**
-   ```bash
-   git push -u origin feature/minha-melhoria
-   ```
-   * No GitHub, abra o **Pull Request** apontando **Base:** `develop` ⬅️ **Compare:** `feature/minha-melhoria`.
-   * Se o seu PR resolve uma issue aberta, referencie-a na descrição (ex: `Closes #12`).
-
-6. **Promoção para a Branch `main`:**
-   * Após revisão e testes em `develop`, os mantenedores promovem as novidades para a `main` em cada lançamento estável de release.
-
-📖 Para detalhes completos sobre templates de issues, convenções de código e checklist de revisão, consulte o [**Guia de Contribuição Completo (CONTRIBUTING.md)**](CONTRIBUTING.md).
-🚀 Para consultar o refinamento e arquitetura das próximas grandes funcionalidades (Web Media Manager e Streaming Torrent estilo Stremio), veja o documento [**Roadmap & Issues Refinadas (docs/ROADMAP_ISSUES.md)**](docs/ROADMAP_ISSUES.md).
+Para diretrizes completas de contribuição, consulte o [**CONTRIBUTING.md**](CONTRIBUTING.md).
 
 ---
 
-*Desenvolvido com foco em velocidade, autonomia e máxima fidelidade de áudio e vídeo.*
+<p align="center">
+  <em>Desenvolvido com foco em velocidade, autonomia, design cinemático e máxima fidelidade de áudio e vídeo.</em>
+</p>
