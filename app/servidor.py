@@ -1464,54 +1464,67 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_error(500, f'Erro ao carregar catálogo: {e}')
                 return
 
-        # API para abrir filme diretamente no VLC instalado no PC
+        # API para abrir filme diretamente no VLC instalado no PC (suporta arquivo local e torrent stream)
         if parsed.path == '/api/open_vlc':
             try:
                 query_params = urllib.parse.parse_qs(parsed.query)
                 video_rel = query_params.get('path', [''])[0]
+                stream_url = query_params.get('url', [''])[0]
+                if not stream_url and video_rel.startswith(('http://', 'https://')):
+                    stream_url = video_rel
+
+                vlc_bin = get_vlc_path()
+                if not vlc_bin or not os.path.exists(vlc_bin):
+                    response_data = json.dumps({"status": "error", "message": "VLC Media Player não encontrado no computador"}).encode('utf-8')
+                    self.send_response(404)
+                    self.send_header('Content-Type', 'application/json; charset=utf-8')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.end_headers()
+                    self.wfile.write(response_data)
+                    return
+
+                creation_flag = (subprocess.CREATE_NEW_PROCESS_GROUP | 0x00000008) if sys.platform == 'win32' else 0
+
+                # 1. Reprodução de Stream HTTP (Torrent / Web Stream)
+                if stream_url:
+                    vlc_cmd = [vlc_bin, stream_url]
+                    title_param = query_params.get('title', [''])[0]
+                    if title_param:
+                        sub_candidate = os.path.join(APP_DIR, 'data', 'torrent_cache', f"{title_param}.pt.srt")
+                        if os.path.exists(sub_candidate):
+                            vlc_cmd.extend(['--sub-file', sub_candidate])
+                    subprocess.Popen(vlc_cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, close_fds=True, creationflags=creation_flag)
+                    log_event("🚀", "VLC TORRENT", f"Abrindo stream no VLC: {stream_url} ({client_ip})")
+                    response_data = json.dumps({"status": "ok", "message": "VLC iniciado com streaming", "vlc": vlc_bin}).encode('utf-8')
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json; charset=utf-8')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.end_headers()
+                    self.wfile.write(response_data)
+                    return
+
+                # 2. Reprodução de Arquivo Local em disco
                 full_movie_path = safe_resolve_media_path(MOVIES_DIR, video_rel) if video_rel else None
-                if full_movie_path:
-                    vlc_bin = get_vlc_path()
-                    if os.path.exists(full_movie_path) and vlc_bin and os.path.exists(vlc_bin):
-                        # Registra reprodução no histórico e últimos assistidos
-                        record_watch_for_path(full_movie_path)
-                        creation_flag = (subprocess.CREATE_NEW_PROCESS_GROUP | 0x00000008) if sys.platform == 'win32' else 0
-                        vlc_cmd = [vlc_bin, full_movie_path]
-                        
-                        # Se houver legenda .srt externa correspondente, passa automaticamente para o VLC
-                        base_no_ext = os.path.splitext(full_movie_path)[0]
-                        candidate_srt = base_no_ext + '.srt'
-                        if os.path.exists(candidate_srt):
-                            vlc_cmd.extend(['--sub-file', candidate_srt])
-                            
-                        subprocess.Popen(
-                            vlc_cmd,
-                            stdin=subprocess.DEVNULL,
-                            stdout=subprocess.DEVNULL,
-                            stderr=subprocess.DEVNULL,
-                            close_fds=True,
-                            creationflags=creation_flag
-                        )
-                        movie_name = os.path.basename(full_movie_path)
-                        log_event("🚀", "VLC EXTERNO", f"Abrindo '{movie_name}' ({client_ip})")
-                        response_data = json.dumps({"status": "ok", "message": "VLC iniciado", "vlc": vlc_bin}).encode('utf-8')
-                        self.send_response(200)
-                        self.send_header('Content-Type', 'application/json; charset=utf-8')
-                        self.send_header('Access-Control-Allow-Origin', '*')
-                        self.end_headers()
-                        self.wfile.write(response_data)
-                        return
-                    else:
-                        response_data = json.dumps({"status": "error", "message": "Arquivo ou VLC não encontrado"}).encode('utf-8')
-                        self.send_response(404)
-                        self.send_header('Content-Type', 'application/json; charset=utf-8')
-                        self.send_header('Access-Control-Allow-Origin', '*')
-                        self.end_headers()
-                        self.wfile.write(response_data)
-                        return
+                if full_movie_path and os.path.exists(full_movie_path):
+                    record_watch_for_path(full_movie_path)
+                    vlc_cmd = [vlc_bin, full_movie_path]
+                    base_no_ext = os.path.splitext(full_movie_path)[0]
+                    candidate_srt = base_no_ext + '.srt'
+                    if os.path.exists(candidate_srt):
+                        vlc_cmd.extend(['--sub-file', candidate_srt])
+                    subprocess.Popen(vlc_cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, close_fds=True, creationflags=creation_flag)
+                    movie_name = os.path.basename(full_movie_path)
+                    log_event("🚀", "VLC EXTERNO", f"Abrindo '{movie_name}' ({client_ip})")
+                    response_data = json.dumps({"status": "ok", "message": "VLC iniciado", "vlc": vlc_bin}).encode('utf-8')
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json; charset=utf-8')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.end_headers()
+                    self.wfile.write(response_data)
+                    return
                 else:
-                    response_data = json.dumps({"status": "error", "message": "Caminho de vídeo inválido ou não fornecido"}).encode('utf-8')
-                    self.send_response(400)
+                    response_data = json.dumps({"status": "error", "message": "Arquivo não encontrado no disco"}).encode('utf-8')
+                    self.send_response(404)
                     self.send_header('Content-Type', 'application/json; charset=utf-8')
                     self.send_header('Access-Control-Allow-Origin', '*')
                     self.end_headers()
@@ -1524,24 +1537,37 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             try:
                 query_params = urllib.parse.parse_qs(parsed.query)
                 video_rel = query_params.get('path', [''])[0]
+                stream_url = query_params.get('url', [''])[0]
+                if not stream_url and video_rel.startswith(('http://', 'https://')):
+                    stream_url = video_rel
+
                 ss_raw = query_params.get('ss', ['0'])[0]
                 try:
                     seek_val = max(0.0, float(ss_raw))
                 except (ValueError, TypeError):
                     seek_val = 0.0
-                audio_idx = query_params.get('audio', [''])[0]
                 
-                full_movie_path = safe_resolve_media_path(MOVIES_DIR, video_rel)
                 ffmpeg_bin = get_ffmpeg_bin()
-                if not full_movie_path or not os.path.exists(full_movie_path) or not ffmpeg_bin:
-                    self.send_error(404, 'Arquivo ou FFmpeg não encontrado')
+                if not ffmpeg_bin:
+                    self.send_error(500, 'FFmpeg não disponível para streaming')
                     return
-                
-                if not audio_idx:
-                    audio_idx = get_best_audio_stream(full_movie_path)
-                
-                movie_name = os.path.basename(full_movie_path)
-                log_event("🔊", "DIRECT STREAM", f"Transcodificando áudio AAC para '{movie_name}' ({client_ip})")
+
+                if stream_url:
+                    input_source = stream_url
+                    movie_name = query_params.get('title', ['Stream de Torrent'])[0]
+                    audio_idx = 0
+                    map_audio = "0:a:0?"
+                else:
+                    full_movie_path = safe_resolve_media_path(MOVIES_DIR, video_rel)
+                    if not full_movie_path or not os.path.exists(full_movie_path):
+                        self.send_error(404, 'Arquivo de vídeo não encontrado')
+                        return
+                    input_source = full_movie_path
+                    audio_idx = query_params.get('audio', [''])[0] or get_best_audio_stream(full_movie_path)
+                    map_audio = f"0:{audio_idx}"
+                    movie_name = os.path.basename(full_movie_path)
+
+                log_event("🔊", "DIRECT STREAM", f"Remuxando stream AAC para '{movie_name}' ({client_ip})")
 
                 # Monta comando FFmpeg Direct Stream (Vídeo cópia 100%, Áudio AAC estéreo)
                 cmd = [
@@ -1550,9 +1576,9 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                     "-nostats",
                     "-loglevel", "error",
                     "-ss", str(seek_val),
-                    "-i", full_movie_path,
+                    "-i", input_source,
                     "-map", "0:v:0",
-                    "-map", f"0:{audio_idx}",
+                    "-map", map_audio,
                     "-c:v", "copy",
                     "-c:a", "aac",
                     "-b:a", "192k",
