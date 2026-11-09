@@ -436,37 +436,53 @@
     .detail-hero-stage {
       position: relative;
       width: 100%;
-      height: 82vh;
-      min-height: 560px;
-      max-height: 860px;
+      height: 86vh;
+      min-height: 620px;
+      max-height: 920px;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      padding: 40px 60px 48px;
+      padding: 40px 60px 52px;
       box-sizing: border-box;
       overflow: hidden;
+      background: #06080d;
+    }
+
+    .detail-backdrop-blur {
+      position: absolute;
+      inset: -30px;
+      background-size: cover;
+      background-position: center center;
+      filter: blur(50px) brightness(0.32);
+      transform: scale(1.2);
+      z-index: 1;
+      pointer-events: none;
     }
 
     .detail-backdrop-art {
       position: absolute;
-      inset: 0;
+      top: 0;
+      right: 0;
+      width: 88%;
+      height: 100%;
       background-size: cover;
-      background-position: center 25%;
+      background-position: center 15%;
       background-repeat: no-repeat;
-      z-index: 1;
+      z-index: 2;
       pointer-events: none;
-      transition: background-image 0.6s ease-in-out;
+      transform: scale(1.08);
+      transition: transform 12s cubic-bezier(0.1, 0, 0.2, 1), background-image 0.6s ease-in-out;
     }
 
     .detail-backdrop-gradient {
       position: absolute;
       inset: -2px;
       background: 
-        radial-gradient(circle at 75% 30%, transparent 20%, #06080d 92%),
-        linear-gradient(to top, #06080d 0%, #06080d 8%, rgba(6, 8, 13, 0.9) 45%, rgba(6, 8, 13, 0.3) 80%, transparent 100%),
-        linear-gradient(to right, #06080d 0%, rgba(6, 8, 13, 0.95) 32%, rgba(6, 8, 13, 0.65) 65%, transparent 100%),
-        linear-gradient(to bottom, rgba(6, 8, 13, 0.8) 0%, transparent 22%);
-      z-index: 2;
+        radial-gradient(circle at 75% 30%, transparent 25%, #06080d 94%),
+        linear-gradient(to top, #06080d 0%, #06080d 12%, rgba(6, 8, 13, 0.9) 45%, rgba(6, 8, 13, 0.25) 85%, transparent 100%),
+        linear-gradient(to right, #06080d 0%, #06080d 28%, rgba(6, 8, 13, 0.88) 50%, rgba(6, 8, 13, 0.4) 75%, transparent 100%),
+        linear-gradient(to bottom, rgba(6, 8, 13, 0.85) 0%, transparent 25%);
+      z-index: 3;
       pointer-events: none;
     }
 
@@ -701,7 +717,6 @@
       text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95);
     }
 
-    /* CORPO INFERIOR DE DETALHES */
     .detail-body-container {
       position: relative;
       z-index: 4;
@@ -771,7 +786,7 @@
       font-weight: 700;
       color: #fff;
     }
-
+    
     /* ========================================================================= */
     /* 🔍 VIEW DEDICADA DE BUSCA INTELIGENTE (#searchView) */
     /* ========================================================================= */
@@ -911,6 +926,53 @@
       gap: 24px;
     }
 
+    
+    /* BOTOES SEGMENTADOS D-PAD FRIENDLY PARA SMART TV */
+    .settings-seg-row {
+      margin-bottom: 14px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .settings-seg-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .settings-seg-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .settings-seg-btn {
+      padding: 7px 14px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.15s ease-out;
+    }
+    .settings-seg-btn:hover,
+    .settings-seg-btn.tv-focused {
+      background: rgba(255, 255, 255, 0.22);
+      border-color: #fff;
+      color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    }
+    .settings-seg-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 0 16px rgba(229, 9, 20, 0.5);
+    }
+
     .settings-panel {
       background: rgba(255, 255, 255, 0.035);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -1019,8 +1081,9 @@
     .profile-switch-modal {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(16px);
+      background: rgba(4, 6, 10, 0.94);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
       z-index: 1200;
       display: none;
       align-items: center;
@@ -1035,13 +1098,14 @@
     }
 
     .profile-switch-box {
-      background: #0f1420;
+      background: #0d121c;
       border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 24px;
-      max-width: 640px;
+      border-radius: 28px;
+      max-width: 820px;
       width: 100%;
-      padding: 36px 40px;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
+      padding: 44px 50px;
+      text-align: center;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.95);
     }
 
     .profile-switch-header {
@@ -1049,111 +1113,117 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 24px;
-      padding-bottom: 18px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .current-profile-badge {
-      display: flex;
+    .profile-active-bar {
+      display: inline-flex;
       align-items: center;
-      gap: 14px;
+      gap: 10px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid #10b981;
+      padding: 6px 14px;
+      border-radius: 999px;
     }
 
-    .current-profile-avatar-wrap {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: #1e293b;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      border: 2px solid var(--primary);
-      overflow: hidden;
-    }
-
-    .current-profile-label {
+    .profile-active-pill {
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 800;
       text-transform: uppercase;
       color: #10b981;
     }
 
-    .current-profile-name {
-      font-size: 18px;
+    .profile-active-username {
+      font-size: 14px;
       font-weight: 800;
       color: #fff;
-      display: block;
     }
 
     .profile-switch-close {
-      background: transparent;
-      border: none;
-      color: #94a3b8;
-      font-size: 28px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      font-size: 20px;
       cursor: pointer;
-      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      outline: none;
+      transition: all 0.15s ease-out;
+    }
+
+    .profile-switch-close:hover,
+    .profile-switch-close.tv-focused {
+      background: var(--primary);
+      color: #fff;
+      border-color: #fff;
+      transform: scale(1.1);
     }
 
     .profile-switch-title {
-      font-size: 28px;
-      font-weight: 800;
+      font-size: 38px;
+      font-weight: 900;
+      letter-spacing: -1px;
       color: #fff;
       margin-bottom: 8px;
     }
 
     .profile-switch-sub {
-      font-size: 14px;
+      font-size: 15px;
       color: #94a3b8;
-      margin-bottom: 28px;
+      margin-bottom: 36px;
     }
 
-    .profile-switch-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: 18px;
-      margin-bottom: 32px;
+    .profile-switch-row {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
     }
 
     .profile-card-item {
-      background: rgba(255, 255, 255, 0.04);
-      border: 2px solid transparent;
-      border-radius: 18px;
-      padding: 18px 14px;
-      text-align: center;
+      width: 140px;
+      padding: 16px 10px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 3px solid transparent;
       cursor: pointer;
-      transition: all 0.15s ease-out;
       outline: none;
+      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
     }
 
     .profile-card-item:hover,
     .profile-card-item.tv-focused {
-      background: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.14);
       border-color: #fff;
-      transform: scale(1.05);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+      transform: translateY(-8px) scale(1.08);
+      box-shadow: 0 16px 40px rgba(229, 9, 20, 0.6);
     }
 
     .profile-card-item.active {
-      border-color: var(--primary);
-      background: rgba(229, 9, 20, 0.12);
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.08);
     }
 
     .profile-card-avatar {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      margin: 0 auto 12px;
+      width: 96px;
+      height: 96px;
+      border-radius: 24px;
+      margin: 0 auto 14px;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
       position: relative;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+      border: 2px solid rgba(255, 255, 255, 0.1);
     }
 
     .profile-card-name {
-      font-size: 16px;
+      font-size: 17px;
       font-weight: 800;
       color: #fff;
       margin-bottom: 4px;
@@ -1162,6 +1232,7 @@
     .profile-card-role {
       font-size: 12px;
       color: #94a3b8;
+      font-weight: 600;
     }
 
     .profile-active-indicator {
@@ -1169,28 +1240,28 @@
       bottom: 0;
       left: 0;
       right: 0;
-      background: rgba(16, 185, 129, 0.95);
+      background: #10b981;
       color: #fff;
-      font-size: 9px;
+      font-size: 10px;
       font-weight: 800;
       text-transform: uppercase;
-      padding: 2px 0;
+      padding: 3px 0;
     }
 
     .profile-switch-actions {
       display: flex;
-      gap: 12px;
-      justify-content: flex-end;
+      gap: 14px;
+      justify-content: center;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
-      padding-top: 20px;
+      padding-top: 28px;
     }
 
     .btn-profile-action {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 10px 20px;
-      border-radius: 12px;
+      padding: 12px 24px;
+      border-radius: 14px;
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.15);
       color: #fff;
@@ -1203,25 +1274,27 @@
 
     .btn-profile-action:hover,
     .btn-profile-action.tv-focused {
-      background: rgba(255, 255, 255, 0.2);
+      background: var(--primary);
       border-color: #fff;
-      transform: scale(1.04);
+      transform: scale(1.05);
+      box-shadow: 0 0 25px rgba(229, 9, 20, 0.55);
     }
-
+    
     /* ========================================================================= */
     /* 🍿 SIDEBAR NETFLIX - ÍCONES COM ALINHAMENTO PRECISO (QUADRADINHO 44px) */
     /* ========================================================================= */
     .sidebar-icon-box {
-      width: 44px;
-      height: 44px;
-      min-width: 44px;
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 12px;
-      background: transparent;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.04);
       flex-shrink: 0;
       transition: all 0.15s ease-out;
+      box-sizing: border-box;
     }
 
     .sidebar-avatar-box {
@@ -1233,9 +1306,9 @@
     .sidebar-item {
       display: flex;
       align-items: center;
-      gap: 14px;
-      padding: 4px;
-      border-radius: 14px;
+      gap: 16px;
+      padding: 6px;
+      border-radius: 18px;
       background: transparent;
       border: 2px solid transparent;
       color: #94a3b8;
@@ -1243,7 +1316,7 @@
       font-weight: 700;
       cursor: pointer;
       text-align: left;
-      transition: all 0.12s ease-out;
+      transition: all 0.15s cubic-bezier(0.2, 0, 0, 1);
       outline: none;
       width: 100%;
       box-sizing: border-box;
@@ -1251,503 +1324,32 @@
 
     .sidebar-item:hover,
     .sidebar-item.tv-focused {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.16);
       color: #fff;
-      border-color: rgba(255, 255, 255, 0.25);
+      border-color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 0 25px rgba(229, 9, 20, 0.55);
     }
 
     .sidebar-item:hover .sidebar-icon-box,
     .sidebar-item.tv-focused .sidebar-icon-box {
-      background: rgba(255, 255, 255, 0.16);
-      transform: scale(1.05);
+      background: rgba(229, 9, 20, 0.4);
+      color: #fff;
+      transform: scale(1.06);
     }
 
     .sidebar-item.active {
       color: #fff;
-      background: rgba(229, 9, 20, 0.16);
+      background: rgba(229, 9, 20, 0.22);
       border-color: var(--primary);
     }
 
     .sidebar-item.active .sidebar-icon-box {
-      background: rgba(229, 9, 20, 0.25);
-      color: var(--primary);
-    }    .detail-episodes-wrap {
-      margin-top: 24px;
-    }
-
-    .detail-season-chips {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    .season-chip-btn {
-      padding: 8px 18px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #94a3b8;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.12s ease-out;
-    }
-
-    .season-chip-btn.active {
-      background: #fff;
-      color: #06080d;
-      font-weight: 700;
-      border-color: #fff;
-    }
-
-    .season-chip-btn:hover,
-    .season-chip-btn.tv-focused {
-      border-color: var(--primary);
-      color: #fff;
-      transform: scale(1.05);
-      outline: none;
-    }
-
-    .detail-episodes-track {
-      display: flex;
-      gap: 18px;
-      overflow-x: auto;
-      padding: 10px 4px 20px 4px;
-      scrollbar-width: none;
-    }
-
-    .detail-episodes-track::-webkit-scrollbar {
-      display: none;
-    }
-
-    .detail-episode-card {
-      flex: 0 0 280px;
-      width: 280px;
-      background: #0f141f;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
-      padding: 16px;
-      cursor: pointer;
-      transition: all 0.12s ease-out;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .detail-episode-card:hover,
-    .detail-episode-card.tv-focused {
-      transform: scale(1.06);
-      border-color: #fff;
-      outline: 3px solid var(--primary);
-      outline-offset: 2px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(229, 9, 20, 0.6);
-      z-index: 10;
-    }
-
-    .detail-ep-header {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      color: var(--primary);
-      font-weight: 700;
-    }
-
-    .detail-ep-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: #fff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .detail-ep-overview {
-      font-size: 12px;
-      color: #94a3b8;
-      line-height: 1.4;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }\n\n    /* ========================================================================= */
-    .detail-view-container {
-      position: relative;
-      min-height: 100vh;
-      width: 100%;
-      background: #06080d;
-      color: #fff;
-      padding-bottom: 80px;
-    }
-
-    .detail-backdrop {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 75vh;
-      min-height: 500px;
-      background-size: cover;
-      background-position: center 20%;
-      z-index: 1;
-      pointer-events: none;
-    }
-
-    .detail-backdrop-gradient {
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at 75% 20%, transparent 20%, #06080d 85%),
-                  linear-gradient(to top, #06080d 5%, rgba(6, 8, 13, 0.8) 50%, rgba(6, 8, 13, 0.4) 100%),
-                  linear-gradient(to right, #06080d 30%, rgba(6, 8, 13, 0.75) 65%, transparent 100%);
-    }
-
-    .detail-content-wrap {
-      position: relative;
-      z-index: 2;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 30px 48px;
-    }
-
-    .detail-top-nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-    }
-
-    .btn-detail-back {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #fff;
-      padding: 10px 22px;
-      border-radius: 999px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.15s ease-out;
-    }
-
-    .btn-detail-back:hover,
-    .btn-detail-back.tv-focused {
-      background: rgba(255, 255, 255, 0.25);
-      border-color: #fff;
-      transform: scale(1.05);
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-      outline: none;
-    }
-
-    .tv-hint-kbd {
-      background: rgba(0, 0, 0, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 6px;
-      padding: 2px 8px;
-      font-size: 11px;
-      color: #94a3b8;
-    }
-
-    .detail-brand-badge {
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      background: rgba(229, 9, 20, 0.18);
-      border: 1px solid var(--primary);
-      color: #ff8585;
-      padding: 4px 14px;
-      border-radius: 999px;
-    }
-
-    .detail-hero-grid {
-      display: grid;
-      grid-template-columns: 280px 1fr;
-      gap: 48px;
-      align-items: flex-start;
-      margin-bottom: 48px;
-    }
-
-    .detail-poster-img {
-      width: 100%;
-      aspect-ratio: 2 / 3;
-      object-fit: cover;
-      border-radius: 18px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .detail-title {
-      font-size: 48px;
-      font-weight: 800;
-      line-height: 1.15;
-      letter-spacing: -1px;
-      margin-bottom: 16px;
-      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
-    }
-
-    .detail-meta-row {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-bottom: 18px;
-      font-size: 15px;
-      font-weight: 600;
-      color: #cbd5e1;
-    }
-
-    .detail-badge-rating {
-      background: rgba(245, 197, 24, 0.15);
-      border: 1px solid #f5c518;
-      color: #f5c518;
-      padding: 4px 10px;
-      border-radius: 8px;
-      font-weight: 800;
-    }
-
-    .detail-badge-res {
-      background: rgba(229, 9, 20, 0.15);
-      border: 1px solid var(--primary);
-      color: #ff8585;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .detail-badge-audio, .detail-badge-sub {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #e2e8f0;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .detail-genres-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 24px;
-    }
-
-    .detail-genres-row .genre-pill {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 5px 14px;
-      border-radius: 999px;
-      font-size: 13px;
-      color: #e2e8f0;
-      font-weight: 600;
-    }
-
-    .detail-actions-row {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-bottom: 28px;
-    }
-
-    .btn-detail-play {
       background: var(--primary);
-      border: 2px solid transparent;
       color: #fff;
-      padding: 14px 34px;
-      border-radius: 999px;
-      font-size: 17px;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      transition: all 0.12s ease-out;
+      box-shadow: 0 0 18px rgba(229, 9, 20, 0.8);
     }
-
-    .btn-detail-play:hover,
-    .btn-detail-play.tv-focused {
-      transform: scale(1.06);
-      border-color: #fff;
-      box-shadow: 0 0 30px rgba(229, 9, 20, 0.85);
-      outline: none;
-    }
-
-    .btn-detail-resume {
-      background: rgba(229, 9, 20, 0.25);
-      border: 2px solid var(--primary);
-      color: #fff;
-      padding: 14px 28px;
-      border-radius: 999px;
-      font-size: 17px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.12s ease-out;
-    }
-
-    .btn-detail-resume:hover,
-    .btn-detail-resume.tv-focused {
-      transform: scale(1.06);
-      background: var(--primary);
-      border-color: #fff;
-      box-shadow: 0 0 30px rgba(229, 9, 20, 0.85);
-      outline: none;
-    }
-
-    .btn-detail-secondary {
-      background: rgba(255, 255, 255, 0.08);
-      border: 2px solid transparent;
-      color: #e2e8f0;
-      padding: 14px 24px;
-      border-radius: 999px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.12s ease-out;
-    }
-
-    .btn-detail-secondary:hover,
-    .btn-detail-secondary.tv-focused {
-      background: rgba(255, 255, 255, 0.2);
-      border-color: #fff;
-      color: #fff;
-      transform: scale(1.06);
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-      outline: none;
-    }
-
-    .detail-overview {
-      font-size: 16px;
-      line-height: 1.7;
-      color: #cbd5e1;
-      max-width: 900px;
-      margin-bottom: 24px;
-    }
-
-    .detail-credits {
-      font-size: 14px;
-      color: #94a3b8;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .detail-credits strong {
-      color: #e2e8f0;
-    }
-
-    .detail-episodes-wrap {
-      margin-top: 24px;
-    }
-
-    .detail-section-title {
-      font-size: 24px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      margin-bottom: 16px;
-    }
-
-    .detail-season-chips {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    .season-chip-btn {
-      padding: 8px 18px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #94a3b8;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.12s ease-out;
-    }
-
-    .season-chip-btn.active {
-      background: #fff;
-      color: #06080d;
-      font-weight: 700;
-      border-color: #fff;
-    }
-
-    .season-chip-btn:hover,
-    .season-chip-btn.tv-focused {
-      border-color: var(--primary);
-      color: #fff;
-      transform: scale(1.05);
-      outline: none;
-    }
-
-    .detail-episodes-track {
-      display: flex;
-      gap: 18px;
-      overflow-x: auto;
-      padding: 10px 4px 20px 4px;
-      scrollbar-width: none;
-    }
-
-    .detail-episodes-track::-webkit-scrollbar {
-      display: none;
-    }
-
-    .detail-episode-card {
-      flex: 0 0 280px;
-      width: 280px;
-      background: #0f141f;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
-      padding: 16px;
-      cursor: pointer;
-      transition: all 0.12s ease-out;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .detail-episode-card:hover,
-    .detail-episode-card.tv-focused {
-      transform: scale(1.06);
-      border-color: #fff;
-      outline: 3px solid var(--primary);
-      outline-offset: 2px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(229, 9, 20, 0.6);
-      z-index: 10;
-    }
-
-    .detail-ep-header {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      color: var(--primary);
-      font-weight: 700;
-    }
-
-    .detail-ep-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: #fff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .detail-ep-overview {
-      font-size: 12px;
-      color: #94a3b8;
-      line-height: 1.4;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
+    
     /* ========================================================================= */
     /* 📺 CINELOCAL SMART TV PRO EXPERIENCE (AWWWARDS / APPLE TV+ GRADE)          */
     /* ========================================================================= */
@@ -3746,6 +3348,84 @@
       height: 0 !important;
     }
 
+    
+    /* ========================================================================= */
+    /* 📺 SMART TV QUICK ACTION RAIL (#tvPlayerQuickRail)                        */
+    /* ========================================================================= */
+    .tv-player-quick-rail {
+      position: absolute;
+      bottom: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 14, 23, 0.94);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 24px 32px 18px;
+      z-index: 100;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95);
+      animation: fadeIn 0.18s ease-out;
+    }
+    .tv-quick-rail-title {
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #38bdf8;
+      margin-bottom: 16px;
+    }
+    .tv-quick-rail-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      align-items: center;
+    }
+    .tv-quick-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 120px;
+      height: 90px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 2px solid transparent;
+      color: #cbd5e1;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.15s cubic-bezier(0.2, 0, 0, 1);
+    }
+    .tv-quick-btn:hover,
+    .tv-quick-btn.tv-focused {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: #fff;
+      color: #fff;
+      transform: scale(1.12);
+      box-shadow: 0 0 30px rgba(229, 9, 20, 0.85);
+    }
+    .tv-quick-icon {
+      font-size: 26px;
+    }
+    .tv-quick-label {
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .tv-quick-rail-hint {
+      margin-top: 14px;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+    .tv-quick-rail-hint kbd {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+
     .player-modal {
       position: fixed;
       inset: 0;
@@ -5740,18 +5420,20 @@
     .netflix-sidebar {
       position: fixed;
       top: 0;
-      left: 0;
       bottom: 0;
-      width: 72px;
-      background: rgba(6, 8, 13, 0.94);
+      left: 0;
+      width: 88px;
+      background: rgba(6, 8, 13, 0.96);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
       border-right: 1px solid rgba(255, 255, 255, 0.08);
       z-index: 950;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 24px 12px;
+      padding: 24px 14px;
       box-sizing: border-box;
-      transition: width 0.22s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.22s ease-out;
+      transition: width 0.24s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.24s ease-out;
       overflow: hidden;
       white-space: nowrap;
     }
@@ -5759,8 +5441,8 @@
     .netflix-sidebar:hover,
     .netflix-sidebar.expanded,
     .netflix-sidebar:focus-within {
-      width: 250px;
-      box-shadow: 15px 0 45px rgba(0, 0, 0, 0.85);
+      width: 260px;
+      box-shadow: 20px 0 50px rgba(0, 0, 0, 0.9);
       background: #080b12;
     }
 
@@ -5944,7 +5626,7 @@
     #seriesView,
     #mediaDetailView,
     #settingsView {
-      padding-left: 72px !important;
+      padding-left: 88px !important;
       box-sizing: border-box;
     }
 
@@ -6472,6 +6154,7 @@
   <main id="mediaDetailView" class="view-container detail-view-container" style="display: none;">
     <!-- HERO BACKDROP IMERSIVO EM LARGURA TOTAL COM MÁSCARA MULTI-ANGULAR -->
     <div class="detail-hero-stage" id="detailHeroStage">
+      <div class="detail-backdrop-blur" id="detailBackdropBlur"></div>
       <div class="detail-backdrop-art" id="detailBackdrop"></div>
       <div class="detail-backdrop-gradient"></div>
 
@@ -6744,31 +6427,35 @@
         </button>
       </div>
 
-      <!-- Painel 3: Preferências de Reprodução -->
+      <!-- Painel 3: Preferências de Reprodução (Chips TV D-Pad Friendly) -->
       <div class="settings-panel">
         <div>
           <div class="settings-panel-title">🔊 Áudio & Legendas</div>
-          <div class="settings-panel-desc">Configure o idioma e formato padrão de áudio e tamanho das legendas.</div>
-          <div class="settings-field-row">
-            <span class="settings-field-label">Áudio Preferido:</span>
-            <select class="settings-select dpad-focusable" id="prefAudioLang" onchange="showToast('Preferência salva!')">
-              <option value="pt" selected>Dublado (Português)</option>
-              <option value="orig">Áudio Original</option>
-            </select>
+          <div class="settings-panel-desc">Configure com o controle o idioma do áudio e as legendas padrão.</div>
+          
+          <div class="settings-seg-row">
+            <span class="settings-seg-label">Áudio Preferido:</span>
+            <div class="settings-seg-group" id="segAudioLang">
+              <button class="settings-seg-btn active dpad-focusable" onclick="setAudioPref('pt', this)">🇧🇷 Dublado (PT)</button>
+              <button class="settings-seg-btn dpad-focusable" onclick="setAudioPref('orig', this)">🌐 Original</button>
+            </div>
           </div>
-          <div class="settings-field-row">
-            <span class="settings-field-label">Legendas:</span>
-            <select class="settings-select dpad-focusable" id="prefAutoSub" onchange="showToast('Preferência salva!')">
-              <option value="auto" selected>Automático (.srt)</option>
-              <option value="off">Desativadas</option>
-            </select>
+
+          <div class="settings-seg-row">
+            <span class="settings-seg-label">Legendas Automáticas:</span>
+            <div class="settings-seg-group" id="segAutoSub">
+              <button class="settings-seg-btn active dpad-focusable" onclick="setSubPref('auto', this)">✓ Ativadas</button>
+              <button class="settings-seg-btn dpad-focusable" onclick="setSubPref('off', this)">✕ Desativadas</button>
+            </div>
           </div>
-          <div class="settings-field-row">
-            <span class="settings-field-label">Tamanho da Fonte:</span>
-            <select class="settings-select dpad-focusable" id="prefSubSize" onchange="showToast('Tamanho ajustado!')">
-              <option value="md" selected>Média (Padrão)</option>
-              <option value="lg">Grande (Ideal p/ TV)</option>
-            </select>
+
+          <div class="settings-seg-row">
+            <span class="settings-seg-label">Tamanho na TV:</span>
+            <div class="settings-seg-group" id="segSubSize">
+              <button class="settings-seg-btn dpad-focusable" onclick="setSubSizePref('sm', this)">Pequena</button>
+              <button class="settings-seg-btn active dpad-focusable" onclick="setSubSizePref('md', this)">Média</button>
+              <button class="settings-seg-btn dpad-focusable" onclick="setSubSizePref('lg', this)">Grande</button>
+            </div>
           </div>
         </div>
         <button class="settings-btn-primary dpad-focusable" onclick="openToolsModal()">
@@ -7159,6 +6846,34 @@
           <button class="btn-next-play" onclick="playNextEpisodeImmediately()">Assistir ⏭</button>
           <button class="btn-next-cancel" onclick="dismissNextEpisodeCountdown()" title="Cancelar">&times;</button>
         </div>
+      </div>
+
+      <!-- SMART TV QUICK ACTION RAIL (CONTROLE REMOTO INTUITIVO - 5 BOTÕES GIGANTES) -->
+      <div id="tvPlayerQuickRail" class="tv-player-quick-rail" style="display: none;">
+        <div class="tv-quick-rail-title">Controles Rápidos Smart TV</div>
+        <div class="tv-quick-rail-buttons">
+          <button class="tv-quick-btn dpad-focusable" id="tvQuickBtnPlay" onclick="togglePlayPause(); updateTvQuickRailLabels();" tabindex="0">
+            <span class="tv-quick-icon" id="tvQuickPlayIcon">⏯️</span>
+            <span class="tv-quick-label" id="tvQuickPlayLabel">Pausar</span>
+          </button>
+          <button class="tv-quick-btn dpad-focusable" id="tvQuickBtnSub" onclick="cycleSubtitlesQuick()" tabindex="0">
+            <span class="tv-quick-icon">💬</span>
+            <span class="tv-quick-label" id="tvQuickSubLabel">Legendas</span>
+          </button>
+          <button class="tv-quick-btn dpad-focusable" id="tvQuickBtnAudio" onclick="cycleAudioTrackQuick()" tabindex="0">
+            <span class="tv-quick-icon">🔊</span>
+            <span class="tv-quick-label" id="tvQuickAudioLabel">Áudio</span>
+          </button>
+          <button class="tv-quick-btn dpad-focusable" id="tvQuickBtnSpeed" onclick="cyclePlaybackSpeed(); updateTvQuickRailLabels();" tabindex="0">
+            <span class="tv-quick-icon">⚡</span>
+            <span class="tv-quick-label" id="tvQuickSpeedLabel">1.0x</span>
+          </button>
+          <button class="tv-quick-btn dpad-focusable" id="tvQuickBtnClose" onclick="closePlayer()" tabindex="0">
+            <span class="tv-quick-icon">⏹️</span>
+            <span class="tv-quick-label">Sair / Voltar</span>
+          </button>
+        </div>
+        <div class="tv-quick-rail-hint">Pressione <kbd>OK</kbd> para selecionar • <kbd>▲ Cima</kbd> ou <kbd>▼ Baixo</kbd> para alternar • <kbd>Voltar</kbd> para fechar</div>
       </div>
 
       <div class="player-bottom-controls" onclick="event.stopPropagation()">
@@ -7797,36 +7512,33 @@
 </div>
 
 
-<!-- MODAL DE TROCA DE PERFIL / SAIR (ESTILO STREAMING) -->
+<!-- MODAL DE TROCA DE PERFIL / SAIR (ESTILO STREAMING NETFLIX / DISNEY+) -->
   <div id="profileSwitchModal" class="profile-switch-modal" onclick="closeProfileSwitchModalOnOut(event)">
     <div class="profile-switch-box">
       <div class="profile-switch-header">
-        <div class="current-profile-badge">
-          <div class="current-profile-avatar-wrap" id="modalActiveProfileAvatar">👑</div>
-          <div class="current-profile-info">
-            <span class="current-profile-label">Perfil Ativo Agora</span>
-            <span class="current-profile-name" id="modalActiveProfileName">Miguel</span>
-          </div>
+        <div class="profile-active-bar">
+          <span class="profile-active-pill">Perfil Ativo</span>
+          <span class="profile-active-username" id="modalActiveProfileName">Miguel</span>
         </div>
-        <button class="profile-switch-close" onclick="closeProfileSwitchModal()">&times;</button>
+        <button class="profile-switch-close dpad-focusable" onclick="closeProfileSwitchModal()">&times;</button>
       </div>
 
       <h2 class="profile-switch-title">Quem está assistindo?</h2>
-      <p class="profile-switch-sub">Escolha seu perfil para carregar seus favoritos e histórico, ou gerencie suas preferências.</p>
+      <p class="profile-switch-sub">Selecione seu perfil para carregar sua lista de favoritos e histórico de reprodução.</p>
 
-      <div class="profile-switch-grid" id="profileSwitchGrid">
-        <!-- Cards de perfil renderizados aqui dinamicamente -->
+      <div class="profile-switch-row" id="profileSwitchGrid">
+        <!-- Avatares de perfis renderizados dinamicamente -->
       </div>
 
       <div class="profile-switch-actions">
         <button class="btn-profile-action dpad-focusable" onclick="logoutProfile()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="21" x2="9" y2="12"></line></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
           <span>Sair / Desconectar</span>
         </button>
 
         <button class="btn-profile-action dpad-focusable" onclick="closeProfileSwitchModal(); openManageProfilesModal();">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-          <span>Gerenciar Fotos & Nome</span>
+          <span>Editar Foto ou Nome</span>
         </button>
 
         <button class="btn-profile-action dpad-focusable" onclick="closeProfileSwitchModal()">
@@ -8549,15 +8261,149 @@ function escapeHtml(str) {
     /* ========================================================================= */
     /* 🎬 ENRIQUECEDOR ASSÍNCRONO DE BACKDROP OFICIAL TMDB */
     /* ========================================================================= */
+    
+    /* ========================================================================= */
+    /* 📺 SMART TV QUICK ACTION RAIL LOGIC                                      */
+    /* ========================================================================= */
+    let tvQuickRailTimeout = null;
+
+    function toggleTvQuickRail() {
+      const rail = document.getElementById('tvPlayerQuickRail');
+      if (!rail) return;
+      const isHidden = window.getComputedStyle(rail).display === 'none';
+      if (isHidden) openTvQuickRail();
+      else closeTvQuickRail();
+    }
+
+    function openTvQuickRail() {
+      const rail = document.getElementById('tvPlayerQuickRail');
+      if (!rail) return;
+      rail.style.display = 'block';
+      updateTvQuickRailLabels();
+
+      setTimeout(() => {
+        const playBtn = document.getElementById('tvQuickBtnPlay');
+        if (playBtn && typeof setTvFocus === 'function') setTvFocus(playBtn);
+      }, 50);
+
+      resetTvQuickRailTimer();
+    }
+
+    function closeTvQuickRail() {
+      const rail = document.getElementById('tvPlayerQuickRail');
+      if (!rail) return;
+      rail.style.display = 'none';
+      if (tvQuickRailTimeout) clearTimeout(tvQuickRailTimeout);
+    }
+
+    function resetTvQuickRailTimer() {
+      if (tvQuickRailTimeout) clearTimeout(tvQuickRailTimeout);
+      tvQuickRailTimeout = setTimeout(() => {
+        closeTvQuickRail();
+      }, 4500);
+    }
+
+    function updateTvQuickRailLabels() {
+      const playLabel = document.getElementById('tvQuickPlayLabel');
+      const subLabel = document.getElementById('tvQuickSubLabel');
+      const speedLabel = document.getElementById('tvQuickSpeedLabel');
+      const audioLabel = document.getElementById('tvQuickAudioLabel');
+      const video = document.getElementById('mainVideo');
+
+      if (playLabel && video) {
+        playLabel.textContent = video.paused ? 'Assistir' : 'Pausar';
+      }
+      if (subLabel) {
+        subLabel.textContent = state.activeSubtitle ? (state.activeSubtitle.language || 'Ativada') : 'Sem Legenda';
+      }
+      if (speedLabel && video) {
+        speedLabel.textContent = `${video.playbackRate || 1}x`;
+      }
+      if (audioLabel && state.currentPlaying) {
+        audioLabel.textContent = state.currentPlaying.audioLabel || 'Áudio';
+      }
+    }
+
+    function cycleSubtitlesQuick() {
+      if (!state.currentPlaying) return;
+      resetTvQuickRailTimer();
+      const subs = state.currentPlaying.subtitles || [];
+      if (subs.length === 0) {
+        showToast('Nenhuma legenda externa disponível.');
+        return;
+      }
+      
+      if (!state.activeSubtitle) {
+        selectSubtitle(subs[0].path, true);
+        showToast(`💬 Legenda ativada: ${subs[0].language || 'Português'}`);
+      } else {
+        const idx = subs.findIndex(s => s.path === state.activeSubtitle.path);
+        if (idx !== -1 && idx < subs.length - 1) {
+          selectSubtitle(subs[idx + 1].path, true);
+          showToast(`💬 Legenda: ${subs[idx + 1].language || 'Português'}`);
+        } else {
+          disableSubtitles(true);
+          showToast('💬 Legendas desativadas');
+        }
+      }
+      updateTvQuickRailLabels();
+    }
+
+    function cycleAudioTrackQuick() {
+      resetTvQuickRailTimer();
+      const video = document.getElementById('mainVideo');
+      if (!video) return;
+      if (video.audioTracks && video.audioTracks.length > 1) {
+        let activeIdx = 0;
+        for (let i = 0; i < video.audioTracks.length; i++) {
+          if (video.audioTracks[i].enabled) { activeIdx = i; break; }
+        }
+        const nextIdx = (activeIdx + 1) % video.audioTracks.length;
+        for (let i = 0; i < video.audioTracks.length; i++) {
+          video.audioTracks[i].enabled = (i === nextIdx);
+        }
+        const tr = video.audioTracks[nextIdx];
+        showToast(`🔊 Áudio: ${tr.label || tr.language || `Faixa ${nextIdx + 1}`}`);
+      } else {
+        const label = (state.currentPlaying && state.currentPlaying.audioLabel) ? state.currentPlaying.audioLabel : 'Áudio Original';
+        showToast(`🔊 Áudio: ${label}`);
+      }
+      updateTvQuickRailLabels();
+    }
+
+    function setAudioPref(pref, btn) {
+      document.querySelectorAll('#segAudioLang .settings-seg-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      localStorage.setItem('cinelocal_pref_audio', pref);
+      showToast(`Áudio preferido: ${pref === 'pt' ? 'Dublado (PT-BR)' : 'Original'}`);
+    }
+
+    function setSubPref(pref, btn) {
+      document.querySelectorAll('#segAutoSub .settings-seg-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      localStorage.setItem('cinelocal_pref_sub', pref);
+      showToast(`Legendas: ${pref === 'auto' ? 'Automáticas' : 'Desativadas'}`);
+    }
+
+    function setSubSizePref(size, btn) {
+      document.querySelectorAll('#segSubSize .settings-seg-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      setSubSize(size);
+      showToast(`Tamanho de legenda ajustado!`);
+    }
+
+
     async function fetchAndApplyTmdbBackdrop(item) {
       if (!item) return;
       const backdropEl = document.getElementById('detailBackdrop');
       if (!backdropEl) return;
 
+      const blurEl = document.getElementById('detailBackdropBlur');
       const cacheKey = `cinelocal_backdrop_${item.id}`;
       const cachedUrl = localStorage.getItem(cacheKey);
       if (cachedUrl) {
         backdropEl.style.backgroundImage = `url('${cachedUrl}')`;
+        if (blurEl) blurEl.style.backgroundImage = `url('${cachedUrl}')`;
         return;
       }
 
@@ -8575,6 +8421,8 @@ function escapeHtml(str) {
                 const backdropUrl = `https://image.tmdb.org/t/p/w1280${data.backdrop_path}`;
                 localStorage.setItem(cacheKey, backdropUrl);
                 backdropEl.style.backgroundImage = `url('${backdropUrl}')`;
+                const blurEl = document.getElementById('detailBackdropBlur');
+                if (blurEl) blurEl.style.backgroundImage = `url('${backdropUrl}')`;
               }
             }
           } catch (err) {
@@ -8674,9 +8522,11 @@ function escapeHtml(str) {
 
       // 1. Preenche Pôster & Backdrop com Sangria Total
       const backdrop = document.getElementById('detailBackdrop');
+      const blurEl = document.getElementById('detailBackdropBlur');
       const posterSrc = item.posterPath ? encodeURI(item.posterPath) : '';
       if (backdrop) {
         backdrop.style.backgroundImage = `url('${posterSrc}')`;
+        if (blurEl) blurEl.style.backgroundImage = `url('${posterSrc}')`;
         fetchAndApplyTmdbBackdrop(item);
       }
 
@@ -13967,6 +13817,11 @@ function escapeHtml(str) {
         const normKey = normalizeTvKey(e);
 
         if (normKey === 'Escape') {
+          const rail = document.getElementById('tvPlayerQuickRail');
+          if (rail && window.getComputedStyle(rail).display !== 'none') {
+            closeTvQuickRail();
+            return;
+          }
           const detailView = document.getElementById('mediaDetailView');
           if (detailView && window.getComputedStyle(detailView).display !== 'none' && !isPlayerOpen) {
             closeMediaDetailPage();
@@ -13989,30 +13844,88 @@ function escapeHtml(str) {
         }
 
         if (isPlayerOpen) {
-          if (normKey === ' ' || normKey === 'MediaPlayPause' || (typeof normKey === 'string' && normKey.toLowerCase() === 'k')) {
+          const rail = document.getElementById('tvPlayerQuickRail');
+          const isRailOpen = rail && window.getComputedStyle(rail).display !== 'none';
+
+          // 1. ENTER / OK / ESPAÇO / PLAY_PAUSE
+          if (normKey === 'Enter' || normKey === ' ' || normKey === 'MediaPlayPause' || (typeof normKey === 'string' && normKey.toLowerCase() === 'k')) {
             e.preventDefault();
-            togglePlayPause();
-          } else if (normKey === 'PageUp' || normKey === 'ChannelUp' || (normKey === 'ArrowRight' && e.shiftKey)) {
+            if (isRailOpen) {
+              const cur = document.querySelector('#tvPlayerQuickRail .tv-focused') || (document.activeElement && rail.contains(document.activeElement) ? document.activeElement : null);
+              if (cur && typeof cur.click === 'function') {
+                cur.click();
+              } else {
+                togglePlayPause();
+              }
+            } else {
+              togglePlayPause();
+            }
+            return;
+          }
+
+          // 2. CIMA (▲): ABRE OU RENOVA O QUICK ACTION RAIL SMART TV
+          if (normKey === 'ArrowUp') {
+            e.preventDefault();
+            if (!isRailOpen) {
+              openTvQuickRail();
+            } else {
+              resetTvQuickRailTimer();
+            }
+            return;
+          }
+
+          // 3. BAIXO (▼): FECHA O QUICK ACTION RAIL OU DIMINUI VOLUME
+          if (normKey === 'ArrowDown') {
+            e.preventDefault();
+            if (isRailOpen) {
+              closeTvQuickRail();
+            } else {
+              setPlayerVolume(playerVolume - 5, true);
+            }
+            return;
+          }
+
+          // 4. ESQUERDA (◀): NAVEGA NOS BOTÕES OU AVANÇA -10s
+          if (normKey === 'ArrowLeft' || normKey === 'MediaRewind' || (typeof normKey === 'string' && normKey.toLowerCase() === 'j')) {
+            e.preventDefault();
+            if (isRailOpen) {
+              resetTvQuickRailTimer();
+              const btns = Array.from(rail.querySelectorAll('.tv-quick-btn'));
+              const cur = document.querySelector('#tvPlayerQuickRail .tv-focused') || document.activeElement;
+              const idx = btns.indexOf(cur);
+              if (idx > 0) setTvFocus(btns[idx - 1]);
+              else if (idx === -1 && btns.length > 0) setTvFocus(btns[0]);
+            } else {
+              skipTime(-10);
+            }
+            return;
+          }
+
+          // 5. DIREITA (▶): NAVEGA NOS BOTÕES OU AVANÇA +10s
+          if (normKey === 'ArrowRight' || normKey === 'MediaFastForward' || (typeof normKey === 'string' && normKey.toLowerCase() === 'l')) {
+            e.preventDefault();
+            if (isRailOpen) {
+              resetTvQuickRailTimer();
+              const btns = Array.from(rail.querySelectorAll('.tv-quick-btn'));
+              const cur = document.querySelector('#tvPlayerQuickRail .tv-focused') || document.activeElement;
+              const idx = btns.indexOf(cur);
+              if (idx !== -1 && idx < btns.length - 1) setTvFocus(btns[idx + 1]);
+              else if (idx === -1 && btns.length > 0) setTvFocus(btns[0]);
+            } else {
+              skipTime(10);
+            }
+            return;
+          }
+
+          if (normKey === 'PageUp' || normKey === 'ChannelUp') {
             e.preventDefault();
             skipTime(60);
-          } else if (normKey === 'PageDown' || normKey === 'ChannelDown' || (normKey === 'ArrowLeft' && e.shiftKey)) {
+          } else if (normKey === 'PageDown' || normKey === 'ChannelDown') {
             e.preventDefault();
             skipTime(-60);
-          } else if (normKey === 'ArrowRight' || normKey === 'MediaFastForward' || (typeof normKey === 'string' && normKey.toLowerCase() === 'l')) {
-            e.preventDefault();
-            skipTime(10);
-          } else if (normKey === 'ArrowLeft' || normKey === 'MediaRewind' || (typeof normKey === 'string' && normKey.toLowerCase() === 'j')) {
-            e.preventDefault();
-            skipTime(-10);
           } else if (typeof normKey === 'string' && normKey >= '0' && normKey <= '9') {
             e.preventDefault();
             jumpToPercentage(parseInt(normKey) * 10);
-          } else if (normKey === 'ArrowUp') {
-            e.preventDefault();
-            setPlayerVolume(playerVolume + 5, true);
-          } else if (normKey === 'ArrowDown') {
-            e.preventDefault();
-            setPlayerVolume(playerVolume - 5, true);
           } else if (typeof normKey === 'string' && normKey.toLowerCase() === 'm') {
             e.preventDefault();
             toggleMute();
