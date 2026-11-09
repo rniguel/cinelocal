@@ -109,9 +109,9 @@ CineLocal/
 │   ├── MCU_TIMELINE.md                # Linha do tempo completa dos 67 títulos Marvel
 │   └── SCRIPTS_UTILITARIOS.md         # Detalhes dos scripts utilitários
 ├── app/                               # Código-fonte da aplicação
-│   ├── index.html                     # Interface web do CineLocal (SPA)
+│   ├── index.html                     # ⭐️ Interface web oficial do CineLocal (Fonte da Verdade)
 │   ├── remote.html                    # Controle remoto mobile tátil (SSE em tempo real)
-│   ├── generate_netflix_ui.py         # Gerador mestre da interface HTML/CSS/JS
+│   ├── generate_netflix_ui.py         # Validador de integridade e compatibilidade da UI
 │   ├── atualizar_catalogo.py          # Scanner de mídia e compilador de catalogo.js
 │   ├── buscar_metadados_tmdb.py       # Utilitário desacoplado de consulta à API TMDb
 │   ├── metadata_db.py                 # Banco de metadados ricos (sinopses, elenco, links)
@@ -177,7 +177,7 @@ feature/fix              ●──────────● (Sua Branch de Tra
    ```
 
 3. **Desenvolva e Respeite as Regras do CineLocal:**
-   * **Interface Web:** Se modificar HTML/CSS/JS, faça as alterações no script mestre `app/generate_netflix_ui.py` e execute `python app/generate_netflix_ui.py` para regenerar `app/index.html`.
+   * **Interface Web:** Todas as alterações de HTML/CSS/JS devem ser feitas diretamente no arquivo oficial `app/index.html` (Fonte da Verdade). Use `python app/generate_netflix_ui.py` para validar a integridade dos componentes.
    * **Mídia:** Nunca crie rotinas destrutivas que apaguem arquivos de vídeo.
    * **Codificação:** Mantenha arquivos com codificação `UTF-8`.
 

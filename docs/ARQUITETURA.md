@@ -30,9 +30,9 @@ O **CineLocal** é projetado como uma aplicação web híbrida de alto desempenh
 
 ---
 
-## 🖥️ 1. Frontend (`app/index.html` & `app/generate_netflix_ui.py`)
+## 🖥️ 1. Frontend (`app/index.html` - Fonte da Verdade)
 
-* **Tecnologia:** HTML5 Semântico, CSS Moderno com Variáveis Customizadas, e JavaScript Vanilla puro (sem dependências de frameworks pesados para garantir carregamento instantâneo de milissegundos).
+* **Tecnologia:** HTML5 Semântico, CSS Moderno com Variáveis Customizadas, e JavaScript Vanilla puro (sem dependências de frameworks pesados para garantir carregamento instantâneo de milissegundos). A partir da **Issue #8**, o arquivo `app/index.html` é a única fonte da verdade oficial da UI, eliminando o acoplamento com strings de código embutidas.
 * **Estrutura de Componentes:**
   * **Header:** Barra de navegação com marca, chips de visualização (*Home*, *Filmes*, *Séries*), atalhos para *Surpreenda-me* (🎲 Roleta), *📱 Controle* (Acesso rápido ao controle remoto virtual), *TV / Celular* (📱 QR Code) e campo de busca global inteligente (atalho `/`).
   * **Hero Banner:** Destaque visual randômico ou curado com imagem de alta resolução, metadados completos e botões de reprodução rápida, trailer e adicionar à lista.

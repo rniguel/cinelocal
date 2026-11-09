@@ -28,13 +28,10 @@ Este documento estabelece o fluxo de trabalho (**Git Flow**), convenções de c�
 Antes de escrever qualquer linha de código, guarde estas três regras de ouro do ecossistema:
 
 1. **Preservação Absoluta de Mídia:** Nunca escreva rotinas ou scripts que excluam arquivos de vídeo (`.mkv`, `.mp4`, `.avi`, etc.) sem autorização explícita do usuário.
-2. **Sincronização da Interface Web (Regra de Ouro):**
-   * O arquivo `app/generate_netflix_ui.py` é a fonte oficial da interface `app/index.html`.
-   * Sempre que for alterar HTML, CSS ou JavaScript do frontend, aplique a modificação no gerador `app/generate_netflix_ui.py` e execute:
-     ```bash
-     python app/generate_netflix_ui.py
-     ```
-   * Isso regenera `app/index.html` e mantém ambos em perfeita sincronia.
+2. **Fonte da Verdade da Interface Web (Unificada - Issue #8):**
+   * O arquivo `app/index.html` é a **ÚNICA FONTE DA VERDADE** da interface do CineLocal.
+   * Sempre que for alterar HTML, CSS ou JavaScript do frontend, edite diretamente o arquivo `app/index.html`.
+   * O script `python app/generate_netflix_ui.py` atua como validador de integridade e conformidade de componentes.
 3. **Compatibilidade & Codificação:**
    * Todos os arquivos de texto e código Python devem ser salvos com codificação **UTF-8**.
    * Respeite caminhos multiplataforma com barras normais `/` nos links web e `os.path.normpath` em sistemas operacionais Windows/Linux.
@@ -138,8 +135,8 @@ git checkout -b fix/audio-sem-som-firefox
    Acesse no navegador: `http://localhost:8000`.
 
 2. **Se você alterou a Interface (HTML, CSS ou JavaScript do Frontend):**
-   * Edite **sempre** o gerador `app/generate_netflix_ui.py`.
-   * Regenere o `app/index.html`:
+   * Edite diretamente o arquivo oficial `app/index.html`.
+   * Execute o validador de integridade:
      ```bash
      python app/generate_netflix_ui.py
      ```
@@ -230,8 +227,8 @@ CineLocal/
 │   ├── ARQUITETURA.md         # Detalhes da arquitetura do player e servidor
 │   └── GUIA_MIDIA.md          # Formatos suportados, codecs e legendas
 ├── app/
-│   ├── generate_netflix_ui.py # ⚠️ FONTE MESTRE DA UI (edite aqui para mexer na interface)
-│   ├── index.html             # Gerado automaticamente por generate_netflix_ui.py
+│   ├── index.html             # ⭐️ FONTE DA VERDADE DA UI (edite diretamente aqui)
+│   ├── generate_netflix_ui.py # Validador de integridade e compatibilidade da UI
 │   ├── remote.html            # Interface web do controle remoto para smartphones
 │   ├── servidor.py            # Servidor HTTP local em Python com rotas de API
 │   ├── atualizar_catalogo.py  # Scanner de pastas e montagem do catalogo.js

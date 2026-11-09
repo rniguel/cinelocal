@@ -10,10 +10,10 @@ Este documento define os padrões arquiteturais, regras operacionais e boas prá
    * **NUNCA** apague arquivos de vídeo (`.mkv`, `.mp4`, `.avi`) sem comando explícito e direto do usuário.
    * Ao limpar pastas, exclua apenas arquivos de propaganda e lixo (`.url`, `.txt`, arquivos `1XBET`, `BLUDV.mp4`, etc.).
 
-2. **SINCRONIZAÇÃO DA INTERFACE (REGRA DE OURO):**
-   * O arquivo `app/generate_netflix_ui.py` é o gerador oficial de `app/index.html`.
-   * **Sempre que modificar a interface (HTML, CSS ou JavaScript do frontend)**, aplique a alteração no script `app/generate_netflix_ui.py` e execute `python app/generate_netflix_ui.py` para regenerar `app/index.html`.
-   * Isso garante que `generate_netflix_ui.py` e `index.html` permaneçam 100% sincronizados.
+2. **FONTE DA VERDADE DA INTERFACE WEB (UNIFICADA - ISSUE #8):**
+   * O arquivo `app/index.html` é a **ÚNICA FONTE DA VERDADE** oficial para o frontend do CineLocal (HTML, CSS e JavaScript).
+   * **Modificações na interface (HTML, CSS ou JavaScript do frontend)** devem ser aplicadas diretamente em `app/index.html`.
+   * O script `app/generate_netflix_ui.py` atua como validador de integridade e compatibilidade dos componentes essenciais.
 
 3. **ATUALIZAÇÃO DE CATÁLOGO APÓS ALTERAÇÕES:**
    * Sempre que arquivos de mídia forem adicionados, renomeados, movidos ou tiverem legendas baixadas, execute `python app/atualizar_catalogo.py` para atualizar o `app/catalogo.js`.
