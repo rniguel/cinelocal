@@ -483,6 +483,167 @@
       color: var(--text-muted);
       margin-top: 2px;
     }
+    /* SELETOR DE ABAS E CATÁLOGO (ISSUE #1) */
+    .tabs-nav {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px;
+      border-radius: 12px;
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: rgba(229, 9, 20, 0.15);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .catalog-view {
+      display: none;
+      width: 100%;
+      max-width: 420px;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .catalog-view.active {
+      display: flex;
+    }
+
+    .dpad-view {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .dpad-view.hidden {
+      display: none;
+    }
+
+    .filter-chips {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .filter-chips::-webkit-scrollbar { display: none; }
+
+    .chip-btn {
+      padding: 6px 12px;
+      border-radius: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .chip-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      max-height: calc(100vh - 200px);
+      max-height: calc(100dvh - 200px);
+      overflow-y: auto;
+      padding-right: 2px;
+      padding-bottom: 24px;
+    }
+
+    .catalog-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .catalog-card img {
+      width: 100%;
+      aspect-ratio: 2 / 3;
+      object-fit: cover;
+      background: #1e2638;
+    }
+
+    .catalog-card-info {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .catalog-card-title {
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #fff;
+    }
+
+    .catalog-card-meta {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .catalog-card-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .btn-card-action {
+      flex: 1;
+      padding: 6px 4px;
+      border-radius: 6px;
+      border: none;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .btn-card-play {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-card-info {
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -498,6 +659,17 @@
     </div>
   </header>
 
+  <!-- SELETOR DE ABAS DO CONTROLE (ISSUE #1) -->
+  <div class="tabs-nav">
+    <button id="tabBtnDpad" class="tab-btn active" onclick="switchRemoteTab('dpad')">
+      <span>🎮</span> Controle Remoto
+    </button>
+    <button id="tabBtnCatalog" class="tab-btn" onclick="switchRemoteTab('catalog')">
+      <span>🎬</span> Explorar Catálogo
+    </button>
+  </div>
+
+  <div id="dpadViewContainer" class="dpad-view">
   <!-- BARRA DE BUSCA RÁPIDA NA TV (ISSUE #2) -->
   <div class="search-box">
     <div class="search-input-wrapper">
@@ -677,6 +849,27 @@
     </div>
 
   </main>
+
+  </div> <!-- fim dpadViewContainer -->
+
+  <!-- VIEW DE CATÁLOGO MOBILE (ISSUE #1) -->
+  <section id="catalogViewContainer" class="catalog-view">
+    <div class="filter-chips">
+      <button class="chip-btn active" onclick="setCatalogFilter('all', this)">Todos</button>
+      <button class="chip-btn" onclick="setCatalogFilter('movie', this)">Filmes</button>
+      <button class="chip-btn" onclick="setCatalogFilter('series', this)">Séries</button>
+      <button class="chip-btn" onclick="setCatalogFilter('action', this)">Ação</button>
+      <button class="chip-btn" onclick="setCatalogFilter('sci-fi', this)">Ficção</button>
+      <button class="chip-btn" onclick="setCatalogFilter('comedy', this)">Comédia</button>
+      <button class="chip-btn" onclick="setCatalogFilter('drama', this)">Drama</button>
+    </div>
+
+    <div id="catalogGridEl" class="catalog-grid">
+      <div style="grid-column: span 2; text-align: center; padding: 20px; color: var(--text-muted); font-size: 13px;">
+        Carregando filmes e séries...
+      </div>
+    </div>
+  </section>
 
   <footer class="footer-note">
     Toque nos botões para comandar a tela da Smart TV ou PC instantaneamente.
@@ -885,6 +1078,89 @@
         updateConnectionStatus(false);
       }
     }, 15000);
+
+    /* NAVEGAÇÃO POR ABAS E CATÁLOGO MOBILE (ISSUE #1) */
+    let currentCatalogFilter = 'all';
+
+    function switchRemoteTab(tab) {
+      const btnDpad = document.getElementById('tabBtnDpad');
+      const btnCat = document.getElementById('tabBtnCatalog');
+      const viewDpad = document.getElementById('dpadViewContainer');
+      const viewCat = document.getElementById('catalogViewContainer');
+
+      if (tab === 'catalog') {
+        btnDpad.classList.remove('active');
+        btnCat.classList.add('active');
+        viewDpad.classList.add('hidden');
+        viewCat.classList.add('active');
+        renderFullCatalog();
+      } else {
+        btnCat.classList.remove('active');
+        btnDpad.classList.add('active');
+        viewCat.classList.remove('active');
+        viewDpad.classList.remove('hidden');
+      }
+    }
+
+    function setCatalogFilter(filter, el) {
+      currentCatalogFilter = filter;
+      document.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
+      if (el) el.classList.add('active');
+      renderFullCatalog();
+    }
+
+    function renderFullCatalog() {
+      const grid = document.getElementById('catalogGridEl');
+      if (!grid) return;
+
+      if (!remoteCatalog || remoteCatalog.length === 0) {
+        grid.innerHTML = '<div style="grid-column: span 2; text-align: center; padding: 20px; color: var(--text-muted);">Nenhum título encontrado</div>';
+        return;
+      }
+
+      let items = [...remoteCatalog];
+      if (currentCatalogFilter === 'movie') {
+        items = items.filter(i => i.type === 'movie');
+      } else if (currentCatalogFilter === 'series') {
+        items = items.filter(i => i.type === 'series');
+      } else if (currentCatalogFilter === 'action') {
+        items = items.filter(i => (i.genres || []).some(g => g.toLowerCase().includes('ação') || g.toLowerCase().includes('action')));
+      } else if (currentCatalogFilter === 'sci-fi') {
+        items = items.filter(i => (i.genres || []).some(g => g.toLowerCase().includes('ficção') || g.toLowerCase().includes('sci')));
+      } else if (currentCatalogFilter === 'comedy') {
+        items = items.filter(i => (i.genres || []).some(g => g.toLowerCase().includes('comédia')));
+      } else if (currentCatalogFilter === 'drama') {
+        items = items.filter(i => (i.genres || []).some(g => g.toLowerCase().includes('drama')));
+      }
+
+      grid.innerHTML = items.map(item => {
+        const year = item.year ? ` • ${item.year}` : '';
+        const rating = item.rating ? ` ⭐ ${item.rating}` : '';
+        return `
+          <div class="catalog-card">
+            <img src="${item.posterPath || ''}" alt="" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 150%22 fill=%22%231e2638%22><text y=%2250%25%22 x=%2250%25%22 text-anchor=%22middle%22 fill=%22%23fff%22 font-size=%2214%22>🎬</text></svg>'">
+            <div class="catalog-card-info">
+              <div class="catalog-card-title">${item.title}</div>
+              <div class="catalog-card-meta">${(item.type === 'series' ? 'Série' : 'Filme') + year + rating}</div>
+              <div class="catalog-card-actions">
+                <button class="btn-card-action btn-card-info" onclick="selectRemoteMedia('${item.id}', '${item.title.replace(/'/g, "\\'")}')">
+                  👁️ Abrir
+                </button>
+                <button class="btn-card-action btn-card-play" onclick="playRemoteMedia('${item.id}', '${item.title.replace(/'/g, "\\'")}')">
+                  ▶ Play
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function playRemoteMedia(id, title) {
+      sendAction('play_media', { id: id });
+      showToast(`🍿 Reproduzindo "${title}" na TV...`);
+    }
+
   </script>
 </body>
 </html>
