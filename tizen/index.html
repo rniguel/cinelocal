@@ -336,7 +336,7 @@
       spinner.style.borderTopColor = '#22c55e';
       localStorage.setItem('cinelocal_server_ip', host);
       setTimeout(() => {
-        window.location.replace(`http://${host}:8000/app/index.html?tizen=1&host=${encodeURIComponent(host)}`);
+        window.location.replace(`http://${host}:8000/app/index.html?tizen=1&host=${encodeURIComponent(host)}&_v=${Date.now()}`);
       }, 500);
     }
 

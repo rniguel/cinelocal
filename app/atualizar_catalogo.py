@@ -733,9 +733,17 @@ def build_catalog():
         out.write('window.CATALOGO_SERIES = ')
         json.dump(series_catalog, out, ensure_ascii=False, indent=2)
         out.write(';\n\n')
-        out.write('window.LEGENDAS_DB = ')
-        json.dump(subtitles_db, out, ensure_ascii=False)
-        out.write(';\n')
+        out.write('window.LEGENDAS_DB = {};\n')
+
+    # Salva banco de legendas separado em JSON para não sobrecarregar a memória RAM de Smart TVs
+    data_dir = os.path.join(APP_DIR, 'data')
+    os.makedirs(data_dir, exist_ok=True)
+    subtitles_json_path = os.path.join(data_dir, 'subtitles.json')
+    try:
+        with open(subtitles_json_path, 'w', encoding='utf-8') as sf:
+            json.dump(subtitles_db, sf, ensure_ascii=False)
+    except Exception as e:
+        print(f'Erro ao salvar subtitles.json: {e}')
 
     # Salva também versão compacta em JSON para leitura em milissegundos pelo servidor
     data_dir = os.path.join(APP_DIR, 'data')
