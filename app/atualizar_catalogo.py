@@ -41,7 +41,11 @@ def get_ffmpeg_bin():
     for candidate in [
         r'C:\ffmpeg\bin\ffmpeg.exe',
         r'C:\Program Files\ffmpeg\bin\ffmpeg.exe',
-        os.path.expandvars(r'%LOCALAPPDATA%\Microsoft\WinGet\Links\ffmpeg.exe')
+        os.path.expandvars(r'%LOCALAPPDATA%\Microsoft\WinGet\Links\ffmpeg.exe'),
+        '/usr/bin/ffmpeg',
+        '/usr/local/bin/ffmpeg',
+        '/opt/homebrew/bin/ffmpeg',
+        '/snap/bin/ffmpeg'
     ]:
         if os.path.exists(candidate):
             return candidate

@@ -6,13 +6,16 @@ Bem-vindo ao **CineLocal**, uma central de streaming multimídia de alta perform
 
 ## ⚡ Início Rápido (Executáveis na Raiz)
 
-| Arquivo | Descrição |
-|---|---|
-| **`Abrir CineLocal.bat`** | Inicia a interface web diretamente no seu navegador padrão. |
-| **`Iniciar Servidor (TV e Celular).bat`** | Inicia o servidor HTTP local na sua rede Wi-Fi/Ethernet para você assistir na Smart TV, celular ou tablet pelo endereço IP local (ex: `http://192.168.x.x:8000`). |
-| **`Atualizar Catalogo.bat`** | Escaneia sua pasta `media/`, detecta novos filmes/séries, atualiza resoluções, áudio (Dublado/Legendado), legendas e capas automaticamente ordenando por data de adição real. |
-| **`Buscar Metadados (TMDb).bat`** | Utilitário desacoplado e opcional para buscar sinopses em pt-BR, notas e pôsteres oficiais no The Movie Database sem alterar seus vídeos. |
-| **`Otimizar Audio Web.bat`** | Adiciona faixa estéreo AAC sem recodificar o vídeo para reprodução com áudio perfeito em qualquer navegador web. |
+Para usuários **Windows**, utilize os arquivos `.bat`. Para **Linux** e **macOS**, utilize os scripts equivalentes `.sh` (ex: `./run.sh` ou `./"Abrir CineLocal.sh"`).
+
+| Windows (`.bat`) | Linux / macOS (`.sh`) | Descrição |
+|---|---|---|
+| **`Abrir CineLocal.bat`** | **`Abrir CineLocal.sh`** | Inicia a interface web diretamente no seu navegador padrão. |
+| **`Iniciar Servidor (TV e Celular).bat`** | **`Iniciar Servidor (TV e Celular).sh`** | Inicia o servidor HTTP local na sua rede Wi-Fi/Ethernet para você assistir na Smart TV, celular ou tablet pelo endereço IP local (ex: `http://192.168.x.x:8000`). |
+| **`Atualizar Catalogo.bat`** | **`Atualizar Catalogo.sh`** | Escaneia sua pasta `media/`, detecta novos filmes/séries, atualiza resoluções, áudio (Dublado/Legendado), legendas e capas automaticamente ordenando por data de adição real. |
+| **`Buscar Metadados (TMDb).bat`** | **`Buscar Metadados (TMDb).sh`** | Utilitário desacoplado e opcional para buscar sinopses em pt-BR, notas e pôsteres oficiais no The Movie Database sem alterar seus vídeos. |
+| **`Otimizar Audio Web.bat`** | **`Otimizar Audio Web.sh`** | Adiciona faixa estéreo AAC sem recodificar o vídeo para reprodução com áudio perfeito em qualquer navegador web. |
+| **`run.py`** | **`run.sh`** | Inicializador unificado e direto do CineLocal no terminal. |
 
 ---
 

@@ -99,7 +99,11 @@ def get_ffmpeg_bin():
     for candidate in [
         r"C:\ffmpeg\bin\ffmpeg.exe",
         r"C:\Program Files\ffmpeg\bin\ffmpeg.exe",
-        os.path.expandvars(r"%LOCALAPPDATA%\Microsoft\WinGet\Links\ffmpeg.exe")
+        os.path.expandvars(r"%LOCALAPPDATA%\Microsoft\WinGet\Links\ffmpeg.exe"),
+        "/usr/bin/ffmpeg",
+        "/usr/local/bin/ffmpeg",
+        "/opt/homebrew/bin/ffmpeg",
+        "/snap/bin/ffmpeg"
     ]:
         if os.path.exists(candidate):
             return candidate
@@ -440,8 +444,15 @@ def get_vlc_path():
     system_vlc = shutil.which("vlc")
     if system_vlc:
         return system_vlc
-    if os.path.exists("/Applications/VLC.app/Contents/MacOS/VLC"):
-        return "/Applications/VLC.app/Contents/MacOS/VLC"
+    for unix_candidate in [
+        "/Applications/VLC.app/Contents/MacOS/VLC",
+        "/usr/bin/vlc",
+        "/usr/local/bin/vlc",
+        "/snap/bin/vlc",
+        "/var/lib/flatpak/exports/bin/org.videolan.VLC"
+    ]:
+        if os.path.exists(unix_candidate):
+            return unix_candidate
     return None
 
 
