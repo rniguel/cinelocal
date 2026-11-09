@@ -64,3 +64,8 @@ $RECYCLE.BIN/
 node_modules/
 app/torrent/node_modules/
 app/data/torrent_cache/
+
+# Build e Pacotes Desktop (PyInstaller / Inno Setup)
+dist/
+build/
+*.spec

@@ -1,12 +1,22 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# CineLocal - Abrir no Navegador (Linux e macOS)
+# CineLocal - Inicializador Desktop para Linux e macOS
 # ==============================================================================
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
-PYTHON_CMD="python3"
-if ! command -v python3 &> /dev/null; then
-    PYTHON_CMD="python"
-fi
 
-cd "$DIR/app"
-"$PYTHON_CMD" servidor.py --browser "$@"
+set -e
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ROOT_DIR"
+
+echo "======================================================="
+echo "          Iniciando CineLocal Desktop"
+echo "======================================================="
+echo ""
+
+if command -v python3 &>/dev/null; then
+    python3 run_desktop.py
+elif command -v python &>/dev/null; then
+    python run_desktop.py
+else
+    echo "❌ Python não encontrado no sistema."
+    exit 1
+fi

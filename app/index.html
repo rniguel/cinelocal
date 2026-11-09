@@ -3798,6 +3798,16 @@
 
         <!-- BOTÃO DE DESTAQUE: CONECTAR PASTA LOCAL (ISSUE #15) -->
         
+
+<!-- BOTÃO DE DESTAQUE: PAINEL DE CONTROLE / FERRAMENTAS (ISSUE #17) -->
+<button id="btnToolsModal" class="btn-header-action" onclick="openToolsModal()" title="Central de Gerenciamento & Ferramentas">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="3"></circle>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+  </svg>
+  <span>Painel</span>
+</button>
+
 <!-- BOTÃO DE DESTAQUE: ASSISTIR VIA TORRENT (ISSUE #16) -->
 <button id="btnTorrentStream" class="btn-header-action" onclick="openTorrentModal()" title="Assistir via Magnet / Torrent (Estilo Stremio)">
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -3980,6 +3990,15 @@
           <span class="m-link-icon">📱</span> Controle Remoto Celular
         </button>
         
+
+<button class="mobile-drawer-link" onclick="openToolsModal(); closeMobileMenu();">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="3"></circle>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+  </svg>
+  Painel de Gerenciamento & Ferramentas
+</button>
+
 <button class="mobile-drawer-link" onclick="openTorrentModal(); closeMobileMenu();">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
@@ -4775,6 +4794,96 @@
   </div>
 
   
+
+<!-- MODAL DE CENTRAL DE GERENCIAMENTO & FERRAMENTAS (ISSUE #17) -->
+<div id="toolsModal" class="series-modal" onclick="closeToolsModalOnOut(event)">
+  <div class="series-modal-box" style="max-width: 680px; padding: 28px;">
+    <button class="series-modal-close" onclick="closeToolsModal()">&times;</button>
+
+    <div style="margin-bottom: 22px; text-align: left;">
+      <span class="badge-tag" style="background: rgba(99, 102, 241, 0.2); border: 1px solid #6366f1; color: #a5b4fc;">PAINEL DESKTOP UNIFICADO</span>
+      <h2 style="font-size: 1.45rem; color: #fff; margin: 6px 0 4px; display: flex; align-items: center; gap: 8px;">
+        ⚙️ Central de Gerenciamento & Ferramentas
+      </h2>
+      <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">
+        Execute tarefas do sistema com 1 clique diretamente pelo navegador, sem necessidade de janelas pretas de terminal ou scripts .bat externos.
+      </p>
+    </div>
+
+    <!-- CARDS DE FERRAMENTAS -->
+    <div style="display: flex; flex-direction: column; gap: 14px; text-align: left;">
+
+      <!-- CARD 1: ATUALIZAR CATÁLOGO -->
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.5rem;">🔄</span>
+            <div>
+              <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">Atualizar Catálogo de Mídias</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">Escaneia a pasta media/filmes e media/series, gerando novos índices instantaneamente.</div>
+            </div>
+          </div>
+          <button id="btnTriggerCatalog" class="btn-primary" style="padding: 8px 16px; font-size: 0.82rem; white-space: nowrap;" onclick="triggerCatalogUpdate()">
+            Atualizar Agora
+          </button>
+        </div>
+        <div id="toolsCatalogStatus" style="font-size: 0.8rem; color: #94a3b8; margin-top: 4px;">Status: Pronto para varredura</div>
+      </div>
+
+      <!-- CARD 2: ENRIQUECEDOR TMDB / CINEMETA -->
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.5rem;">🧠</span>
+            <div>
+              <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">Enriquecedor de Metadados (TMDb / Cinemeta)</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">Busca pôsteres oficiais em alta resolução, sinopses em pt-BR e notas do IMDb/TMDb.</div>
+            </div>
+          </div>
+          <button id="btnTriggerTmdb" class="btn-secondary" style="padding: 8px 16px; font-size: 0.82rem; white-space: nowrap;" onclick="triggerTmdbEnrichment()">
+            Buscar Metadados
+          </button>
+        </div>
+        <div id="toolsTmdbStatus" style="font-size: 0.8rem; color: #94a3b8; margin-top: 4px;">Status: Pronto</div>
+        <div id="toolsTmdbProgressBox" style="display: none; margin-top: 8px;">
+          <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
+            <div id="toolsTmdbProgressBar" style="height: 100%; width: 0%; background: #6366f1; transition: width 0.3s ease;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 3: OTIMIZADOR DE ÁUDIO WEB -->
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.5rem;">🔊</span>
+            <div>
+              <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">Otimizador de Áudio Web (AAC Estéreo)</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">Adiciona faixa compatível em vídeos com áudio mudo sem recodificar o vídeo.</div>
+            </div>
+          </div>
+          <button id="btnTriggerAudio" class="btn-secondary" style="padding: 8px 16px; font-size: 0.82rem; white-space: nowrap;" onclick="triggerAudioOptimization()">
+            Otimizar Áudio
+          </button>
+        </div>
+        <div id="toolsAudioStatus" style="font-size: 0.8rem; color: #94a3b8; margin-top: 4px;">Status: Pronto</div>
+      </div>
+
+      <!-- CARD 4: SERVIÇOS & DIAGNÓSTICO -->
+      <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; padding: 14px; font-size: 0.82rem; color: var(--text-muted);">
+        <div style="font-weight: 700; color: #fff; margin-bottom: 8px; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.5px;">Diagnóstico do Sistema</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;" id="toolsDiagnosticGrid">
+          <div>🌐 Servidor: <strong style="color:#10b981;">Ativo (8000)</strong></div>
+          <div>🚀 VLC Player: <strong id="diagVlcStatus" style="color:#f59e0b;">Verificando...</strong></div>
+          <div>🎵 FFmpeg: <strong id="diagFfmpegStatus" style="color:#f59e0b;">Verificando...</strong></div>
+          <div>⚡ Torrent Engine: <strong id="diagNodeStatus" style="color:#f59e0b;">Verificando...</strong></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- MODAL DE STREAMING VIA TORRENT / MAGNET (ISSUE #16) -->
 <div id="torrentModal" class="series-modal" onclick="closeTorrentModalOnOut(event)">
   <div class="series-modal-box" style="max-width: 640px; padding: 28px;">
@@ -10501,6 +10610,241 @@ async function fetchTorrentSubtitles(title, imdbId) {
     }
   } catch (e) {
     console.log('Busca de legenda online de torrent finalizada sem correspondência imediata');
+  }
+}
+
+
+/* ========================================================================= */
+/* CENTRAL DE GERENCIAMENTO & FERRAMENTAS UNIFICADAS (ISSUE #17)           */
+/* ========================================================================= */
+function openToolsModal() {
+  const modal = document.getElementById('toolsModal');
+  if (modal) {
+    modal.classList.add('active');
+    refreshToolsStatus();
+  }
+}
+
+function closeToolsModal() {
+  const modal = document.getElementById('toolsModal');
+  if (modal) modal.classList.remove('active');
+}
+
+function closeToolsModalOnOut(e) {
+  if (e.target.id === 'toolsModal') closeToolsModal();
+}
+
+async function refreshToolsStatus() {
+  try {
+    const res = await fetch('/api/tools/status');
+    if (!res.ok) return;
+    const data = await res.json();
+    const sys = data.system || {};
+    const tools = data.tools || {};
+
+    const elVlc = document.getElementById('diagVlcStatus');
+    const elFfmpeg = document.getElementById('diagFfmpegStatus');
+    const elNode = document.getElementById('diagNodeStatus');
+
+    if (elVlc) {
+      elVlc.innerText = sys.vlcAvailable ? 'Disponível' : 'Não encontrado';
+      elVlc.style.color = sys.vlcAvailable ? '#10b981' : '#94a3b8';
+    }
+    if (elFfmpeg) {
+      elFfmpeg.innerText = sys.ffmpegAvailable ? 'Disponível' : 'Não encontrado';
+      elFfmpeg.style.color = sys.ffmpegAvailable ? '#10b981' : '#94a3b8';
+    }
+    if (elNode) {
+      elNode.innerText = sys.nodeAvailable ? 'Ativo' : 'Pendente';
+      elNode.style.color = sys.nodeAvailable ? '#10b981' : '#f59e0b';
+    }
+
+    if (tools.catalog && tools.catalog.message) {
+      const elCat = document.getElementById('toolsCatalogStatus');
+      if (elCat) elCat.innerText = 'Status: ' + tools.catalog.message;
+    }
+  } catch (e) {
+    // Modo offline / nuvem
+  }
+}
+
+async function triggerCatalogUpdate() {
+  const btn = document.getElementById('btnTriggerCatalog');
+  const status = document.getElementById('toolsCatalogStatus');
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner" style="display:inline-block;width:12px;height:12px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></span> Escaneando...';
+  }
+  if (status) status.innerText = 'Status: Escaneando pastas de filmes e séries no disco...';
+
+  try {
+    const res = await fetch('/api/tools/atualizar_catalogo', { method: 'POST' });
+    const data = await res.json();
+
+    showToast('🔄 Atualizando biblioteca de mídia...');
+
+    // Polling até terminar
+    let pollCount = 0;
+    const interval = setInterval(async () => {
+      pollCount++;
+      try {
+        const sRes = await fetch('/api/tools/status');
+        const sData = await sRes.json();
+        const cat = sData.tools && sData.tools.catalog;
+
+        if (cat) {
+          if (status) status.innerText = 'Status: ' + cat.message;
+          if (!cat.running || pollCount > 30) {
+            clearInterval(interval);
+            if (btn) {
+              btn.disabled = false;
+              btn.innerText = 'Atualizar Agora';
+            }
+            showToast('✅ Catálogo atualizado com sucesso!');
+            // Recarrega dinamicamente o catálogo no app
+            reloadCatalogData();
+          }
+        }
+      } catch (err) {
+        clearInterval(interval);
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = 'Atualizar Agora';
+        }
+      }
+    }, 1000);
+
+  } catch (err) {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = 'Atualizar Agora';
+    }
+    if (status) status.innerText = 'Status: Erro ao iniciar atualização (' + err.message + ')';
+  }
+}
+
+async function triggerTmdbEnrichment() {
+  const btn = document.getElementById('btnTriggerTmdb');
+  const status = document.getElementById('toolsTmdbStatus');
+  const pBox = document.getElementById('toolsTmdbProgressBox');
+  const pBar = document.getElementById('toolsTmdbProgressBar');
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner" style="display:inline-block;width:12px;height:12px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></span> Buscando...';
+  }
+  if (pBox) pBox.style.display = 'block';
+
+  try {
+    await fetch('/api/tools/buscar_metadados', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    });
+
+    showToast('🧠 Buscando metadados TMDb/Cinemeta...');
+
+    const interval = setInterval(async () => {
+      try {
+        const sRes = await fetch('/api/tools/status');
+        const sData = await sRes.json();
+        const tmdb = sData.tools && sData.tools.tmdb;
+
+        if (tmdb) {
+          if (status) status.innerText = `Status: ${tmdb.message} ${tmdb.currentTitle ? `('${tmdb.currentTitle}')` : ''}`;
+          if (pBar && tmdb.total > 0) {
+            const pct = Math.round((tmdb.processed / tmdb.total) * 100);
+            pBar.style.width = pct + '%';
+          }
+          if (!tmdb.running) {
+            clearInterval(interval);
+            if (btn) {
+              btn.disabled = false;
+              btn.innerText = 'Buscar Metadados';
+            }
+            showToast('✅ Metadados e posters sincronizados com sucesso!');
+            reloadCatalogData();
+          }
+        }
+      } catch (err) {
+        clearInterval(interval);
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = 'Buscar Metadados';
+        }
+      }
+    }, 1500);
+
+  } catch (err) {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = 'Buscar Metadados';
+    }
+    if (status) status.innerText = 'Status: Erro (' + err.message + ')';
+  }
+}
+
+async function triggerAudioOptimization() {
+  const btn = document.getElementById('btnTriggerAudio');
+  const status = document.getElementById('toolsAudioStatus');
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner" style="display:inline-block;width:12px;height:12px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></span> Otimizando...';
+  }
+
+  showToast('🔊 Verificando compatibilidade de áudio web...');
+
+  try {
+    await fetch('/api/tools/otimizar_audio', { method: 'POST' });
+
+    const interval = setInterval(async () => {
+      try {
+        const sRes = await fetch('/api/tools/status');
+        const sData = await sRes.json();
+        const aud = sData.tools && sData.tools.audio;
+
+        if (aud) {
+          if (status) status.innerText = 'Status: ' + aud.message;
+          if (!aud.running) {
+            clearInterval(interval);
+            if (btn) {
+              btn.disabled = false;
+              btn.innerText = 'Otimizar Áudio';
+            }
+            showToast('✅ Varredura de áudio concluída!');
+          }
+        }
+      } catch (err) {
+        clearInterval(interval);
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = 'Otimizar Áudio';
+        }
+      }
+    }, 2000);
+
+  } catch (err) {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = 'Otimizar Áudio';
+    }
+    if (status) status.innerText = 'Status: Erro (' + err.message + ')';
+  }
+}
+
+function reloadCatalogData() {
+  // Recarrega catalogo.js com timestamp para evitar cache do navegador
+  const oldScript = document.querySelector('script[src*="catalogo.js"]');
+  if (oldScript) {
+    const newScript = document.createElement('script');
+    newScript.src = `/app/catalogo.js?t=${Date.now()}`;
+    newScript.onload = () => {
+      if (typeof initCatalog === 'function') initCatalog();
+      else if (typeof renderRows === 'function') renderRows();
+    };
+    oldScript.parentNode.replaceChild(newScript, oldScript);
   }
 }
 

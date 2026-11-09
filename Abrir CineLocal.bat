@@ -1,11 +1,14 @@
 @echo off
-title CineLocal - Servidor Local
+title CineLocal Desktop
 chcp 65001 > nul
-cd /d "%~dp0app"
+cd /d "%~dp0"
 
 echo =======================================================
-echo          Iniciando CineLocal Home Theater
+echo          Iniciando CineLocal Desktop
 echo =======================================================
 echo.
-python servidor.py --browser
-pause
+python run_desktop.py
+if errorlevel 1 (
+    cd /d "%~dp0app"
+    python servidor.py --browser
+)

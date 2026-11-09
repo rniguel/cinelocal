@@ -41,6 +41,7 @@ def validate():
         "Seletor de Séries (#seriesModal)": 'id="seriesModal"' in content,
         "Modal de Backup (#backupModal)": 'id="backupModal"' in content,
         "Streaming de Torrent (#torrentModal)": 'id="torrentModal"' in content and 'id="torrentStreamingHud"' in content,
+        "Central de Ferramentas (#toolsModal)": 'id="toolsModal"' in content,
         "Hub do Controle Remoto SSE": "/api/remote/events" in content,
         "Sincronização de Estado": "/api/user_state" in content,
     }

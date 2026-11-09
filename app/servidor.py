@@ -29,6 +29,7 @@ if APP_DIR not in sys.path:
     sys.path.insert(0, APP_DIR)
 
 from atualizar_catalogo import build_catalog, parse_srt
+from tools_manager import TOOLS_STATE, run_catalog_update, run_tmdb_enricher, run_audio_optimizer
 
 PORTABLE_VLC = os.path.join(APP_DIR, "vlc", "vlc.exe")
 SYSTEM_VLC = r"C:\Program Files\VideoLAN\VLC\vlc.exe"
@@ -914,6 +915,38 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
         except Exception:
             payload = {}
 
+        # Rotas da Central de Ferramentas e Gerenciamento (Issue #17)
+        if parsed.path == '/api/tools/atualizar_catalogo':
+            res = run_catalog_update()
+            data = json.dumps(res, ensure_ascii=False).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(data)
+            return
+
+        if parsed.path == '/api/tools/buscar_metadados':
+            api_key = payload.get('apiKey', '')
+            res = run_tmdb_enricher(api_key=api_key)
+            data = json.dumps(res, ensure_ascii=False).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(data)
+            return
+
+        if parsed.path == '/api/tools/otimizar_audio':
+            res = run_audio_optimizer()
+            data = json.dumps(res, ensure_ascii=False).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(data)
+            return
+
         # Rotas de Torrent Streaming (Issue #16)
         if parsed.path.startswith('/api/torrent/'):
             self.proxy_torrent_api('POST', body=body)
@@ -1115,6 +1148,27 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         client_ip = self.client_address[0]
         parsed = urllib.parse.urlparse(self.path)
+
+        # Rota de Status da Central de Ferramentas (Issue #17)
+        if parsed.path == '/api/tools/status':
+            status_payload = {
+                "success": True,
+                "tools": TOOLS_STATE,
+                "system": {
+                    "vlcAvailable": bool(get_vlc_path()),
+                    "ffmpegAvailable": bool(get_ffmpeg_bin()),
+                    "nodeAvailable": bool(shutil.which('node')),
+                    "localIp": get_local_ip(),
+                    "port": PORT
+                }
+            }
+            data = json.dumps(status_payload, ensure_ascii=False).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(data)
+            return
 
         # Rotas de Torrent Streaming (Issue #16)
         if parsed.path.startswith('/api/torrent/'):
