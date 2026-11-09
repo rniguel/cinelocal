@@ -420,41 +420,254 @@
       contain-intrinsic-size: auto none auto 380px;
     }
 
-    /* PERFIL DE ALTA PERFORMANCE PARA SMART TV (TIZEN / MALI GPU) */
+    /* ========================================================================= */
+    /* 📺 CINELOCAL SMART TV PRO EXPERIENCE (AWWWARDS / APPLE TV+ GRADE)          */
+    /* ========================================================================= */
     body.is-tv {
       --blur-strength: 0px !important;
+      --radius-md: 14px;
+      background: #06080d !important;
+      overflow-x: hidden !important;
+      cursor: none !important;
+      scroll-behavior: auto !important;
     }
 
+    body.is-tv,
+    body.is-tv * {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      scroll-behavior: auto !important;
+    }
+
+    /* HEADER FLUTUANTE CLEAN PARA SMART TV */
     body.is-tv header {
-      background: #090b10 !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      height: 70px !important;
+      padding: 0 48px !important;
+      background: linear-gradient(180deg, rgba(6, 8, 13, 0.96) 0%, rgba(6, 8, 13, 0.6) 70%, transparent 100%) !important;
+      border-bottom: none !important;
+      z-index: 100 !important;
+      display: flex !important;
+      align-items: center !important;
     }
 
-    body.is-tv *,
-    body.is-tv *::before,
-    body.is-tv *::after {
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
+    body.is-tv .header-content {
+      width: 100% !important;
+      max-width: 100% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+    }
+
+    body.is-tv .header-left {
+      display: flex !important;
+      align-items: center !important;
+      gap: 36px !important;
+    }
+
+    body.is-tv .brand-title {
+      font-size: 26px !important;
+      font-weight: 800 !important;
+      letter-spacing: -0.5px !important;
+    }
+
+    body.is-tv .brand-badge {
+      display: none !important;
+    }
+
+    body.is-tv .main-nav {
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+    }
+
+    body.is-tv .main-nav .nav-btn {
+      padding: 8px 20px !important;
+      font-size: 16px !important;
+      font-weight: 700 !important;
+      color: rgba(255, 255, 255, 0.65) !important;
+      border-radius: 999px !important;
+      border: 2px solid transparent !important;
+      background: transparent !important;
+      transition: all 0.12s ease-out !important;
+      cursor: pointer;
+    }
+
+    body.is-tv .main-nav .nav-btn.active {
+      color: #fff !important;
+      background: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    body.is-tv .main-nav .nav-btn.tv-focused {
+      color: #fff !important;
+      background: var(--primary) !important;
+      border-color: #fff !important;
+      transform: scale(1.08) !important;
+      box-shadow: 0 0 24px rgba(229, 9, 20, 0.75) !important;
+      outline: none !important;
+    }
+
+    /* Oculta ferramentas e formulários desktop da TV */
+    body.is-tv .header-right .search-container,
+    body.is-tv .header-right .btn-header-action,
+    body.is-tv .header-right .dropdown,
+    body.is-tv .header-right .mobile-search-toggle-btn,
+    body.is-tv .header-right .mobile-hamburger-btn {
+      display: none !important;
+    }
+
+    body.is-tv .tv-header-info {
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+      font-size: 16px !important;
+      font-weight: 700 !important;
+      color: rgba(255, 255, 255, 0.85) !important;
+      font-family: monospace !important;
+    }
+
+    body.is-tv .tv-status-dot {
+      width: 9px !important;
+      height: 9px !important;
+      border-radius: 50% !important;
+      background: #22c55e !important;
+      box-shadow: 0 0 10px #22c55e !important;
+    }
+
+    /* HERO BANNER CINEMATOGRÁFICO NA TV */
+    body.is-tv .hero-banner {
+      height: 56vh !important;
+      min-height: 400px !important;
+      max-height: 540px !important;
+      margin-top: 0 !important;
+      margin-bottom: 6px !important;
+      background-position: center 25% !important;
+    }
+
+    body.is-tv .hero-backdrop-gradient {
+      background: linear-gradient(to top, #06080d 6%, rgba(6, 8, 13, 0.75) 45%, rgba(6, 8, 13, 0.2) 100%),
+                  linear-gradient(to right, rgba(6, 8, 13, 0.96) 24%, rgba(6, 8, 13, 0.6) 65%, transparent 100%) !important;
+    }
+
+    body.is-tv .hero-content {
+      left: 48px !important;
+      bottom: 20px !important;
+      max-width: 720px !important;
+    }
+
+    body.is-tv .hero-title {
+      font-size: 44px !important;
+      font-weight: 800 !important;
+      line-height: 1.15 !important;
+      margin-bottom: 10px !important;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.95) !important;
+    }
+
+    body.is-tv .hero-meta {
+      font-size: 15px !important;
+      gap: 12px !important;
+      margin-bottom: 12px !important;
+    }
+
+    body.is-tv .hero-overview {
+      font-size: 15px !important;
+      line-height: 1.5 !important;
+      -webkit-line-clamp: 2 !important;
+      display: -webkit-box !important;
+      -webkit-box-orient: vertical !important;
+      overflow: hidden !important;
+      margin-bottom: 18px !important;
+      color: #cbd5e1 !important;
+    }
+
+    body.is-tv .hero-buttons {
+      display: flex !important;
+      gap: 14px !important;
+    }
+
+    body.is-tv .btn-hero-play {
+      padding: 12px 28px !important;
+      font-size: 17px !important;
+      font-weight: 700 !important;
+      border-radius: 999px !important;
+      background: var(--primary) !important;
+      color: #fff !important;
+      border: 2px solid transparent !important;
+      transition: all 0.12s ease-out !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+    }
+
+    body.is-tv .btn-hero-play.tv-focused {
+      transform: scale(1.08) !important;
+      border-color: #fff !important;
+      box-shadow: 0 0 30px rgba(229, 9, 20, 0.85) !important;
+      outline: none !important;
+    }
+
+    body.is-tv .btn-hero-vlc {
+      display: none !important;
+    }
+
+    body.is-tv .btn-hero-info {
+      padding: 12px 24px !important;
+      font-size: 17px !important;
+      font-weight: 600 !important;
+      border-radius: 999px !important;
+      background: rgba(255, 255, 255, 0.14) !important;
+      color: #fff !important;
+      border: 2px solid transparent !important;
+      transition: all 0.12s ease-out !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+    }
+
+    body.is-tv .btn-hero-info.tv-focused {
+      transform: scale(1.08) !important;
+      background: rgba(255, 255, 255, 0.28) !important;
+      border-color: #fff !important;
+      box-shadow: 0 0 24px rgba(255, 255, 255, 0.35) !important;
+      outline: none !important;
+    }
+
+    /* CARROSÉIS E TRILHOS NA TV */
+    body.is-tv .carousel-section {
+      margin-bottom: 20px !important;
+      padding: 0 48px !important;
     }
 
     body.is-tv .carousel-track {
+      gap: 18px !important;
+      padding: 14px 4px 22px 4px !important;
+      overflow-x: scroll !important;
+      overflow-y: hidden !important;
+      scroll-behavior: auto !important;
       transform: translateZ(0);
       will-change: scroll-position;
     }
 
-    body.is-tv {
-      --radius-md: 14px;
-      background: #07090e !important;
+    body.is-tv .carousel-btn {
+      display: none !important;
     }
 
+    /* CARTÃO DE FILME NA SMART TV */
     body.is-tv .movie-card {
+      flex: 0 0 205px !important;
+      width: 205px !important;
+      aspect-ratio: 2 / 3 !important;
+      border-radius: 14px !important;
       background: #0f141f !important;
       border: 1px solid rgba(255, 255, 255, 0.08) !important;
       box-shadow: none !important;
       contain: layout paint;
       transform: translateZ(0);
-      transition: transform 0.1s ease-out, outline 0.1s ease-out !important;
+      transition: transform 0.1s cubic-bezier(0.2, 0, 0, 1), outline 0.1s ease-out !important;
+      cursor: pointer;
     }
 
     body.is-tv .movie-card:hover {
@@ -462,45 +675,93 @@
       box-shadow: none !important;
     }
 
-    body.is-tv .card-hover-overlay {
+    body.is-tv .movie-card .card-hover-overlay {
       display: none !important;
     }
 
-    body.is-tv .card-btn-fav-floating {
+    body.is-tv .movie-card .card-btn-fav-floating {
       display: none !important;
     }
 
     body.is-tv .movie-card.tv-focused {
-      transform: scale(1.06) translateZ(0) !important;
+      transform: scale(1.08) translateZ(0) !important;
       outline: 4px solid var(--primary) !important;
       outline-offset: 3px !important;
-      box-shadow: 0 0 28px rgba(229, 9, 20, 0.75) !important;
-      z-index: 30 !important;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.95), 0 0 28px rgba(229, 9, 20, 0.75) !important;
+      z-index: 50 !important;
     }
 
     body.is-tv .movie-card.tv-focused .card-hover-overlay {
       display: flex !important;
       opacity: 1 !important;
       transform: none !important;
-      background: linear-gradient(0deg, rgba(7, 9, 14, 0.95) 0%, rgba(7, 9, 14, 0.75) 60%, transparent 100%) !important;
-      padding: 12px 14px 14px !important;
+      background: linear-gradient(0deg, rgba(6, 8, 13, 0.96) 0%, rgba(6, 8, 13, 0.8) 65%, transparent 100%) !important;
+      padding: 10px 12px 14px 12px !important;
       border-bottom-left-radius: 12px;
       border-bottom-right-radius: 12px;
+      pointer-events: none;
     }
 
-    body.is-tv .movie-card.tv-focused .card-hover-hint,
-    body.is-tv .movie-card.tv-focused .card-btn-fav-floating {
+    body.is-tv .movie-card.tv-focused .card-title {
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      line-height: 1.25 !important;
+      color: #fff !important;
+      -webkit-line-clamp: 2 !important;
+      margin-bottom: 3px !important;
+    }
+
+    body.is-tv .movie-card.tv-focused .card-subinfo {
+      font-size: 12px !important;
+      color: #94a3b8 !important;
+    }
+
+    body.is-tv .movie-card.tv-focused .card-hover-hint {
       display: none !important;
     }
 
-    body.is-tv .carousel-btn {
+    /* MODAL DE DETALHES NA SMART TV */
+    body.is-tv .series-modal-box {
+      max-width: 880px !important;
+      border-radius: 20px !important;
+      background: #0b0f17 !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.95) !important;
+      padding: 32px !important;
+    }
+
+    body.is-tv .series-modal-close {
       display: none !important;
     }
 
-    body.is-tv .modal-overlay,
-    body.is-tv .modal-overlay * {
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
+    body.is-tv .series-modal-poster {
+      width: 200px !important;
+      border-radius: 12px !important;
+    }
+
+    body.is-tv .series-modal-title {
+      font-size: 30px !important;
+      font-weight: 800 !important;
+    }
+
+    body.is-tv .movie-modal-actions {
+      display: flex !important;
+      gap: 12px !important;
+      margin-top: 20px !important;
+    }
+
+    body.is-tv .movie-modal-actions button {
+      padding: 12px 22px !important;
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      border-radius: 999px !important;
+      border: 2px solid transparent !important;
+    }
+
+    body.is-tv .movie-modal-actions button.tv-focused {
+      transform: scale(1.06) !important;
+      border-color: #fff !important;
+      box-shadow: 0 0 24px rgba(229, 9, 20, 0.75) !important;
     }
 
     .carousel-header {
@@ -4188,6 +4449,11 @@
       </div>
 
       <div class="header-right">
+        <!-- RELÓGIO & STATUS SMART TV -->
+        <div class="tv-header-info" style="display: none;">
+          <span class="tv-status-dot"></span>
+          <span id="tvClock">--:--</span>
+        </div>
         <div class="search-container">
           <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"></circle>
@@ -4475,6 +4741,14 @@
               <polygon points="5 3 19 12 5 21 5 3"></polygon>
             </svg>
             Assistir Agora
+          </button>
+          <button class="btn-hero-info" id="heroBtnInfo" onclick="openHeroDetails()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            Mais Informações
           </button>
           <button class="btn-hero-vlc" id="heroBtnVlc" onclick="vlcHeroMedia()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -5927,6 +6201,14 @@ function escapeHtml(str) {
       populateGenreFilter();
       updateSubSyncUI();
 
+      if (isTvDevice) {
+        setupTvClock();
+        setTimeout(() => {
+          const heroPlay = document.getElementById('heroBtnPlay');
+          if (heroPlay) setTvFocus(heroPlay, true);
+        }, 150);
+      }
+
       // Renderização sob demanda ou ociosa para não sobrecarregar CPU da TV
       if (!document.body.classList.contains('is-tv')) {
         setTimeout(() => {
@@ -6114,7 +6396,31 @@ function escapeHtml(str) {
       }, 10000);
     }
 
+    function openHeroDetails() {
+      if (state.heroMedia) {
+        if (state.heroMedia.type === 'series') {
+          openSeriesModal(state.heroMedia.id);
+        } else {
+          openMovieModal(state.heroMedia.id);
+        }
+      }
+    }
+
+    function setupTvClock() {
+      const clockEl = document.getElementById('tvClock');
+      if (!clockEl) return;
+      const update = () => {
+        const d = new Date();
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mm = String(d.getMinutes()).padStart(2, '0');
+        clockEl.innerText = `${hh}:${mm}`;
+      };
+      update();
+      setInterval(update, 10000);
+    }
+
     function playHeroMedia() {
+
       if (state.heroMedia) {
         if (state.heroMedia.type === 'series') {
           openSeriesModal(state.heroMedia.id);
@@ -7309,8 +7615,14 @@ function escapeHtml(str) {
 
       renderSeasonEpisodes(series, 0);
 
+      lastFocusedCardBeforeModal = document.querySelector('.tv-focused') || document.activeElement;
       document.getElementById('seriesModal').classList.add('active');
       document.body.style.overflow = 'hidden';
+
+      setTimeout(() => {
+        const firstEp = document.querySelector('#seriesModalEpisodes .episode-card, #seriesModalEpisodes button');
+        if (firstEp) setTvFocus(firstEp);
+      }, 50);
     }
 
     function toggleWatchedCurrentSeries() {
@@ -7414,13 +7726,27 @@ function escapeHtml(str) {
         favBtn.innerText = isFav ? '⭐ Na Minha Lista' : '☆ Minha Lista';
       }
 
+      lastFocusedCardBeforeModal = document.querySelector('.tv-focused') || document.activeElement;
       document.getElementById('movieDetailsModal').classList.add('active');
       document.body.style.overflow = 'hidden';
+
+      setTimeout(() => {
+        const resumeBtn = document.getElementById('movieModalBtnResume');
+        const playBtn = document.getElementById('movieModalBtnPlay');
+        if (resumeBtn && window.getComputedStyle(resumeBtn).display !== 'none') {
+          setTvFocus(resumeBtn);
+        } else if (playBtn) {
+          setTvFocus(playBtn);
+        }
+      }, 50);
     }
 
     function closeMovieModal() {
       document.getElementById('movieDetailsModal').classList.remove('active');
       document.body.style.overflow = 'auto';
+      if (lastFocusedCardBeforeModal && document.body.contains(lastFocusedCardBeforeModal)) {
+        setTvFocus(lastFocusedCardBeforeModal);
+      }
       currentModalMovie = null;
     }
 
@@ -7514,6 +7840,9 @@ function escapeHtml(str) {
     function closeSeriesModal() {
       document.getElementById('seriesModal').classList.remove('active');
       document.body.style.overflow = '';
+      if (lastFocusedCardBeforeModal && document.body.contains(lastFocusedCardBeforeModal)) {
+        setTvFocus(lastFocusedCardBeforeModal);
+      }
     }
 
     function closeSeriesModalOnOut(e) {
@@ -10409,21 +10738,55 @@ function escapeHtml(str) {
 
     /* FOCO TV E NAVEGAÇÃO D-PAD OTIMIZADA PARA SMART TV E CONTROLE REMOTO */
     let tvBeaconTimeout = null;
+    let lastFocusedCardBeforeModal = null;
 
-    function normalizeTvKey(e) {
-      const code = e.keyCode || e.which;
-      if (code === 38 || e.key === 'Up' || e.key === 'ArrowUp') return 'ArrowUp';
-      if (code === 40 || e.key === 'Down' || e.key === 'ArrowDown') return 'ArrowDown';
-      if (code === 37 || e.key === 'Left' || e.key === 'ArrowLeft') return 'ArrowLeft';
-      if (code === 39 || e.key === 'Right' || e.key === 'ArrowRight') return 'ArrowRight';
-      if (code === 13 || e.key === 'Enter' || e.key === 'Select' || e.key === 'Ok' || e.key === 'Accept') return 'Enter';
-      if (code === 27 || code === 8 || code === 10009 || code === 461 || e.key === 'Escape' || e.key === 'Back' || e.key === 'GoBack') return 'Escape';
-      if (code === 179 || code === 415 || code === 19 || e.key === 'MediaPlayPause' || e.key === 'Play' || e.key === 'Pause') return 'MediaPlayPause';
-      if (code === 227 || e.key === 'MediaRewind') return 'MediaRewind';
-      if (code === 228 || e.key === 'MediaFastForward') return 'MediaFastForward';
-      if (code === 33 || code === 427 || e.key === 'PageUp' || e.key === 'ChannelUp') return 'PageUp';
-      if (code === 34 || code === 428 || e.key === 'PageDown' || e.key === 'ChannelDown') return 'PageDown';
-      return e.key;
+    function setTvFocus(el, smoothScroll = true) {
+      if (!el) return;
+      document.querySelectorAll('.tv-focused').forEach(f => f.classList.remove('tv-focused'));
+      el.classList.add('tv-focused');
+
+      try {
+        if (typeof el.focus === 'function') el.focus({ preventScroll: true });
+      } catch (e) {}
+
+      const isTv = document.body.classList.contains('is-tv');
+      const scrollBehavior = isTv ? 'auto' : 'smooth';
+
+      if (smoothScroll) {
+        // 1. ROLAGEM VERTICAL DA JANELA (Centraliza a linha na TV de forma suave ou instantânea)
+        try {
+          const elRect = el.getBoundingClientRect();
+          const winH = window.innerHeight || document.documentElement.clientHeight;
+          const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+          if (el.id === 'heroBtnPlay' || el.id === 'heroBtnInfo' || el.closest('.main-nav') || el.closest('header')) {
+            window.scrollTo({ top: 0, behavior: scrollBehavior });
+          } else {
+            const targetScrollY = currentScrollY + elRect.top - (winH / 2) + (elRect.height / 2);
+            window.scrollTo({
+              top: Math.max(0, targetScrollY),
+              behavior: scrollBehavior
+            });
+          }
+        } catch (err) {}
+
+        // 2. ROLAGEM HORIZONTAL DO CARROSSEL (Centraliza o card no trilho)
+        const track = el.closest('.carousel-track');
+        if (track) {
+          try {
+            const trackWidth = track.clientWidth;
+            const targetScrollX = el.offsetLeft - (trackWidth / 2) + (el.offsetWidth / 2);
+            track.scrollTo({
+              left: Math.max(0, targetScrollX),
+              behavior: scrollBehavior
+            });
+          } catch (err) {}
+        }
+      }
+
+      if (!isTv) {
+        showTvFocusBeacon(el);
+      }
     }
 
     function showTvFocusBeacon(el) {
@@ -10438,63 +10801,18 @@ function escapeHtml(str) {
       const textEl = document.getElementById('tvFocusBeaconText');
       const cardTitle = el.querySelector ? (el.querySelector('.card-hover-title') || el.querySelector('.card-title')) : null;
       const label = cardTitle ? cardTitle.innerText : (el.innerText || el.title || 'Selecionado');
-      if (textEl) textEl.innerText = `📺 ${label.length > 28 ? label.substring(0, 26) + '...' : label}`;
+      if (textEl) textEl.innerText = `🎮 ${label.length > 28 ? label.substring(0, 26) + '...' : label}`;
       beacon.style.display = 'flex';
       if (tvBeaconTimeout) clearTimeout(tvBeaconTimeout);
       tvBeaconTimeout = setTimeout(() => {
-        if (beacon) beacon.style.display = 'none';
-      }, 3500);
-    }
-
-    function setTvFocus(el, smoothScroll = true) {
-      if (!el) return;
-      document.querySelectorAll('.tv-focused').forEach(node => node.classList.remove('tv-focused'));
-      el.classList.add('tv-focused');
-      try {
-        el.focus({ preventScroll: true });
-      } catch (e) {}
-
-      if (smoothScroll) {
-        const isTv = document.body.classList.contains('is-tv');
-        const scrollBehavior = isTv ? 'auto' : 'smooth';
-
-        // 1. ROLAGEM VERTICAL (Instantânea e sem lag de JS na TV)
-        try {
-          const elRect = el.getBoundingClientRect();
-          const winH = window.innerHeight || document.documentElement.clientHeight;
-          const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
-          const targetScrollY = currentScrollY + elRect.top - (winH / 2) + (elRect.height / 2);
-          window.scrollTo({
-            top: Math.max(0, targetScrollY),
-            behavior: scrollBehavior
-          });
-        } catch (err) {}
-
-        // 2. ROLAGEM HORIZONTAL DO CARROSSEL (Instantânea na TV para resposta a 60 FPS)
-        const track = el.closest('.carousel-track');
-        if (track) {
-          try {
-            const trackWidth = track.clientWidth;
-            const targetScrollX = el.offsetLeft - (trackWidth / 2) + (el.offsetWidth / 2);
-            track.scrollTo({
-              left: Math.max(0, targetScrollX),
-              behavior: scrollBehavior
-            });
-          } catch (err) {}
-        }
-      }
-
-      if (!document.body.classList.contains('is-tv')) {
-        showTvFocusBeacon(el);
-      }
+        beacon.style.display = 'none';
+      }, 2500);
     }
 
     function activateTvMode() {
-      const firstCard = document.querySelector('#homeView:not([style*="display: none"]) .carousel-track .movie-card') ||
-                       document.querySelector('.movie-card') ||
-                       document.getElementById('heroBtnPlay');
-      if (firstCard) {
-        setTvFocus(firstCard, true);
+      const heroPlay = document.getElementById('heroBtnPlay');
+      if (heroPlay) {
+        setTvFocus(heroPlay, true);
         showToast('🎮 Modo Smart TV Ativo! Use as setas do controle e OK.');
       }
     }
@@ -10506,7 +10824,7 @@ function escapeHtml(str) {
       // 1. SE HOUVER MODAL ABERTO: NAVEGAÇÃO RESTRITA AOS BOTÕES DO MODAL
       const activeModal = document.querySelector('.series-modal.active, .trailer-modal.active, #qrModal.active, #statsModal.active, #surpriseModal.active, #cinemaModal.active');
       if (activeModal) {
-        const focusables = Array.from(activeModal.querySelectorAll('button:not([style*="display: none"]), a:not([style*="display: none"]), input, select'))
+        const focusables = Array.from(activeModal.querySelectorAll('button:not([style*="display: none"]), a:not([style*="display: none"]), input:not([style*="display: none"])'))
           .filter(el => {
             const r = el.getBoundingClientRect();
             return r.width > 0 && r.height > 0 && window.getComputedStyle(el).display !== 'none' && window.getComputedStyle(el).visibility !== 'hidden';
@@ -10515,9 +10833,11 @@ function escapeHtml(str) {
 
         const currentFocused = document.querySelector('.tv-focused') || (focusables.includes(document.activeElement) ? document.activeElement : null);
         if (!currentFocused || !focusables.includes(currentFocused)) {
-          setTvFocus(focusables[0]);
+          const defaultAction = activeModal.querySelector('#movieModalBtnResume, #movieModalBtnPlay, .episode-card, button') || focusables[0];
+          setTvFocus(defaultAction);
           return;
         }
+
         const idx = focusables.indexOf(currentFocused);
         if (key === 'ArrowRight' || key === 'ArrowDown') {
           const next = focusables[(idx + 1) % focusables.length];
@@ -10532,20 +10852,69 @@ function escapeHtml(str) {
       // 2. NAVEGAÇÃO FORA DE MODAIS (HOME OU GRADES)
       const currentFocused = document.querySelector('.tv-focused') || (document.activeElement && document.activeElement !== document.body ? document.activeElement : null);
 
-      // SE NADA ESTIVER FOCADO AINDA: FOCA O PRIMEIRO CARD VISÍVEL IMEDIATAMENTE
+      // SE NADA ESTIVER FOCADO AINDA: FOCA O HERO PLAY OU PRIMEIRO CARD
       if (!currentFocused || !document.body.contains(currentFocused)) {
+        const heroPlay = document.getElementById('heroBtnPlay');
+        if (heroPlay && window.getComputedStyle(heroPlay).display !== 'none') {
+          setTvFocus(heroPlay);
+          return;
+        }
         const firstVisibleCard = document.querySelector('#homeView:not([style*="display: none"]) .carousel-track .movie-card') ||
-                                 document.querySelector('#moviesView:not([style*="display: none"]) .movie-card') ||
-                                 document.querySelector('#seriesView:not([style*="display: none"]) .movie-card') ||
-                                 document.querySelector('.movie-card') ||
-                                 document.getElementById('heroBtnPlay');
-        if (firstVisibleCard) {
-          setTvFocus(firstVisibleCard);
+                                 document.querySelector('.movie-card');
+        if (firstVisibleCard) setTvFocus(firstVisibleCard);
+        return;
+      }
+
+      // A. O FOCO ATUAL ESTÁ NO TOP TV NAV (navHome, navMovies, navSeries)
+      if (currentFocused.id === 'navHome' || currentFocused.id === 'navMovies' || currentFocused.id === 'navSeries' || currentFocused.classList.contains('nav-btn')) {
+        const navBtns = [document.getElementById('navHome'), document.getElementById('navMovies'), document.getElementById('navSeries')].filter(Boolean);
+        const navIdx = navBtns.indexOf(currentFocused);
+
+        if (key === 'ArrowRight') {
+          if (navIdx < navBtns.length - 1) setTvFocus(navBtns[navIdx + 1]);
+          return;
+        } else if (key === 'ArrowLeft') {
+          if (navIdx > 0) setTvFocus(navBtns[navIdx - 1]);
+          return;
+        } else if (key === 'ArrowDown') {
+          const homeView = document.getElementById('homeView');
+          if (homeView && window.getComputedStyle(homeView).display !== 'none') {
+            const heroPlay = document.getElementById('heroBtnPlay');
+            if (heroPlay && window.getComputedStyle(heroPlay).display !== 'none') {
+              setTvFocus(heroPlay);
+              return;
+            }
+          }
+          const firstCard = document.querySelector('main:not([style*="display: none"]) .movie-card');
+          if (firstCard) setTvFocus(firstCard);
+          return;
         }
         return;
       }
 
-      // A. O FOCO ATUAL É UM CARD DENTRO DE UM CARROSSEL
+      // B. O FOCO ATUAL ESTÁ NO HERO BANNER (PLAY, INFO)
+      if (currentFocused.id === 'heroBtnPlay' || currentFocused.id === 'heroBtnInfo' || currentFocused.id === 'heroBtnVlc') {
+        if (key === 'ArrowDown') {
+          const firstCard = document.querySelector('#homeView .carousel-track .movie-card');
+          if (firstCard) setTvFocus(firstCard);
+        } else if (key === 'ArrowUp') {
+          const navHome = document.getElementById('navHome');
+          if (navHome) setTvFocus(navHome);
+        } else if (key === 'ArrowRight') {
+          if (currentFocused.id === 'heroBtnPlay') {
+            const infoBtn = document.getElementById('heroBtnInfo');
+            if (infoBtn && window.getComputedStyle(infoBtn).display !== 'none') setTvFocus(infoBtn);
+          }
+        } else if (key === 'ArrowLeft') {
+          if (currentFocused.id === 'heroBtnInfo') {
+            const playBtn = document.getElementById('heroBtnPlay');
+            if (playBtn) setTvFocus(playBtn);
+          }
+        }
+        return;
+      }
+
+      // C. O FOCO ATUAL É UM CARD DENTRO DE UM CARROSSEL
       const currentTrack = currentFocused.closest('.carousel-track');
       const currentSection = currentFocused.closest('.carousel-section');
 
@@ -10612,11 +10981,12 @@ function escapeHtml(str) {
               setTvFocus(bestCard);
             }
           } else {
+            // Se está no primeiro carrossel e aperta Cima -> Sobe para o botão Assistir do Hero!
             const heroPlay = document.getElementById('heroBtnPlay');
             if (heroPlay && window.getComputedStyle(heroPlay).display !== 'none') {
               setTvFocus(heroPlay);
             } else {
-              const navHome = document.getElementById('btnNavHome');
+              const navHome = document.getElementById('navHome');
               if (navHome) setTvFocus(navHome);
             }
           }
@@ -10624,7 +10994,7 @@ function escapeHtml(str) {
         }
       }
 
-      // B. O FOCO ATUAL É UM CARD DENTRO DE UMA GRADE (FILMES OU SÉRIES)
+      // D. O FOCO ATUAL É UM CARD DENTRO DE UMA GRADE (FILMES OU SÉRIES)
       const currentGrid = currentFocused.closest('.grid-layout');
       if (currentGrid) {
         const gridCards = Array.from(currentGrid.querySelectorAll('.movie-card'));
@@ -10651,78 +11021,12 @@ function escapeHtml(str) {
               const firstChip = activeView ? activeView.querySelector('.chip') : null;
               if (firstChip) setTvFocus(firstChip);
               else {
-                const nav = document.getElementById('btnNavMovies') || document.getElementById('btnNavHome');
+                const nav = document.getElementById('navMovies') || document.getElementById('navHome');
                 if (nav) setTvFocus(nav);
               }
             }
           }
           return;
-        }
-      }
-
-      // C. O FOCO ATUAL ESTÁ NO HERO BANNER (PLAY, INFO, VLC)
-      if (currentFocused.id === 'heroBtnPlay' || currentFocused.id === 'heroBtnInfo' || currentFocused.id === 'heroBtnVlc') {
-        if (key === 'ArrowDown') {
-          const firstCard = document.querySelector('#homeView .carousel-track .movie-card');
-          if (firstCard) setTvFocus(firstCard);
-        } else if (key === 'ArrowRight') {
-          if (currentFocused.id === 'heroBtnPlay') {
-            const next = document.getElementById('heroBtnVlc');
-            if (next && window.getComputedStyle(next).display !== 'none') setTvFocus(next);
-            else setTvFocus(document.getElementById('heroBtnInfo'));
-          } else if (currentFocused.id === 'heroBtnVlc') {
-            setTvFocus(document.getElementById('heroBtnInfo'));
-          }
-        } else if (key === 'ArrowLeft') {
-          if (currentFocused.id === 'heroBtnInfo') {
-            const vlc = document.getElementById('heroBtnVlc');
-            if (vlc && window.getComputedStyle(vlc).display !== 'none') setTvFocus(vlc);
-            else setTvFocus(document.getElementById('heroBtnPlay'));
-          } else if (currentFocused.id === 'heroBtnVlc') {
-            setTvFocus(document.getElementById('heroBtnPlay'));
-          }
-        } else if (key === 'ArrowUp') {
-          const navHome = document.getElementById('btnNavHome');
-          if (navHome) setTvFocus(navHome);
-        }
-        return;
-      }
-
-      // D. O FOCO ATUAL ESTÁ NO HEADER OU FILTROS
-      if (currentFocused.classList.contains('nav-btn') || currentFocused.classList.contains('chip') || currentFocused.classList.contains('btn-header-action')) {
-        if (key === 'ArrowDown') {
-          const homeView = document.getElementById('homeView');
-          if (homeView && window.getComputedStyle(homeView).display !== 'none') {
-            const heroPlay = document.getElementById('heroBtnPlay');
-            if (heroPlay && window.getComputedStyle(heroPlay).display !== 'none') setTvFocus(heroPlay);
-            else {
-              const firstCard = document.querySelector('#homeView .carousel-track .movie-card');
-              if (firstCard) setTvFocus(firstCard);
-            }
-          } else {
-            const firstCard = document.querySelector('main:not([style*="display: none"]) .movie-card');
-            if (firstCard) setTvFocus(firstCard);
-          }
-        } else if (key === 'ArrowRight' || key === 'ArrowLeft') {
-          const group = Array.from(currentFocused.parentElement.querySelectorAll('button, a, input'))
-            .filter(el => window.getComputedStyle(el).display !== 'none');
-          const idx = group.indexOf(currentFocused);
-          if (key === 'ArrowRight' && idx < group.length - 1) setTvFocus(group[idx + 1]);
-          else if (key === 'ArrowLeft' && idx > 0) setTvFocus(group[idx - 1]);
-        }
-        return;
-      }
-
-      // FALLBACK GENÉRICO
-      const allCards = Array.from(document.querySelectorAll('.movie-card:not([style*="display: none"])'));
-      if (allCards.length > 0) {
-        const idx = allCards.indexOf(currentFocused);
-        if (idx === -1) {
-          setTvFocus(allCards[0]);
-        } else if (key === 'ArrowRight' || key === 'ArrowDown') {
-          setTvFocus(allCards[(idx + 1) % allCards.length]);
-        } else if (key === 'ArrowLeft' || key === 'ArrowUp') {
-          setTvFocus(allCards[(idx - 1 + allCards.length) % allCards.length]);
         }
       }
     }
