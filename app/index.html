@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>CineLocal - Home Theater & Streaming</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#e50914">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1388,6 +1389,406 @@
       filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
     }
     
+        /* ========================================================================= */
+    /* 📺 SEÇÃO INFERIOR DA FICHA TÉCNICA (EPISÓDIOS DE SÉRIES & TÍTULOS RELACIONADOS) */
+    /* ========================================================================= */
+    .detail-bottom-section {
+      position: relative;
+      z-index: 5;
+      margin-top: 48px;
+      padding-top: 36px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .detail-section-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .detail-section-title span.badge-count {
+      font-size: 14px;
+      font-weight: 700;
+      color: #94a3b8;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+
+    /* Seletor de Temporadas (Chips estilo Netflix / HBO Max) */
+    .detail-season-chips {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .season-chip-btn {
+      padding: 10px 22px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid rgba(255, 255, 255, 0.14);
+      color: #cbd5e1;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.18s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .season-chip-btn:hover,
+    .season-chip-btn.tv-focused {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      border-color: #ffffff;
+      transform: scale(1.05);
+      box-shadow: 0 0 16px rgba(255, 255, 255, 0.3);
+    }
+
+    .season-chip-btn.active {
+      background: #ffffff;
+      color: #0b0f19;
+      border-color: #ffffff;
+      box-shadow: 0 4px 18px rgba(255, 255, 255, 0.35);
+      transform: scale(1.04);
+      font-weight: 800;
+    }
+
+    /* Grid de Episódios Widescreen 16:9 Estilo Netflix Premium */
+    .detail-episodes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 20px;
+    }
+
+    .detail-episode-card {
+      position: relative;
+      background: rgba(18, 24, 38, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1.5px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.22s cubic-bezier(0.2, 0, 0, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .detail-episode-card:hover,
+    .detail-episode-card.tv-focused {
+      background: rgba(30, 41, 59, 0.95);
+      border-color: #ffffff;
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7), 0 0 20px rgba(229, 9, 20, 0.45);
+    }
+
+    .detail-ep-thumb-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #090d16;
+      overflow: hidden;
+    }
+
+    .detail-ep-thumb-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .detail-episode-card:hover .detail-ep-thumb-img,
+    .detail-episode-card.tv-focused .detail-ep-thumb-img {
+      transform: scale(1.05);
+    }
+
+    .detail-ep-play-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .detail-episode-card:hover .detail-ep-play-overlay,
+    .detail-episode-card.tv-focused .detail-ep-play-overlay {
+      opacity: 1;
+    }
+
+    .detail-ep-play-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(229, 9, 20, 0.95);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(229, 9, 20, 0.6);
+      transform: scale(0.9);
+      transition: transform 0.2s ease;
+    }
+
+    .detail-episode-card:hover .detail-ep-play-icon,
+    .detail-episode-card.tv-focused .detail-ep-play-icon {
+      transform: scale(1.08);
+    }
+
+    .detail-ep-badge-num {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .detail-ep-badge-res {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(14, 165, 233, 0.85);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .detail-ep-info-body {
+      padding: 16px 18px 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      justify-content: space-between;
+    }
+
+    .detail-ep-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .detail-ep-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.3;
+    }
+
+    .detail-ep-duration {
+      font-size: 13px;
+      color: #94a3b8;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+
+    .detail-ep-overview {
+      font-size: 13.5px;
+      color: #94a3b8;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    /* ========================================================================= */
+    /* 📡 ESTILOS PARA TV AO VIVO (IPTV & CANAIS 24H)                            */
+    /* ========================================================================= */
+    .livetv-card {
+      position: relative;
+      background: rgba(15, 21, 35, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1.5px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.22s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .livetv-card:hover,
+    .livetv-card.tv-focused {
+      background: rgba(28, 38, 58, 0.95);
+      border-color: #ffffff;
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7), 0 0 20px rgba(229, 9, 20, 0.45);
+    }
+
+    .livetv-thumb-wrap {
+      position: relative;
+      width: 100%;
+      height: 150px;
+      background: #090d16;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      box-sizing: border-box;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .livetv-logo {
+      max-width: 80%;
+      max-height: 90px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+      transition: transform 0.24s ease;
+    }
+
+    .livetv-card:hover .livetv-logo,
+    .livetv-card.tv-focused .livetv-logo {
+      transform: scale(1.08);
+    }
+
+    .livetv-badge-live {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: #e50914;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 10px rgba(229, 9, 20, 0.6);
+      animation: pulseLiveBadge 1.8s infinite;
+    }
+
+    @keyframes pulseLiveBadge {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .livetv-badge-res {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .livetv-info {
+      padding: 16px 18px 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      justify-content: space-between;
+    }
+
+    .livetv-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .livetv-cat {
+      font-size: 12px;
+      font-weight: 700;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .livetv-desc {
+      font-size: 13.5px;
+      color: #94a3b8;
+      line-height: 1.45;
+      margin-bottom: 16px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .livetv-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn-livetv-play {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: #ffffff;
+      color: #000000;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      outline: none;
+    }
+
+    .btn-livetv-play:hover,
+    .btn-livetv-play.tv-focused {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 0 16px rgba(229, 9, 20, 0.6);
+    }
+
+    .btn-livetv-vlc {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      outline: none;
+    }
+
+    .btn-livetv-vlc:hover,
+    .btn-livetv-vlc.tv-focused {
+      background: #f59e0b;
+      color: #000;
+      border-color: #f59e0b;
+    }
+
     /* ========================================================================= */
     /* 📺 CINELOCAL SMART TV PRO EXPERIENCE (AWWWARDS / APPLE TV+ GRADE)          */
     /* ========================================================================= */
@@ -5613,6 +6014,7 @@
     #homeView,
     #moviesView,
     #seriesView,
+    #liveTvView,
     #mediaDetailView,
     #settingsView {
       padding-left: 88px !important;
@@ -5784,6 +6186,18 @@
           </svg>
         </span>
         <span class="sidebar-label">Séries</span>
+      </button>
+
+      <button class="sidebar-item dpad-focusable" id="sideBtnLiveTv" tabindex="0" onclick="switchView('liveTv')" title="TV ao Vivo">
+        <span class="sidebar-icon-box">
+          <svg class="sidebar-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <path d="M4.93 4.93a10 10 0 0 1 14.14 0"></path>
+            <path d="M7.76 7.76a6 6 0 0 1 8.48 0"></path>
+            <circle cx="12" cy="12" r="2"></circle>
+            <path d="M12 14v7"></path>
+          </svg>
+        </span>
+        <span class="sidebar-label">TV ao Vivo</span>
       </button>
 
       <button class="sidebar-item dpad-focusable" id="sideBtnFavorites" tabindex="0" onclick="switchView('movies'); setMovieFilter('favorites');" title="Minha Lista">
@@ -6228,6 +6642,36 @@
       </div>
 
       <div class="detail-bottom-section" id="detailBottomSection"></div>
+    </div>
+  </main>
+
+  <!-- VIEW DEDICADA: TV AO VIVO & IPTV (#liveTvView) -->
+  <main id="liveTvView" class="view-container" style="display: none;">
+    <div class="view-header">
+      <div class="view-title-group">
+        <h2>📡 TV ao Vivo & Canais IPTV</h2>
+        <p id="liveTvCountLabel">Canais abertos, notícias, esportes e entretenimento 24h via streaming IP</p>
+      </div>
+
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <button class="btn-profile-action dpad-focusable" onclick="openIptvModal()" style="padding: 9px 20px; font-size: 13.5px;">
+          <span>⚙️ Configurar Lista IPTV / M3U</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- CHIPS DE CATEGORIAS DE CANAIS -->
+    <div class="search-chips-row" id="liveTvChipsRow" style="margin-bottom: 24px;">
+      <button class="search-chip active dpad-focusable" onclick="filterLiveTv('all', this)">🔥 Todos os Canais</button>
+      <button class="search-chip dpad-focusable" onclick="filterLiveTv('abertos', this)">📺 Abertos & Notícias</button>
+      <button class="search-chip dpad-focusable" onclick="filterLiveTv('esportes', this)">⚽ Esportes</button>
+      <button class="search-chip dpad-focusable" onclick="filterLiveTv('filmes', this)">🍿 Filmes & Séries</button>
+      <button class="search-chip dpad-focusable" onclick="filterLiveTv('infantil', this)">🧸 Infantil & Kids</button>
+    </div>
+
+    <!-- GRID DE CANAIS DE TV -->
+    <div class="grid-layout" id="liveTvChannelsGrid" style="grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));">
+      <!-- Injetado dinamicamente -->
     </div>
   </main>
 
@@ -7562,6 +8006,57 @@
     </div>
   </div>
 
+  <!-- MODAL DE CONFIGURAÇÃO DE CANAIS IPTV (#iptvModal) -->
+  <div id="iptvModal" class="profile-switch-modal" onclick="if(event.target===this)closeIptvModal()">
+    <div class="profile-switch-box" style="max-width: 680px; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 16px;">
+        <h2 style="font-size: 24px; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 10px;">
+          <span>📡 Configurar Lista IPTV (M3U / Stream)</span>
+        </h2>
+        <button class="btn-profile-action" onclick="closeIptvModal()" style="padding: 6px 14px;">✕ Fechar</button>
+      </div>
+
+      <p style="color: #94a3b8; font-size: 14px; line-height: 1.5; margin-bottom: 20px;">
+        Adicione sua lista IPTV pessoal (formato M3U ou M3U8) ou cadastre canais adicionais para assistir diretamente pelo CineLocal ou via VLC.
+      </p>
+
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div>
+          <label style="color: #cbd5e1; font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px;">Nome do Canal:</label>
+          <input type="text" id="iptvCustomName" placeholder="Ex: ESPN Brasil, HBO, Canal Esportes" style="width: 100%; padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15); color: #fff; font-size: 14px; outline: none; box-sizing: border-box;">
+        </div>
+
+        <div>
+          <label style="color: #cbd5e1; font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px;">URL do Stream (HLS .m3u8 ou HTTP):</label>
+          <input type="text" id="iptvCustomUrl" placeholder="https://exemplo.com/stream/index.m3u8" style="width: 100%; padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15); color: #fff; font-size: 14px; outline: none; box-sizing: border-box;">
+        </div>
+
+        <div style="display: flex; gap: 12px;">
+          <div style="flex: 1;">
+            <label style="color: #cbd5e1; font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px;">Categoria:</label>
+            <select id="iptvCustomCat" style="width: 100%; padding: 12px 14px; border-radius: 12px; background: #131826; border: 1.5px solid rgba(255,255,255,0.15); color: #fff; font-size: 14px; outline: none; box-sizing: border-box;">
+              <option value="abertos">Abertos & Notícias</option>
+              <option value="esportes">Esportes & Futebol</option>
+              <option value="filmes">Filmes & Séries</option>
+              <option value="infantil">Infantil & Kids</option>
+              <option value="musica">Música & Variedades</option>
+            </select>
+          </div>
+          <div style="flex: 1;">
+            <label style="color: #cbd5e1; font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px;">Logo (URL Opcional):</label>
+            <input type="text" id="iptvCustomLogo" placeholder="https://exemplo.com/logo.png" style="width: 100%; padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15); color: #fff; font-size: 14px; outline: none; box-sizing: border-box;">
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">
+          <button class="btn-profile-action" onclick="saveCustomIptvChannel()" style="background: var(--primary); border-color: var(--primary); color: #fff; padding: 12px 24px;">
+            <span>➕ Adicionar Canal</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL DE GERENCIAMENTO DE PERFIS (NETFLIX STYLE) -->
 <div id="manageProfilesModal" class="series-modal" onclick="closeManageProfilesModalOnOut(event)">
   <div class="series-modal-box" style="max-width: 560px; padding: 28px;">
@@ -8113,6 +8608,7 @@ function escapeHtml(str) {
         'search': document.getElementById('sideBtnSearch'),
         'movies': document.getElementById('sideBtnMovies'),
         'series': document.getElementById('sideBtnSeries'),
+        'liveTv': document.getElementById('sideBtnLiveTv'),
         'settings': document.getElementById('sideBtnSettings')
       };
       Object.entries(sideBtns).forEach(([k, btn]) => {
@@ -8123,6 +8619,7 @@ function escapeHtml(str) {
       const searchView = document.getElementById('searchView');
       const moviesView = document.getElementById('moviesView');
       const seriesView = document.getElementById('seriesView');
+      const liveTvView = document.getElementById('liveTvView');
       const settingsView = document.getElementById('settingsView');
       const detailView = document.getElementById('mediaDetailView');
 
@@ -8130,8 +8627,13 @@ function escapeHtml(str) {
       if (searchView) searchView.style.display = viewName === 'search' ? 'block' : 'none';
       if (moviesView) moviesView.style.display = viewName === 'movies' ? 'block' : 'none';
       if (seriesView) seriesView.style.display = viewName === 'series' ? 'block' : 'none';
+      if (liveTvView) liveTvView.style.display = viewName === 'liveTv' ? 'block' : 'none';
       if (settingsView) settingsView.style.display = viewName === 'settings' ? 'block' : 'none';
       if (detailView && viewName !== 'detail') detailView.style.display = 'none';
+
+      if (viewName === 'liveTv' && typeof renderLiveTvChannels === 'function') {
+        renderLiveTvChannels();
+      }
 
       collapseSidebar();
 
@@ -8352,7 +8854,300 @@ function escapeHtml(str) {
       // RENDERIZAÇÃO PADRÃO OFICIAL CINELOCAL (PÔSTER HD 2:3, OVERLAY, BADGES E FOCO TV)
       container.innerHTML = filtered.map(item => createCardHtml(item, false)).join('');
     }
-    function toggleTvQuickRail() {
+
+    /* ========================================================================= */
+    /* 📡 MÓDULO CINELOCAL TV AO VIVO & IPTV STREAMING                           */
+    /* ========================================================================= */
+    let currentLiveTvFilter = 'all';
+
+    const DEFAULT_LIVETV_CHANNELS = [
+      {
+        id: 'tv_brasil',
+        name: 'TV Brasil HD',
+        category: 'abertos',
+        categoryLabel: 'Abertos & Notícias',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/TV_Brasil_2019.svg/512px-TV_Brasil_2019.svg.png',
+        streamUrl: 'https://ebc-live.ebc.com.br/tvbrasil/index.m3u8',
+        description: 'Emissora pública da Empresa Brasil de Comunicação com notícias, cultura e entretenimento nacional.',
+        resolution: '1080p',
+        isLive: true
+      },
+      {
+        id: 'tv_cultura',
+        name: 'TV Cultura',
+        category: 'abertos',
+        categoryLabel: 'Abertos & Cultura',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/TV_Cultura_2020.svg/512px-TV_Cultura_2020.svg.png',
+        streamUrl: 'https://streaming.tvcultura.com.br/hls/aovivo/index.m3u8',
+        description: 'Cultura, programação infantil de alta qualidade, programas de entrevistas e jornalismo de referência.',
+        resolution: '1080p',
+        isLive: true
+      },
+      {
+        id: 'record_news',
+        name: 'Record News',
+        category: 'abertos',
+        categoryLabel: 'Notícias 24h',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Record_News_2024.svg/512px-Record_News_2024.svg.png',
+        streamUrl: 'https://live-recordnews.fabricahost.com.br/recordnews/index.m3u8',
+        description: 'Canal brasileiro de notícias 24 horas no ar com cobertura completa e debates diários.',
+        resolution: '720p',
+        isLive: true
+      },
+      {
+        id: 'redbull_tv',
+        name: 'Red Bull TV HD',
+        category: 'esportes',
+        categoryLabel: 'Esportes & Radicais',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Red_Bull_TV_logo.svg/512px-Red_Bull_TV_logo.svg.png',
+        streamUrl: 'https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master.m3u8',
+        description: 'Esportes radicais, automobilismo, mountain bike, surfe e documentários esportivos eletrizantes.',
+        resolution: '1080p',
+        isLive: true
+      },
+      {
+        id: 'pluto_cine_sucessos',
+        name: 'Pluto TV Cine Sucessos',
+        category: 'filmes',
+        categoryLabel: 'Filmes 24h',
+        logo: 'https://images.pluto.tv/channels/5fa832bf64dbd4000788ee54/logo.png',
+        streamUrl: 'https://service-stitcher.clusters.pluto.tv/stitch/hls/channel/5fa832bf64dbd4000788ee54/master.m3u8?deviceType=samsung-tv&deviceMake=samsung',
+        description: 'Grandes sucessos do cinema mundial, clássicos de Hollywood e filmes premiados 24h por dia.',
+        resolution: '720p',
+        isLive: true
+      },
+      {
+        id: 'pluto_cine_acao',
+        name: 'Pluto TV Filmes Ação',
+        category: 'filmes',
+        categoryLabel: 'Filmes de Ação',
+        logo: 'https://images.pluto.tv/channels/5fa83533866c1b0007e0c464/logo.png',
+        streamUrl: 'https://service-stitcher.clusters.pluto.tv/stitch/hls/channel/5fa83533866c1b0007e0c464/master.m3u8?deviceType=samsung-tv&deviceMake=samsung',
+        description: 'Tiros, perseguições em alta velocidade, explosões e adrenalina pura 24 horas sem parar.',
+        resolution: '720p',
+        isLive: true
+      },
+      {
+        id: 'pluto_series',
+        name: 'Pluto TV Séries',
+        category: 'filmes',
+        categoryLabel: 'Séries 24h',
+        logo: 'https://images.pluto.tv/channels/5fa835c678a1ee00076bf2ce/logo.png',
+        streamUrl: 'https://service-stitcher.clusters.pluto.tv/stitch/hls/channel/5fa835c678a1ee00076bf2ce/master.m3u8?deviceType=samsung-tv&deviceMake=samsung',
+        description: 'Maratonas de séries consagradas de comédia, mistério, drama e ação o dia inteiro.',
+        resolution: '720p',
+        isLive: true
+      },
+      {
+        id: 'pluto_kids',
+        name: 'Pluto TV Kids & Nick Jr',
+        category: 'infantil',
+        categoryLabel: 'Infantil & Família',
+        logo: 'https://images.pluto.tv/channels/5fa83707c570b50007ec18b8/logo.png',
+        streamUrl: 'https://service-stitcher.clusters.pluto.tv/stitch/hls/channel/5fa83707c570b50007ec18b8/master.m3u8?deviceType=samsung-tv&deviceMake=samsung',
+        description: 'Desenhos animados seguros, séries e entretenimento para crianças e toda a família.',
+        resolution: '720p',
+        isLive: true
+      },
+      {
+        id: 'pluto_anime',
+        name: 'Pluto TV Anime 24h',
+        category: 'infantil',
+        categoryLabel: 'Animes 24h',
+        logo: 'https://images.pluto.tv/channels/5fa837ba84dfc8000741639c/logo.png',
+        streamUrl: 'https://service-stitcher.clusters.pluto.tv/stitch/hls/channel/5fa837ba84dfc8000741639c/master.m3u8?deviceType=samsung-tv&deviceMake=samsung',
+        description: 'Animes clássicos e produções japonesas consagradas dubladas e legendadas.',
+        resolution: '720p',
+        isLive: true
+      },
+      {
+        id: 'nasa_tv',
+        name: 'NASA TV HD',
+        category: 'abertos',
+        categoryLabel: 'Ciência & Espaço',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/NASA_logo.svg/512px-NASA_logo.svg.png',
+        streamUrl: 'https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8',
+        description: 'Transmissões espaciais ao vivo da Estação Espacial Internacional, lançamentos de foguetes e exploração do cosmos.',
+        resolution: '1080p',
+        isLive: true
+      }
+    ];
+
+    function getLiveTvChannels() {
+      let customChannels = [];
+      try {
+        const raw = localStorage.getItem('cinelocal_iptv_custom_channels');
+        if (raw) customChannels = JSON.parse(raw);
+      } catch (e) {}
+      return [...DEFAULT_LIVETV_CHANNELS, ...customChannels];
+    }
+
+    function renderLiveTvChannels() {
+      const grid = document.getElementById('liveTvChannelsGrid');
+      const countLabel = document.getElementById('liveTvCountLabel');
+      if (!grid) return;
+
+      const channels = getLiveTvChannels();
+      let filtered = channels;
+
+      if (currentLiveTvFilter !== 'all') {
+        filtered = channels.filter(c => c.category === currentLiveTvFilter);
+      }
+
+      if (typeof isKidsModeActive === 'function' && isKidsModeActive()) {
+        filtered = filtered.filter(c => c.category === 'infantil');
+      }
+
+      if (countLabel) {
+        countLabel.innerText = `${filtered.length} canais ao vivo disponíveis em alta definição`;
+      }
+
+      grid.innerHTML = filtered.map(ch => {
+        const chJson = JSON.stringify(ch).replace(/"/g, '&quot;');
+        return `
+          <div class="livetv-card dpad-focusable" tabindex="0" onclick="playLiveChannel(${chJson})">
+            <div class="livetv-thumb-wrap">
+              <span class="livetv-badge-live">🔴 AO VIVO</span>
+              <span class="livetv-badge-res">${ch.resolution || 'HD'}</span>
+              <img class="livetv-logo" src="${ch.logo}" alt="${escapeHtml(ch.name)}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'80\' height=\'80\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23fff\' stroke-width=\'2\'><rect x=\'2\' y=\'7\' width=\'20\' height=\'15\' rx=\'2\' ry=\'2\'/><polyline points=\'17 2 12 7 7 2\'/></svg>'">
+            </div>
+            <div class="livetv-info">
+              <div>
+                <div class="livetv-title">${escapeHtml(ch.name)}</div>
+                <div class="livetv-cat">${escapeHtml(ch.categoryLabel || 'Canal')}</div>
+                <div class="livetv-desc">${escapeHtml(ch.description || 'Transmissão contínua em tempo real.')}</div>
+              </div>
+              <div class="livetv-actions">
+                <button class="btn-livetv-play dpad-focusable" onclick="event.stopPropagation(); playLiveChannel(${chJson})" tabindex="0">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                  <span>Assistir ao Vivo</span>
+                </button>
+                <button class="btn-livetv-vlc dpad-focusable" onclick="event.stopPropagation(); openLiveChannelInVlc(${chJson})" title="Assistir no VLC Media Player" tabindex="0">
+                  <span>VLC</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterLiveTv(category, btn) {
+      currentLiveTvFilter = category;
+      document.querySelectorAll('#liveTvChipsRow .search-chip').forEach(c => c.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderLiveTvChannels();
+    }
+
+    function playLiveChannel(channel) {
+      if (!channel || !channel.streamUrl) return;
+
+      const playerModal = document.getElementById('playerModal');
+      const video = document.getElementById('mainVideo');
+      const titleEl = document.getElementById('playerTitle');
+      const subEl = document.getElementById('playerSubInfo');
+
+      if (titleEl) titleEl.innerText = `🔴 AO VIVO • ${channel.name}`;
+      if (subEl) subEl.innerText = `${channel.categoryLabel || 'IPTV'} • ${channel.resolution || 'HD'}`;
+
+      if (playerModal) playerModal.classList.add('active');
+
+      state.currentPlaying = { ...channel, isLive: true };
+
+      // Limpa HLS anterior
+      if (window.currentHlsInstance) {
+        try { window.currentHlsInstance.destroy(); } catch (e) {}
+        window.currentHlsInstance = null;
+      }
+
+      if (window.Hls && Hls.isSupported()) {
+        const hls = new Hls({ enableWorker: true });
+        hls.loadSource(channel.streamUrl);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+          video.play().catch(e => console.log('Autoplay prevent:', e));
+        });
+        hls.on(Hls.Events.ERROR, function(event, data) {
+          if (data.fatal) {
+            console.warn('Erro Hls fatal:', data);
+            showToast('⚠️ Stream instável. Use "Assistir no VLC" caso não carregue.');
+          }
+        });
+        window.currentHlsInstance = hls;
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = channel.streamUrl;
+        video.play().catch(e => console.log('Autoplay prevent:', e));
+      } else {
+        video.src = channel.streamUrl;
+        video.play().catch(e => console.log('Autoplay prevent:', e));
+      }
+
+      showToast(`📡 Sintonizando: ${channel.name}`);
+    }
+
+    function openLiveChannelInVlc(channel) {
+      if (!channel || !channel.streamUrl) return;
+      fetch(`http://localhost:8000/api/open_vlc?url=${encodeURIComponent(channel.streamUrl)}`)
+        .then(r => r.json())
+        .then(res => {
+          if (res.status === 'ok') showToast(`🚀 Abrindo ${channel.name} no VLC...`);
+          else showToast(`⚠️ ${res.message || 'Erro ao abrir VLC'}`);
+        })
+        .catch(err => {
+          showToast(`🚀 Abrindo ${channel.name} no VLC...`);
+        });
+    }
+
+    function openIptvModal() {
+      const modal = document.getElementById('iptvModal');
+      if (modal) modal.classList.add('active');
+    }
+
+    function closeIptvModal() {
+      const modal = document.getElementById('iptvModal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    function saveCustomIptvChannel() {
+      const name = (document.getElementById('iptvCustomName').value || '').trim();
+      const url = (document.getElementById('iptvCustomUrl').value || '').trim();
+      const cat = document.getElementById('iptvCustomCat').value || 'abertos';
+      const logo = (document.getElementById('iptvCustomLogo').value || '').trim() || 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'80\' height=\'80\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23fff\' stroke-width=\'2\'><rect x=\'2\' y=\'7\' width=\'20\' height=\'15\' rx=\'2\' ry=\'2\'/><polyline points=\'17 2 12 7 7 2\'/></svg>';
+
+      if (!name || !url) {
+        showToast('⚠️ Informe ao menos o nome do canal e a URL do stream.');
+        return;
+      }
+
+      const newChan = {
+        id: 'custom_' + Date.now(),
+        name: name,
+        category: cat,
+        categoryLabel: cat.toUpperCase(),
+        logo: logo,
+        streamUrl: url,
+        description: 'Canal adicionado pelo usuário.',
+        resolution: '1080p',
+        isLive: true
+      };
+
+      try {
+        const raw = localStorage.getItem('cinelocal_iptv_custom_channels');
+        const list = raw ? JSON.parse(raw) : [];
+        list.push(newChan);
+        localStorage.setItem('cinelocal_iptv_custom_channels', JSON.stringify(list));
+      } catch (e) {}
+
+      closeIptvModal();
+      document.getElementById('iptvCustomName').value = '';
+      document.getElementById('iptvCustomUrl').value = '';
+      showToast(`✅ Canal "${name}" adicionado à lista de TV!`);
+      renderLiveTvChannels();
+    }
+
+        function toggleTvQuickRail() {
       const rail = document.getElementById('tvPlayerQuickRail');
       if (!rail) return;
       const isHidden = window.getComputedStyle(rail).display === 'none';
@@ -8717,7 +9512,7 @@ function escapeHtml(str) {
         `;
       }
 
-      // 3. Botões de Ação
+      // 3. Botões de Ação Inteligentes (Continuar Onde Parou vs Assistir do Início)
       const playBtn = document.getElementById('detailBtnPlay');
       const resumeBtn = document.getElementById('detailBtnResume');
       const favBtn = document.getElementById('detailBtnFav');
@@ -8726,15 +9521,30 @@ function escapeHtml(str) {
 
       if (vlcBtn) vlcBtn.style.display = state.vlcAvailable ? 'inline-flex' : 'none';
 
-      // Progresso
+      // Progresso inteligente
       const prog = getWatchProgress(item.id);
-      if (prog && prog.currentTime > 10 && prog.pct < 92 && !prog.completed) {
+      const hasResume = prog && prog.currentTime > 10 && prog.pct < 92 && !prog.completed;
+
+      if (hasResume) {
+        // Se já estava assistindo, o BOTÃO PRINCIPAL passa a ser "Continuar de XX:XX"
+        if (playBtn) {
+          playBtn.onclick = () => resumeMediaFromDetail();
+          const playLabel = document.getElementById('detailPlayLabel');
+          if (playLabel) playLabel.innerText = `Continuar (${formatTime(prog.currentTime)})`;
+        }
+        // E o botão secundário vira "Começar do Início"
         if (resumeBtn) {
           resumeBtn.style.display = 'inline-flex';
+          resumeBtn.onclick = () => playMediaFromDetail(true);
           const resumeLabel = document.getElementById('detailResumeLabel');
-          if (resumeLabel) resumeLabel.innerText = `⏱️ Continuar de ${formatTime(prog.currentTime)}`;
+          if (resumeLabel) resumeLabel.innerText = `Começar do Início`;
         }
       } else {
+        if (playBtn) {
+          playBtn.onclick = () => playMediaFromDetail(false);
+          const playLabel = document.getElementById('detailPlayLabel');
+          if (playLabel) playLabel.innerText = isSeries ? 'Assistir 1º Episódio' : 'Assistir Agora';
+        }
         if (resumeBtn) resumeBtn.style.display = 'none';
       }
 
@@ -8816,17 +9626,23 @@ function escapeHtml(str) {
       }
     }
 
-    function playMediaFromDetail() {
-      if (currentDetailMedia) {
-        if (currentDetailMedia.type === 'series') {
-          const ep = (currentDetailMedia.seasons && currentDetailMedia.seasons[0] && currentDetailMedia.seasons[0].episodes) 
-            ? currentDetailMedia.seasons[0].episodes[0] : null;
-          if (ep) {
-            openEpisodePlayer(currentDetailMedia, currentDetailMedia.seasons[0], ep);
-          }
-        } else {
-          openPlayer(currentDetailMedia, false, 0);
+    function playMediaFromDetail(forceRestart = false) {
+      if (!currentDetailMedia) return;
+      if (currentDetailMedia.type === 'series') {
+        const ep = (currentDetailMedia.seasons && currentDetailMedia.seasons[0] && currentDetailMedia.seasons[0].episodes) 
+          ? currentDetailMedia.seasons[0].episodes[0] : null;
+        if (ep) {
+          openEpisodePlayer(currentDetailMedia, currentDetailMedia.seasons[0], ep);
         }
+      } else {
+        if (!forceRestart) {
+          const prog = getWatchProgress(currentDetailMedia.id);
+          if (prog && prog.currentTime > 10 && prog.pct < 92 && !prog.completed) {
+            openPlayer(currentDetailMedia, false, prog.currentTime);
+            return;
+          }
+        }
+        openPlayer(currentDetailMedia, false, 0);
       }
     }
 
@@ -8858,40 +9674,81 @@ function escapeHtml(str) {
       }
     }
 
+    function openEpisodePlayer(series, season, ep) {
+      if (!series || !ep) return;
+      const sIdx = (series.seasons && season) ? series.seasons.indexOf(season) : 0;
+      const safeIdx = sIdx >= 0 ? sIdx : 0;
+
+      // Detecta progresso salvo do episódio específico
+      const prog = getWatchProgress(ep.id);
+      const startTime = (prog && prog.currentTime > 10 && prog.pct < 92 && !prog.completed) ? prog.currentTime : 0;
+
+      state.currentEpisodeSeries = {
+        series: series,
+        seasonIdx: safeIdx,
+        epNum: ep.episodeNumber
+      };
+
+      openPlayer(ep, true, startTime);
+    }
+
     function renderDetailSeriesEpisodes(series, seasonIdx) {
       const bottomSection = document.getElementById('detailBottomSection');
       if (!bottomSection || !series.seasons) return;
 
       const currentSeason = series.seasons[seasonIdx] || series.seasons[0];
       const episodes = currentSeason ? currentSeason.episodes : [];
+      const seriesThumb = series.posterPath ? encodeURI(series.posterPath) : '';
 
       bottomSection.innerHTML = `
         <div class="detail-episodes-wrap">
-          <h3 class="detail-section-title">Episódios</h3>
+          <div class="detail-section-title">
+            <span>📺 Episódios da Série</span>
+            <span class="badge-count">${episodes.length} episódios</span>
+          </div>
+
           <div class="detail-season-chips">
             ${series.seasons.map((s, idx) => `
               <button class="season-chip-btn ${idx === seasonIdx ? 'active' : ''} dpad-focusable" onclick="renderDetailSeriesEpisodes(currentDetailMedia, ${idx})" tabindex="0">
-                ${s.title}
+                ${s.title} (${(s.episodes || []).length} eps)
               </button>
             `).join('')}
           </div>
-          <div class="detail-episodes-track">
+
+          <div class="detail-episodes-grid">
             ${episodes.map(ep => {
               const epProg = getWatchProgress(ep.id);
               let epProgressHtml = '';
-              if (epProg && epProg.pct >= 2 && epProg.pct < 92) {
+              if (epProg && epProg.pct >= 2 && epProg.pct < 92 && !epProg.completed) {
                 epProgressHtml = `<div class="card-progress-bar"><div class="card-progress-fill" style="width: ${epProg.pct}%"></div></div>`;
               }
+              const thumbSrc = ep.posterPath ? encodeURI(ep.posterPath) : seriesThumb;
               const epJson = JSON.stringify(ep).replace(/"/g, '&quot;');
+
               return `
                 <div class="detail-episode-card dpad-focusable" tabindex="0" onclick="openEpisodePlayer(currentDetailMedia, currentDetailMedia.seasons[${seasonIdx}], ${epJson})">
-                  <div class="detail-ep-header">
-                    <span>EPISÓDIO ${ep.episodeNumber}</span>
-                    <span>${ep.resolution || 'HD'}</span>
+                  <div class="detail-ep-thumb-wrap">
+                    <img class="detail-ep-thumb-img" src="${thumbSrc}" alt="Episódio ${ep.episodeNumber}" loading="lazy">
+                    <div class="detail-ep-play-overlay">
+                      <div class="detail-ep-play-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                      </div>
+                    </div>
+                    <span class="detail-ep-badge-num">EP #${String(ep.episodeNumber).padStart(2, '0')}</span>
+                    <span class="detail-ep-badge-res">${ep.resolution || '1080p'}</span>
+                    ${epProgressHtml}
                   </div>
-                  <div class="detail-ep-title">${ep.title}</div>
-                  <div class="detail-ep-overview">${ep.overview || 'Clique para reproduzir este episódio.'}</div>
-                  ${epProgressHtml}
+                  <div class="detail-ep-info-body">
+                    <div>
+                      <div class="detail-ep-title-row">
+                        <div class="detail-ep-title">${escapeHtml(ep.title || `Episódio ${ep.episodeNumber}`)}</div>
+                        <div class="detail-ep-duration">${ep.durationFormatted || ep.sizeFormatted || ep.format || ''}</div>
+                      </div>
+                      <div class="detail-ep-overview">${escapeHtml(ep.overview || 'Clique com o controle remoto para reproduzir este episódio instantaneamente.')}</div>
+                    </div>
+                  </div>
                 </div>
               `;
             }).join('')}
@@ -8899,7 +9756,6 @@ function escapeHtml(str) {
         </div>
       `;
     }
-
     function renderDetailRelatedMovies(movie) {
       const bottomSection = document.getElementById('detailBottomSection');
       if (!bottomSection) return;
@@ -11263,6 +12119,10 @@ function escapeHtml(str) {
     }
 
     function closePlayer() {
+      if (window.currentHlsInstance) {
+        try { window.currentHlsInstance.destroy(); } catch (e) {}
+        window.currentHlsInstance = null;
+      }
       stopTorrentHud();
       stopAmbilightLoop();
       const previewVid = document.getElementById('previewVideo');
