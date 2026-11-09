@@ -159,6 +159,8 @@ def install_on_tv(tv_ip=None):
     package_wgt()
 
     devices = list_connected_devices()
+    if not devices and not tv_ip:
+        tv_ip = '192.168.18.204'
     if tv_ip:
         connect_to_tv(tv_ip)
         devices = list_connected_devices()
