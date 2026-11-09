@@ -51,6 +51,87 @@ def get_ffmpeg_bin():
             return candidate
     return None
 
+TMDB_CACHE_FILE = os.path.join(APP_DIR, 'tmdb_metadata_cache.json')
+_TMDB_CACHE = None
+
+TMDB_GENRES_MAP = {
+    28: 'Ação', 12: 'Aventura', 16: 'Animação', 35: 'Comédia', 80: 'Crime',
+    99: 'Documentário', 18: 'Drama', 10751: 'Família', 14: 'Fantasia',
+    36: 'História', 27: 'Terror', 10402: 'Música', 9648: 'Mistério',
+    10749: 'Romance', 878: 'Ficção Científica', 10770: 'Cinema TV',
+    53: 'Thriller', 10752: 'Guerra', 37: 'Faroeste',
+    10759: 'Ação & Aventura', 10762: 'Kids', 10763: 'Notícias',
+    10764: 'Reality', 10765: 'Ficção & Fantasia', 10766: 'Novela',
+    10767: 'Talk', 10768: 'Guerra & Política'
+}
+
+def get_tmdb_cache():
+    global _TMDB_CACHE
+    if _TMDB_CACHE is not None:
+        return _TMDB_CACHE
+    if os.path.exists(TMDB_CACHE_FILE):
+        try:
+            with open(TMDB_CACHE_FILE, 'r', encoding='utf-8') as f:
+                _TMDB_CACHE = json.load(f)
+                return _TMDB_CACHE
+        except Exception:
+            _TMDB_CACHE = {}
+    else:
+        _TMDB_CACHE = {}
+    return _TMDB_CACHE
+
+def find_tmdb_fallback(title, year=None, is_series=False):
+    """Localiza metadados oficiais do TMDb em cache para preenchimento automático (Issue #11)."""
+    cache = get_tmdb_cache()
+    if not cache:
+        return None
+    
+    clean_target = re.sub(r'[^a-zA-Z0-9]', '', title.lower())
+    matched_entry = None
+    
+    # 1. Busca por chave direta (movie_nome_ano / series_nome_ano)
+    prefix = 'series_' if is_series else 'movie_'
+    for k, v in cache.items():
+        if not isinstance(v, dict):
+            continue
+        if k.startswith(prefix):
+            clean_k = re.sub(r'[^a-zA-Z0-9]', '', k.replace(prefix, '').lower())
+            if clean_target in clean_k or clean_k in clean_target:
+                matched_entry = v
+                break
+                
+    # 2. Busca por título / nome interno
+    if not matched_entry:
+        for k, v in cache.items():
+            if not isinstance(v, dict):
+                continue
+            v_title = v.get('title') or v.get('name') or v.get('original_title') or ''
+            clean_v = re.sub(r'[^a-zA-Z0-9]', '', v_title.lower())
+            if clean_target == clean_v or (len(clean_target) > 4 and clean_target in clean_v):
+                matched_entry = v
+                break
+                
+    if not matched_entry:
+        return None
+        
+    overview = matched_entry.get('overview') or ''
+    rating = round(float(matched_entry.get('vote_average', 0)), 1)
+    genre_ids = matched_entry.get('genre_ids', [])
+    genres = [TMDB_GENRES_MAP[gid] for gid in genre_ids if gid in TMDB_GENRES_MAP]
+    tmdb_id = matched_entry.get('id')
+    
+    res = {}
+    if overview.strip():
+        res['overview'] = overview.strip()
+    if rating > 0:
+        res['rating'] = rating
+    if genres:
+        res['genres'] = genres
+    if tmdb_id:
+        res['tmdbUrl'] = f"https://www.themoviedb.org/{'tv' if is_series else 'movie'}/{tmdb_id}"
+    return res if res else None
+
+
 def normalize_cache_key(path_str):
     if not path_str:
         return ''
@@ -322,6 +403,15 @@ def build_catalog():
                         m_year = get_year(v) or get_year(sd)
                         m_meta = get_movie_info(m_title, year=m_year, franchise=franchise_name)
                         
+                        # Fallback inteligente do TMDb se não houver metadados dedicados em metadata_db.py (Issue #11)
+                        if not m_meta.get('overview') or 'Filme completo em alta resolução' in m_meta.get('overview', ''):
+                            tmdb_info = find_tmdb_fallback(m_title, m_year, is_series=False)
+                            if tmdb_info:
+                                if tmdb_info.get('overview'): m_meta['overview'] = tmdb_info['overview']
+                                if tmdb_info.get('rating'): m_meta['rating'] = tmdb_info['rating']
+                                if tmdb_info.get('genres'): m_meta['genres'] = tmdb_info['genres']
+                                if tmdb_info.get('tmdbUrl'): m_meta['tmdbUrl'] = tmdb_info['tmdbUrl']
+
                         movies_catalog.append({
                             'id': f'mov_{len(movies_catalog)+1}',
                             'type': 'movie',
@@ -373,6 +463,15 @@ def build_catalog():
                     m_year = get_year(v) or get_year(item)
                     m_meta = get_movie_info(m_title, year=m_year, franchise=None)
                     
+                    # Fallback inteligente do TMDb se não houver metadados dedicados em metadata_db.py (Issue #11)
+                    if not m_meta.get('overview') or 'Filme completo em alta resolução' in m_meta.get('overview', ''):
+                        tmdb_info = find_tmdb_fallback(m_title, m_year, is_series=False)
+                        if tmdb_info:
+                            if tmdb_info.get('overview'): m_meta['overview'] = tmdb_info['overview']
+                            if tmdb_info.get('rating'): m_meta['rating'] = tmdb_info['rating']
+                            if tmdb_info.get('genres'): m_meta['genres'] = tmdb_info['genres']
+                            if tmdb_info.get('tmdbUrl'): m_meta['tmdbUrl'] = tmdb_info['tmdbUrl']
+
                     movies_catalog.append({
                         'id': f'mov_{len(movies_catalog)+1}',
                         'type': 'movie',
@@ -507,6 +606,16 @@ def build_catalog():
                 'visionquest': 2026
             }
             s_info = get_series_info(item)
+            
+            # Fallback inteligente do TMDb para séries (Issue #11)
+            if not s_info.get('overview') or 'Série completa disponível no CineLocal' in s_info.get('overview', ''):
+                tmdb_s = find_tmdb_fallback(item, is_series=True)
+                if tmdb_s:
+                    if tmdb_s.get('overview'): s_info['overview'] = tmdb_s['overview']
+                    if tmdb_s.get('rating'): s_info['rating'] = tmdb_s['rating']
+                    if tmdb_s.get('genres'): s_info['genres'] = tmdb_s['genres']
+                    if tmdb_s.get('tmdbUrl'): s_info['tmdbUrl'] = tmdb_s['tmdbUrl']
+
             s_year = s_info.get('year') or SERIES_YEARS.get(item.lower(), get_year(item))
             series_added_at = max(all_ep_mtimes) if all_ep_mtimes else int(os.path.getmtime(ipath))
             
