@@ -10884,26 +10884,25 @@ async function playTorrentFromQueue(infoHash, mode) {
 }
 
 async function removeTorrentFromQueue(infoHash) {
-  const card = document.getElementById(`torrent-card-${infoHash}`);
+  const card = document.getElementById(`torrent-card-${infoHash}`) || document.querySelector(`[data-torrent-hash="${infoHash}"]`);
   if (card) {
-    card.style.opacity = '0.3';
-    card.style.pointerEvents = 'none';
+    card.remove();
   }
   showToast('🗑️ Removendo torrent...');
   try {
     const res = await fetch('/api/torrent/remove', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ infoHash: infoHash, deleteCache: true })
+      body: JSON.stringify({ infoHash: infoHash || '', deleteCache: true })
     });
     const data = await res.json();
-    if (card) card.remove();
     showToast('🗑️ Torrent removido da fila!');
   } catch (e) {
-    if (card) card.remove();
     showToast('Torrent removido da visualização.');
   } finally {
-    fetchTorrentQueue();
+    setTimeout(() => {
+      fetchTorrentQueue();
+    }, 350);
   }
 }
 

@@ -131,7 +131,10 @@ function getTorrentEntryStatus(item) {
 function getAllTorrentsStatus() {
   const list = [];
   let totalSpeed = 0;
+  if (torrentsMap.has(undefined)) torrentsMap.delete(undefined);
+  if (torrentsMap.has('undefined')) torrentsMap.delete('undefined');
   for (const item of torrentsMap.values()) {
+    if (!item) continue;
     const s = getTorrentEntryStatus(item);
     totalSpeed += s.downloadSpeed;
     list.push(s);
@@ -147,6 +150,15 @@ function getAllTorrentsStatus() {
   };
 }
 
+function extractInfoHash(torrentId) {
+  if (typeof torrentId === 'string') {
+    const m = torrentId.match(/urn:btih:([a-fA-F0-9]{40}|[a-zA-Z2-7]{32})/i);
+    if (m) return m[1].toLowerCase();
+    if (/^[a-fA-F0-9]{40}$/i.test(torrentId.trim())) return torrentId.trim().toLowerCase();
+  }
+  return null;
+}
+
 function addTorrent(torrentId, title = '', year = '', poster = '', overview = '', imdbId = '') {
   return new Promise((resolve, reject) => {
     try {
@@ -157,12 +169,12 @@ function addTorrent(torrentId, title = '', year = '', poster = '', overview = ''
       };
 
       const torrent = client.add(torrentId, opts);
-      const infoHash = torrent.infoHash;
+      let currentHash = (torrent.infoHash || extractInfoHash(torrentId) || ('torrent_' + Date.now())).toLowerCase();
 
-      let item = torrentsMap.get(infoHash);
+      let item = torrentsMap.get(currentHash);
       if (!item) {
         item = {
-          infoHash: infoHash,
+          infoHash: currentHash,
           name: title || 'Carregando metadados...',
           title: title,
           year: year,
@@ -174,7 +186,7 @@ function addTorrent(torrentId, title = '', year = '', poster = '', overview = ''
           error: null,
           addedAt: Date.now()
         };
-        torrentsMap.set(infoHash, item);
+        torrentsMap.set(currentHash, item);
       } else {
         item.torrent = torrent;
         if (title) item.title = title;
@@ -184,7 +196,15 @@ function addTorrent(torrentId, title = '', year = '', poster = '', overview = ''
       }
 
       torrent.on('infoHash', () => {
-        item.infoHash = torrent.infoHash;
+        const realHash = torrent.infoHash.toLowerCase();
+        if (currentHash !== realHash) {
+          torrentsMap.delete(currentHash);
+          currentHash = realHash;
+          item.infoHash = realHash;
+          torrentsMap.set(realHash, item);
+        } else {
+          item.infoHash = realHash;
+        }
       });
 
       torrent.on('metadata', () => {
@@ -253,13 +273,40 @@ function addTorrent(torrentId, title = '', year = '', poster = '', overview = ''
 
 function removeTorrent(infoHash, deleteCache = false) {
   return new Promise((resolve) => {
-    const item = torrentsMap.get(infoHash);
-    if (!item) {
-      return resolve({ success: true, message: 'Torrent não encontrado na fila' });
+    const target = String(infoHash || '').toLowerCase().trim();
+    let foundKey = null;
+    let item = null;
+
+    // Busca exata ou por insensibilidade a maiúsculas/minúsculas
+    for (const [k, v] of torrentsMap.entries()) {
+      const kStr = String(k || '').toLowerCase();
+      const vHash = String((v && v.infoHash) || '').toLowerCase();
+      const tHash = String((v && v.torrent && v.torrent.infoHash) || '').toLowerCase();
+      if ((target && (kStr === target || vHash === target || tHash === target || kStr.includes(target) || vHash.includes(target)))) {
+        foundKey = k;
+        item = v;
+        break;
+      }
     }
 
-    // Remove imediatamente da fila para atualização instantânea da interface
-    torrentsMap.delete(infoHash);
+    // Fallback: se não encontrou por hash específico ou se tiver apenas 1 torrent
+    if (!item && (!target || torrentsMap.size === 1)) {
+      foundKey = torrentsMap.keys().next().value;
+      item = torrentsMap.get(foundKey);
+    }
+
+    if (!item) {
+      if (torrentsMap.has(undefined)) torrentsMap.delete(undefined);
+      if (torrentsMap.has('undefined')) torrentsMap.delete('undefined');
+      return resolve({ success: true, message: 'Torrent já não está mais na fila' });
+    }
+
+    // Remove imediatamente de todas as referências do mapa
+    if (foundKey !== null && foundKey !== undefined) torrentsMap.delete(foundKey);
+    if (target) torrentsMap.delete(target);
+    if (item.infoHash) torrentsMap.delete(item.infoHash.toLowerCase());
+    if (torrentsMap.has(undefined)) torrentsMap.delete(undefined);
+    if (torrentsMap.has('undefined')) torrentsMap.delete('undefined');
 
     try {
       if (item.torrent) {
@@ -272,12 +319,12 @@ function removeTorrent(infoHash, deleteCache = false) {
                   fs.rmSync(cacheFolder, { recursive: true, force: true });
                 }
               } catch (e) {}
-            }, 600);
+            }, 500);
           }
         });
       }
     } catch (e) {
-      try { client.remove(infoHash); } catch (e2) {}
+      try { client.remove(item.infoHash || target); } catch (e2) {}
     }
 
     resolve({ success: true, message: 'Torrent removido com sucesso' });
