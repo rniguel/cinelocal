@@ -307,7 +307,7 @@ def clean_title(name):
     return stem.strip()
 
 def parse_subtitles_for_dir(dir_path, rel_prefix, subtitles_db):
-    srts = [f for f in sorted(os.listdir(dir_path)) if f.lower().endswith('.srt')]
+    srts = [f for f in sorted(os.listdir(dir_path)) if f.lower().endswith('.srt') and os.path.getsize(os.path.join(dir_path, f)) > 0]
     subtitles = []
     for s in srts:
         srel = f'{rel_prefix}/{s}'.replace('\\', '/')
