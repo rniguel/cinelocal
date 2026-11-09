@@ -885,6 +885,66 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             self.send_error(400, 'ID não informado')
             return
 
+        # 4. Importação e Restauração de Backup (Issue #14)
+        if parsed.path == '/api/user_state/import':
+            if not isinstance(payload, dict):
+                self.send_error(400, 'Formato inválido de backup (esperado JSON objeto)')
+                return
+            
+            if not any(k in payload for k in ('watchProgress', 'favorites', 'watchedList')):
+                self.send_error(400, 'Arquivo de backup inválido: não contém dados do CineLocal')
+                return
+            
+            with USER_STATE_LOCK:
+                current_state = load_user_state()
+                
+                # Merge de favoritos
+                new_favs = payload.get('favorites', [])
+                if isinstance(new_favs, list):
+                    curr_favs = current_state.get('favorites', [])
+                    for f in new_favs:
+                        if f not in curr_favs:
+                            curr_favs.append(f)
+                    current_state['favorites'] = curr_favs
+                
+                # Merge de watchProgress
+                new_wp = payload.get('watchProgress', {})
+                if isinstance(new_wp, dict):
+                    curr_wp = current_state.get('watchProgress', {})
+                    for m_id, wp_item in new_wp.items():
+                        if isinstance(wp_item, dict):
+                            if m_id in curr_wp and isinstance(curr_wp[m_id], dict):
+                                curr_ts = curr_wp[m_id].get('updatedAt') or (curr_wp[m_id].get('timestamp', 0) / 1000)
+                                new_ts = wp_item.get('updatedAt') or (wp_item.get('timestamp', 0) / 1000)
+                                if new_ts >= curr_ts:
+                                    curr_wp[m_id] = wp_item
+                            else:
+                                curr_wp[m_id] = wp_item
+                    current_state['watchProgress'] = curr_wp
+                
+                # Merge de watchedList
+                new_wl = payload.get('watchedList', {})
+                if isinstance(new_wl, dict):
+                    curr_wl = current_state.get('watchedList', {})
+                    curr_wl.update(new_wl)
+                    current_state['watchedList'] = curr_wl
+                
+                save_user_state(current_state)
+            
+            log_event("💾", "BACKUP IMPORT", f"Backup restaurado com sucesso por {client_ip}")
+            res = json.dumps({
+                "status": "ok",
+                "message": "Backup restaurado com sucesso!",
+                "favoritesCount": len(current_state.get('favorites', [])),
+                "progressCount": len(current_state.get('watchProgress', {}))
+            }, ensure_ascii=False).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(res)
+            return
+
         self.send_error(404, 'Rota POST não encontrada')
 
     def do_GET(self):
@@ -991,6 +1051,21 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             self.wfile.write(data)
+            return
+
+        # Exportação de Backup do Progresso e Favoritos (Issue #14)
+        if parsed.path == '/api/user_state/export':
+            state_data = load_user_state()
+            data = json.dumps(state_data, ensure_ascii=False, indent=2).encode('utf-8')
+            filename = datetime.now().strftime("cinelocal_backup_%Y%m%d_%H%M%S.json")
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Content-Disposition', f'attachment; filename="{filename}"')
+            self.send_header('Content-Length', str(len(data)))
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(data)
+            log_event("💾", "BACKUP EXPORT", f"Backup gerado e exportado para {client_ip}")
             return
 
         # Filmes em Cartaz nos Cinemas (TMDb Now Playing)

@@ -3744,6 +3744,9 @@
             <button class="dropdown-item" onclick="toggleDropdown('headerMoreMenu'); openStatsModal();">
               <span>📊</span> Meu Cinema em Números
             </button>
+            <button class="dropdown-item" onclick="toggleDropdown('headerMoreMenu'); openBackupModal();">
+              <span>💾</span> Backup & Restauração
+            </button>
             <button class="dropdown-item" onclick="toggleDropdown('headerMoreMenu'); openMcuTrackerModal();">
               <span>⚡</span> Linha do Tempo Marvel (MCU)
             </button>
@@ -3848,6 +3851,9 @@
         </button>
         <button class="mobile-drawer-link" onclick="openStatsModal(); closeMobileMenu();">
           <span class="m-link-icon">📊</span> Meu Cinema em Números
+        </button>
+        <button class="mobile-drawer-link" onclick="openBackupModal(); closeMobileMenu();">
+          <span class="m-link-icon">💾</span> Backup & Restauração
         </button>
         <button class="mobile-drawer-link" onclick="openMcuTrackerModal(); closeMobileMenu();">
           <span class="m-link-icon">⚡</span> Universo Marvel (MCU)
@@ -4625,6 +4631,51 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- MODAL DE BACKUP E RESTAURAÇÃO (ISSUE #14) -->
+  <div id="backupModal" class="series-modal" onclick="closeBackupModalOnOut(event)">
+    <div class="series-modal-box" style="max-width: 520px; padding: 28px;">
+      <button class="series-modal-close" onclick="closeBackupModal()">&times;</button>
+      
+      <div style="margin-bottom: 22px; text-align: left;">
+        <span class="badge-tag" style="background: rgba(30,144,255,0.2); border: 1px solid #1e90ff; color: #87cefa;">SEGURANÇA & DADOS</span>
+        <h2 style="font-size: 1.45rem; color: #fff; margin: 6px 0 4px;">💾 Backup & Restauração</h2>
+        <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Exporte ou restaure seu progresso de reprodução, histórico e favoritos.</p>
+      </div>
+
+      <!-- OPÇÃO EXPORTAR -->
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; text-align: left;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+          <span style="font-size: 1.6rem;">📥</span>
+          <div>
+            <div style="font-weight: 600; color: #fff; font-size: 1rem;">Exportar Backup Atual</div>
+            <div style="color: var(--text-muted); font-size: 0.82rem;">Baixa um arquivo JSON seguro com todo o seu progresso e lista de favoritos.</div>
+          </div>
+        </div>
+        <button class="btn-primary" style="width: 100%; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="exportUserStateBackup()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Baixar Arquivo de Backup (.json)
+        </button>
+      </div>
+
+      <!-- OPÇÃO RESTAURAR -->
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 18px; text-align: left;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+          <span style="font-size: 1.6rem;">📤</span>
+          <div>
+            <div style="font-weight: 600; color: #fff; font-size: 1rem;">Restaurar Backup Anterior</div>
+            <div style="color: var(--text-muted); font-size: 0.82rem;">Importe um arquivo de backup para restaurar seus dados sem perder os atuais.</div>
+          </div>
+        </div>
+        <input type="file" id="backupFileInput" accept=".json,application/json" style="display: none;" onchange="importUserStateBackup(event)">
+        <button class="btn-secondary" style="width: 100%; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="document.getElementById('backupFileInput').click()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          Selecionar Arquivo para Restaurar
+        </button>
+        <div id="backupStatusMsg" style="margin-top: 12px; font-size: 0.85rem; display: none;"></div>
+      </div>
     </div>
   </div>
 
@@ -8281,6 +8332,76 @@
       if (e.target.id === 'statsModal') closeStatsModal();
     }
 
+    /* MODAL DE BACKUP E RESTAURAÇÃO (ISSUE #14) */
+    function openBackupModal() {
+      const modal = document.getElementById('backupModal');
+      if (modal) modal.classList.add('active');
+    }
+
+    function closeBackupModal() {
+      const modal = document.getElementById('backupModal');
+      if (modal) modal.classList.remove('active');
+      const msg = document.getElementById('backupStatusMsg');
+      if (msg) msg.style.display = 'none';
+    }
+
+    function closeBackupModalOnOut(e) {
+      if (e.target.id === 'backupModal') closeBackupModal();
+    }
+
+    function exportUserStateBackup() {
+      window.location.href = '/api/user_state/export';
+    }
+
+    async function importUserStateBackup(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const statusEl = document.getElementById('backupStatusMsg');
+      if (statusEl) {
+        statusEl.style.display = 'block';
+        statusEl.style.color = 'var(--text-muted)';
+        statusEl.textContent = '⏳ Lendo e restaurando arquivo de backup...';
+      }
+
+      try {
+        const text = await file.text();
+        const jsonPayload = JSON.parse(text);
+
+        const res = await fetch('/api/user_state/import', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(jsonPayload)
+        });
+
+        const data = await res.json();
+        if (res.ok && data.status === 'ok') {
+          if (statusEl) {
+            statusEl.style.color = '#4ade80';
+            statusEl.textContent = '✅ ' + data.message + ' (' + data.progressCount + ' em progresso, ' + data.favoritesCount + ' favoritos)';
+          }
+          if (typeof loadServerUserState === 'function') {
+            await loadServerUserState();
+          }
+          if (typeof renderAllViews === 'function') {
+            renderAllViews();
+          }
+          setTimeout(() => {
+            closeBackupModal();
+          }, 2200);
+        } else {
+          throw new Error(data.message || 'Falha ao importar backup');
+        }
+      } catch (err) {
+        if (statusEl) {
+          statusEl.style.color = '#ff6b6b';
+          statusEl.textContent = '❌ Erro ao restaurar: ' + err.message;
+        }
+      } finally {
+        event.target.value = '';
+      }
+    }
+
     function renderStatsData() {
       const movies = (state.movies && state.movies.length > 0) ? state.movies : (window.CATALOGO_FILMES || []);
       const series = (state.series && state.series.length > 0) ? state.series : (window.CATALOGO_SERIES || []);
@@ -8796,6 +8917,7 @@
               closeTrailerModal();
               closeQrModal();
               closeStatsModal();
+              closeBackupModal();
             }
             break;
         }
@@ -9178,6 +9300,7 @@
           closeTrailerModal();
           closeQrModal();
           closeStatsModal();
+          closeBackupModal();
           closeMobileSearchBar();
           return;
         }
