@@ -2,19 +2,23 @@
 """
 CineLocal Desktop - Inicializador Oficial em Modo Aplicativo
 ============================================================
-Inicia o servidor CineLocal em segundo plano e abre uma janela de aplicativo
-nativa dedicada (Edge/Chrome/Brave em modo --app), eliminando a barra de navegação
-e proporcionando uma experiência cinematográfica 100% autônoma.
+Inicia o servidor CineLocal em segundo plano dentro do próprio processo
+e abre uma janela de aplicativo nativa dedicada (Edge/Chrome/Brave em modo --app),
+eliminando a barra de navegação e evitando qualquer abertura de múltiplas abas.
 """
 
 import os
 import sys
 import time
+import threading
 import subprocess
 import webbrowser
 import urllib.request
 import urllib.error
-import atexit
+import multiprocessing
+
+# Previne fork-bombs e múltiplas instâncias em executáveis PyInstaller no Windows
+multiprocessing.freeze_support()
 
 # Configuração de encoding UTF-8 no terminal
 if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
@@ -23,20 +27,32 @@ if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-APP_DIR = os.path.join(ROOT_DIR, "app")
-SERVER_SCRIPT = os.path.join(APP_DIR, "servidor.py")
+# Determina os diretórios base respeitando execução normal ou empacotada PyInstaller
+if getattr(sys, "frozen", False):
+    ROOT_DIR = os.path.dirname(os.path.abspath(sys.executable))
+    APP_DIR = os.path.join(ROOT_DIR, "app")
+    if not os.path.exists(APP_DIR) and hasattr(sys, "_MEIPASS"):
+        APP_DIR = os.path.join(sys._MEIPASS, "app")
+else:
+    ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+    APP_DIR = os.path.join(ROOT_DIR, "app")
+
+if APP_DIR not in sys.path:
+    sys.path.insert(0, APP_DIR)
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 PORT = 8000
 SERVER_URL = f"http://localhost:{PORT}/app/index.html"
 HEALTH_URL = f"http://localhost:{PORT}/api/tools/status"
 
-SERVER_PROC = None
+SERVER_THREAD = None
 
 def is_server_running():
-    """Verifica se o servidor CineLocal já está ativo e respondendo."""
+    """Verifica se o servidor CineLocal já está ativo e respondendo na porta 8000."""
     try:
         req = urllib.request.Request(f"http://localhost:{PORT}/api/status")
-        with urllib.request.urlopen(req, timeout=1.2) as res:
+        with urllib.request.urlopen(req, timeout=0.8) as res:
             if res.status == 200:
                 return True
     except Exception:
@@ -44,51 +60,33 @@ def is_server_running():
     return False
 
 def start_server():
-    """Inicia o servidor CineLocal em segundo plano caso não esteja rodando."""
-    global SERVER_PROC
+    """Inicia o servidor CineLocal dentro do próprio processo em thread separada (sem processos extras)."""
+    global SERVER_THREAD
     if is_server_running():
         print("🍿 CineLocal já está ativo na porta 8000.")
         return True
 
     print("🚀 Iniciando motor CineLocal...")
-    python_bin = sys.executable
-
-    creationflags = 0
-    if sys.platform == "win32":
-        # Esconde a janela de terminal do subprocesso no Windows
-        creationflags = subprocess.CREATE_NO_WINDOW if hasattr(subprocess, "CREATE_NO_WINDOW") else 0x08000000
-
     try:
-        SERVER_PROC = subprocess.Popen(
-            [python_bin, SERVER_SCRIPT],
-            cwd=ROOT_DIR,
-            creationflags=creationflags
+        from servidor import run as start_server_main
+        SERVER_THREAD = threading.Thread(
+            target=start_server_main,
+            kwargs={"open_browser": False},
+            daemon=True
         )
+        SERVER_THREAD.start()
 
-        # Aguarda inicialização (até 6 segundos)
-        for _ in range(30):
+        # Aguarda inicialização (até 5 segundos)
+        for _ in range(25):
             time.sleep(0.2)
             if is_server_running():
                 print("✅ Servidor CineLocal pronto!")
                 return True
 
-        print("⚠️ Servidor demorou para responder, tentando abrir assim mesmo...")
         return True
     except Exception as e:
-        print(f"❌ Falha ao iniciar servidor: {e}")
+        print(f"❌ Falha ao iniciar servidor interno: {e}")
         return False
-
-def cleanup_server():
-    """Encerra o servidor ao fechar o aplicativo desktop."""
-    global SERVER_PROC
-    if SERVER_PROC and SERVER_PROC.poll() is None:
-        try:
-            SERVER_PROC.terminate()
-            SERVER_PROC.wait(timeout=2)
-        except Exception:
-            pass
-
-atexit.register(cleanup_server)
 
 def find_app_browser():
     """Localiza navegadores capazes de rodar em modo aplicativo nativo (--app)."""
@@ -141,7 +139,7 @@ def find_app_browser():
     return None
 
 def launch_desktop():
-    """Abre o CineLocal na melhor interface possível."""
+    """Abre o CineLocal em uma única janela de aplicativo."""
     start_server()
 
     browser = find_app_browser()
@@ -154,22 +152,21 @@ def launch_desktop():
 
         cmd = [browser, app_arg, profile_arg, "--start-maximized"]
         try:
-            # Executa a janela do navegador em primeiro plano
+            # Executa a janela do navegador e aguarda seu encerramento
             proc = subprocess.Popen(cmd)
             proc.wait()
             return
         except Exception as e:
             print(f"Aviso ao abrir modo app: {e}")
 
-    # Fallback para navegador padrão
+    # Fallback: se não tiver Chrome/Edge em modo app, abre exatamente UMA aba no navegador
     print("🌐 Abrindo no navegador padrão...")
     webbrowser.open(SERVER_URL)
-    # Mantém o processo vivo se o servidor for filho
-    if SERVER_PROC:
-        try:
-            SERVER_PROC.wait()
-        except KeyboardInterrupt:
-            pass
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        pass
 
 if __name__ == "__main__":
     launch_desktop()

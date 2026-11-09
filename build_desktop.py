@@ -60,10 +60,11 @@ added_files = [
 
 a = Analysis(
     ['run_desktop.py'],
-    pathex=['{root_path_clean}'],
+    pathex=['{root_path_clean}', '{root_path_clean}/app'],
     binaries=[],
     datas=added_files,
     hiddenimports=[
+        'servidor',
         'tools_manager',
         'atualizar_catalogo',
         'metadata_db',
@@ -72,7 +73,11 @@ a = Analysis(
         'urllib.request',
         'urllib.parse',
         'json',
-        'threading'
+        'threading',
+        'multiprocessing',
+        'shutil',
+        'subprocess',
+        'sqlite3'
     ],
     hookspath=[],
     hooksconfig={{}},
@@ -155,7 +160,9 @@ def build():
         subprocess.run([sys.executable, "-m", "pip", "install", "pyinstaller"], check=True)
 
     print("\n🔨 Compilando CineLocal.exe com PyInstaller...")
-    subprocess.run([sys.executable, "-m", "PyInstaller", SPEC_FILE, "--clean", "-y"], check=True)
+    workpath = os.path.join(os.environ.get("TEMP", os.environ.get("LOCALAPPDATA", "C:\\Temp")), "pyi_cinelocal_work")
+    os.makedirs(workpath, exist_ok=True)
+    subprocess.run([sys.executable, "-m", "PyInstaller", SPEC_FILE, "--workpath", workpath, "--clean", "-y"], check=True)
 
     exe_path = os.path.join(DIST_DIR, "CineLocal", "CineLocal.exe")
     if os.path.exists(exe_path):

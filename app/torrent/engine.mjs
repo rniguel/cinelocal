@@ -8,7 +8,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const APP_DIR = path.resolve(__dirname, '..');
 const ROOT_DIR = path.resolve(APP_DIR, '..');
-const CACHE_DIR = path.join(APP_DIR, 'data', 'torrent_cache');
+const localAppData = process.env.LOCALAPPDATA || process.env.APPDATA || path.join(APP_DIR, 'data');
+const CACHE_DIR = path.join(localAppData, 'CineLocal', 'torrent_cache');
 
 if (!fs.existsSync(CACHE_DIR)) {
   fs.mkdirSync(CACHE_DIR, { recursive: true });
@@ -77,8 +78,8 @@ function getTorrentEntryStatus(item) {
   }
 
   const isMkv = videoFile ? videoFile.isMkv : false;
-  const streamUrl = videoFile ? videoFile.streamUrl : '';
-  const initialBufferReady = downloaded >= 8 * 1024 * 1024 || progress >= 0.02 || (item.ready && downloaded > 2 * 1024 * 1024);
+  const streamUrl = videoFile ? videoFile.streamUrl : (t && t.infoHash ? /webtorrent/ : '');
+  const initialBufferReady = downloaded >= 2 * 1024 * 1024 || progress >= 0.005 || (item.ready && downloaded > 500 * 1024);
 
   return {
     infoHash: item.infoHash,
@@ -178,6 +179,7 @@ function addTorrent(torrentId, title = '', year = '', poster = '', overview = ''
         if (!item.title || item.title === 'Carregando metadados...') {
           item.title = torrent.name;
         }
+        item.ready = true;
       });
 
       torrent.on('ready', () => {
@@ -195,30 +197,24 @@ function addTorrent(torrentId, title = '', year = '', poster = '', overview = ''
           }
         });
 
-        // Configuração sequencial com janela prioritária
-        if (torrent.pieces && torrent.pieces.length > 0) {
+        // Seleciona arquivo de vídeo principal
+        if (torrent.files[bestIdx]) {
           try {
-            torrent.deselect(0, torrent.pieces.length - 1);
+            torrent.files[bestIdx].select();
           } catch (e) {}
+        }
 
-          // Prioridade 1: Primeiras 20 peças (cabeçalho de vídeo container)
-          const headPieces = Math.min(20, torrent.pieces.length - 1);
+        // Prioridade máxima nas peças iniciais para buffer instantâneo (sem deselect para não parar o download)
+        if (torrent.pieces && torrent.pieces.length > 0) {
+          const headPieces = Math.min(30, torrent.pieces.length - 1);
           try {
             torrent.critical(0, headPieces);
           } catch (e) {}
 
-          // Prioridade 2: Últimas 15 peças (índice moov / seek MP4/MKV)
           const tailPieces = Math.max(0, torrent.pieces.length - 15);
           try {
             torrent.critical(tailPieces, torrent.pieces.length - 1);
           } catch (e) {}
-
-          // Seleciona arquivo de vídeo
-          if (torrent.files[bestIdx]) {
-            try {
-              torrent.files[bestIdx].select();
-            } catch (e) {}
-          }
         }
 
         console.log(`[Torrent Ready] "${torrent.name}" (${formatBytes(torrent.length)}) - Arquivo principal: "${torrent.files[bestIdx]?.name}"`);
@@ -249,27 +245,29 @@ function removeTorrent(infoHash, deleteCache = false) {
       return resolve({ success: true, message: 'Torrent não encontrado na fila' });
     }
 
+    // Remove imediatamente da fila para atualização instantânea da interface
+    torrentsMap.delete(infoHash);
+
     try {
       if (item.torrent) {
-        client.remove(infoHash, { destroyStore: deleteCache }, (err) => {
-          if (err) console.error('Erro ao remover do cliente:', err);
-          torrentsMap.delete(infoHash);
+        item.torrent.destroy({ destroyStore: false }, () => {
           if (deleteCache && item.name) {
-            const cacheFolder = path.join(CACHE_DIR, item.name);
-            if (fs.existsSync(cacheFolder)) {
-              try { fs.rmSync(cacheFolder, { recursive: true, force: true }); } catch (e) {}
-            }
+            setTimeout(() => {
+              try {
+                const cacheFolder = path.join(CACHE_DIR, item.name);
+                if (fs.existsSync(cacheFolder)) {
+                  fs.rmSync(cacheFolder, { recursive: true, force: true });
+                }
+              } catch (e) {}
+            }, 600);
           }
-          resolve({ success: true, message: 'Torrent removido com sucesso' });
         });
-      } else {
-        torrentsMap.delete(infoHash);
-        resolve({ success: true, message: 'Torrent removido' });
       }
     } catch (e) {
-      torrentsMap.delete(infoHash);
-      resolve({ success: true, message: 'Torrent removido' });
+      try { client.remove(infoHash); } catch (e2) {}
     }
+
+    resolve({ success: true, message: 'Torrent removido com sucesso' });
   });
 }
 

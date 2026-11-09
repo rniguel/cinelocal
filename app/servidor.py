@@ -1576,6 +1576,10 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                     "-nostats",
                     "-loglevel", "error",
                     "-ss", str(seek_val),
+                ]
+                if stream_url:
+                    cmd.extend(["-probesize", "1000000", "-analyzeduration", "1000000", "-fflags", "+nobuffer+discardcorrupt"])
+                cmd.extend([
                     "-i", input_source,
                     "-map", "0:v:0",
                     "-map", map_audio,
@@ -1586,7 +1590,7 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                     "-f", "mp4",
                     "-movflags", "frag_keyframe+empty_moov+default_base_moof",
                     "pipe:1"
-                ]
+                ])
                 
                 proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
                 

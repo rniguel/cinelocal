@@ -10652,8 +10652,8 @@ async function startTorrentStream(mode = 'web') {
           return;
         }
 
-        // Modo Web: dispara assim que o buffer inicial de 6MB estiver em disco
-        if (sData.ready && sData.streamUrl && (sData.initialBufferReady || sData.downloaded >= 6 * 1024 * 1024 || pollCount > 10)) {
+        // Modo Web: dispara assim que houver buffer de 2MB ou após 5 segundos com peers
+        if (sData.ready && sData.streamUrl && (sData.initialBufferReady || sData.downloaded >= 2 * 1024 * 1024 || (sData.numPeers > 0 && pollCount >= 6))) {
           clearInterval(pollTimer);
           closeTorrentModal();
           launchTorrentInPlayer(sData);
@@ -10801,7 +10801,7 @@ async function fetchTorrentQueue() {
         : '<span class="badge-status streaming">📥 Baixando</span>';
 
       return `
-        <div class="torrent-card-item">
+        <div id="torrent-card-${t.infoHash}" class="torrent-card-item" data-torrent-hash="${t.infoHash}">
           <img src="${posterImg}" class="torrent-card-poster" alt="Poster" />
           <div class="torrent-card-body">
             <div class="torrent-card-title">${t.title} ${t.year ? '(' + t.year + ')' : ''}</div>
@@ -10862,11 +10862,18 @@ setInterval(() => {
 
 async function playTorrentFromQueue(infoHash, mode) {
   try {
+    showToast('⚡ Conectando ao fluxo de streaming...');
     const res = await fetch(`/api/torrent/status?infoHash=${infoHash}`);
     const data = await res.json();
+    if (!data || (!data.streamUrl && !data.ready)) {
+      showToast('⏳ Aguarde as sementes enviarem o índice do arquivo (metadados)...');
+      return;
+    }
+    const targetUrl = data.streamUrl || `/webtorrent/${infoHash}`;
+    data.streamUrl = targetUrl;
     if (mode === 'vlc') {
       closeTorrentModal();
-      playTorrentVlc(infoHash, data.streamUrl, data.title);
+      playTorrentVlc(infoHash, targetUrl, data.title || window.currentTorrentTitle);
     } else {
       closeTorrentModal();
       launchTorrentInPlayer(data);
@@ -10877,6 +10884,12 @@ async function playTorrentFromQueue(infoHash, mode) {
 }
 
 async function removeTorrentFromQueue(infoHash) {
+  const card = document.getElementById(`torrent-card-${infoHash}`);
+  if (card) {
+    card.style.opacity = '0.3';
+    card.style.pointerEvents = 'none';
+  }
+  showToast('🗑️ Removendo torrent...');
   try {
     const res = await fetch('/api/torrent/remove', {
       method: 'POST',
@@ -10884,10 +10897,13 @@ async function removeTorrentFromQueue(infoHash) {
       body: JSON.stringify({ infoHash: infoHash, deleteCache: true })
     });
     const data = await res.json();
-    showToast('🗑️ Torrent removido com sucesso!');
-    fetchTorrentQueue();
+    if (card) card.remove();
+    showToast('🗑️ Torrent removido da fila!');
   } catch (e) {
-    showToast('Erro ao remover torrent: ' + e.message);
+    if (card) card.remove();
+    showToast('Torrent removido da visualização.');
+  } finally {
+    fetchTorrentQueue();
   }
 }
 
