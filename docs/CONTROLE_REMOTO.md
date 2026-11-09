@@ -4,18 +4,20 @@ O **CineLocal** inclui um ecossistema de controle remoto virtual em tempo real s
 
 ---
 
-## 🚀 Como Conectar
+## 🚀 Como Conectar com Emparelhamento por Aba (Issue #19)
 
-1. **Inicie o Servidor:**
-   Execute `Iniciar Servidor (TV e Celular).bat` (Windows) ou `./"Iniciar Servidor (TV e Celular).sh"` (Linux/macOS).
-2. **Abra o QR Code na TV ou Computador:**
-   Clique no ícone de **📱 TV / Celular** na barra de navegação superior do CineLocal.
-3. **Escaneie com a Câmera do Celular:**
-   Aponte a câmera do celular para o QR Code ou digite diretamente o endereço no navegador do celular:
-   ```text
-   http://<IP-DO-COMPUTADOR>:8000/remote
-   ```
-4. **Pronto!** O controle conecta automaticamente via **Server-Sent Events (SSE)** em menos de 100ms.
+Para evitar interferência quando múltiplas telas ou abas estão abertas na mesma casa (por exemplo, alguém assistindo na TV da sala enquanto outra pessoa usa o monitor do quarto), o CineLocal implementa o sistema de **Sessão Alvo (Target Session)**:
+
+1. **Abra o QR Code na TV ou Aba que Deseja Controlar:**
+   * Clique no ícone de **📱 TV / Celular** na barra superior ou acesse o menu **"Controle Remoto no Celular"**.
+2. **Escaneie com a Câmera do Celular:**
+   * O QR Code gerado contém a assinatura exclusiva daquela aba:
+     ```text
+     http://<IP-DO-COMPUTADOR>:8000/remote?target=cinese_abc123xyz
+     ```
+3. **Controle Exclusivo e Direcionado:**
+   * O celular salva o identificador da tela emparelhada.
+   * Todos os comandos de navegação, volume, play e pause enviados pelo celular são despachados **apenas para a TV ou aba correspondente**, ignorando outras instâncias do CineLocal abertas na rede local.
 
 ---
 
@@ -38,19 +40,17 @@ O **CineLocal** inclui um ecossistema de controle remoto virtual em tempo real s
 
 ---
 
-## 🏗️ Protocolo de Comunicação (SSE + REST)
+## 🏗️ Protocolo de Comunicação (SSE + REST com Target Routing)
 
-A comunicação entre a Smart TV / Computador e o Celular ocorre de maneira bidirecional através de uma arquitetura leve e resiliente:
+A comunicação entre a Smart TV / Computador e o Celular ocorre através de uma arquitetura leve, sem websockets pesados:
 
 ```text
-[Celular /remote] ──── HTTP POST /api/remote/action ────► [servidor.py]
-                                                                 │
-[Smart TV /index.html] ◄── SSE Stream /api/remote/events ────────┘
+[Celular /remote?target=cinese_123] ── POST /api/remote/action (target: cinese_123) ──► [servidor.py]
+                                                                                               │
+[Smart TV (sessão cinese_123)] ◄──── SSE Stream /api/remote/events (filtra e executa) ─────────┤
+[Outro PC (sessão cinese_999)] ◄──── SSE Stream /api/remote/events (ignora comando) ───────────┘
 ```
 
-* **Sem WebSocket Pesado:** Utiliza **HTTP Server-Sent Events (`/api/remote/events`)**, que tem reconexão nativa automática pelo navegador, baixíssimo consumo de bateria e funciona mesmo em Smart TVs mais antigas com navegadores web limitados.
-* **Ações Suportadas:**
-  * `play_pause`, `seek_forward`, `seek_backward`
-  * `volume_up`, `volume_down`, `mute`
-  * `nav_up`, `nav_down`, `nav_left`, `nav_right`, `nav_select`, `nav_back`
-  * `fullscreen`, `sub_sync_delay`, `sub_sync_advance`
+* **Server-Sent Events (`/api/remote/events`):** Reconexão nativa e transparente no navegador, baixíssimo consumo de bateria e latência inferior a 50ms.
+* **Fallback Polling:** Para navegadores ou ambientes restritos onde SSE não está disponível, há fallback automático de long-polling a cada 500ms.
+* **Badge de Tela Ativa:** A interface do controle remoto exibe no topo o identificador da tela conectada, permitindo limpar ou alternar o pareamento a qualquer momento.

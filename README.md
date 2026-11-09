@@ -60,13 +60,21 @@ Acesse `http://localhost:8000` (ou o IP do seu servidor). Suas mídias são mape
   * Linux: `~/Videos/CineLocal/<Nome do Filme (Ano)>/`
   * macOS: `~/Movies/CineLocal/<Nome do Filme (Ano)>/`
 
-### 2. 📱 Controle Remoto Virtual para Smart TV & Celular (`/remote`)
+### 2. 📱 Controle Remoto Virtual para Smart TV & Celular (`/remote`) com Sessão Alvo (Issue #19)
 * **Transforme qualquer smartphone em controle remoto touch:** Acesse `http://<ip-do-pc>:8000/remote` ou aponte a câmera para o QR Code da aplicação.
+* **Emparelhamento Exclusivo por Tela:** O QR Code carrega um identificador único (`?target=...`). Comandos enviados pelo celular controlam **apenas a TV ou aba correspondente**, sem interferir em outras telas abertas na casa.
 * **D-Pad Tátil com Vibração (Haptic Feedback):** Navegue pelas capas na tela grande da TV usando o direcional touch do celular com resposta tátil.
 * **Sem Latência (< 20ms):** Comunicação baseada em **Server-Sent Events (SSE)** em tempo real.
 * **Comandos Completos:** Play/Pause, Seek (+/- 10s), Volume (+/- / Mudo), Tela Cheia, Fechar e ajuste fino de sincronia de legendas (+/- 0.1s).
 
-### 3. 🍿 Player Cinematográfico HTML5 Avançado
+### 3. 📺 Aplicativo Nativo para Samsung Smart TV (Tizen OS 6.5 a 9.0+) (Issue #20)
+* **Zero Lag & Processo Standalone:** Não depende do navegador integrado da TV, eliminando engasgos de memória RAM e travamentos.
+* **Aceleração por Hardware:** Pronto para decodificação nativa com **Samsung AVPlay** (`webapis.avplay`) em 4K HDR e áudio surround.
+* **Navegação Física com o Controle Remoto Original:** Suporte total a D-Pad (setas `↑`, `↓`, `←`, `→`), botão `OK`, `Return`, `Play/Pause` e teclas coloridas via `tizen.tvinputdevice`.
+* **Descoberta Automática de IP:** O aplicativo encontra o servidor do computador na rede local e conecta automaticamente sem digitação.
+* **Gerenciador e Instalador Automatizado:** Script `build_tizen.py` com empacotamento assinado pelo perfil oficial da Samsung (`.wgt`), verificação de certificados e envio direto para a TV via Wi-Fi.
+
+### 4. 🍿 Player Cinematográfico HTML5 Avançado
 * **HTTP 206 Partial Content:** Seek instantâneo na linha do tempo em arquivos 1080p e 4K.
 * **Super Booster de Volume (Até 300%):** Amplificador de ganho via Web Audio API para filmes com áudio baixo.
 * **Seletor de Faixas de Áudio:** Identifica e permite alternar entre trilhas de áudio embutidas (Dublado / Legendado / Original).
@@ -137,6 +145,7 @@ CineLocal/
 ├── docs/                              # 📚 Guias arquiteturais detalhados
 │   ├── ARQUITETURA.md                 # Arquitetura técnica e fluxos de dados
 │   ├── TORRENT_STREAMING.md           # Guia de torrents e streaming sequencial
+│   ├── SAMSUNG_TIZEN.md               # Guia definitivo do app Samsung Smart TV (Tizen)
 │   ├── CONTROLE_REMOTO.md             # Guia do controle remoto SSE para celular
 │   ├── GUIA_DESKTOP.md                # Guia de compilação .exe e Inno Setup
 │   ├── GUIA_MIDIA.md                  # Padrões de nomenclatura de filmes/séries
