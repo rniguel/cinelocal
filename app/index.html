@@ -1613,6 +1613,200 @@
       margin-top: 4px;
     }
 
+        /* ========================================================================= */
+    /* 📺 LAYOUT DEDICADO DO PLAYER PARA TV AO VIVO (IPTV STREAMING)             */
+    /* ========================================================================= */
+    .player-modal.is-livetv #seekBarContainer,
+    .player-modal.is-livetv .player-time-display,
+    .player-modal.is-livetv #btnTopSubSync,
+    .player-modal.is-livetv #btnNextEpisode,
+    .player-modal.is-livetv button[onclick*="skipTime"],
+    .player-modal.is-livetv .dropdown:has(#speedMenu),
+    .player-modal.is-livetv .dropdown:has(#audioTrackMenu) {
+      display: none !important;
+    }
+
+    .player-modal.is-livetv .controls-row {
+      display: none !important;
+    }
+
+    .player-live-bar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 14px 28px;
+      box-sizing: border-box;
+      background: linear-gradient(180deg, transparent 0%, rgba(6, 8, 13, 0.96) 100%);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      gap: 16px;
+    }
+
+    .player-modal.is-livetv .player-live-bar {
+      display: flex !important;
+    }
+
+    .player-live-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 240px;
+    }
+
+    .player-live-channel-title {
+      font-size: 19px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.3px;
+    }
+
+    .player-live-res-pill {
+      font-size: 11px;
+      font-weight: 800;
+      background: rgba(14, 165, 233, 0.25);
+      border: 1px solid rgba(14, 165, 233, 0.6);
+      color: #38bdf8;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    .player-live-center {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: center;
+      flex: 1;
+    }
+
+    .player-live-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: flex-end;
+      min-width: 200px;
+    }
+
+    .live-badge-glow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e50914;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.8px;
+      box-shadow: 0 0 12px rgba(229, 9, 20, 0.7);
+      animation: pulseLiveBadge 1.8s infinite;
+    }
+
+    .btn-channel-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 9px 18px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-channel-switch:hover,
+    .btn-channel-switch.tv-focused {
+      background: #fff;
+      color: #000;
+      border-color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 0 16px rgba(255, 255, 255, 0.4);
+    }
+
+    /* Guia Rápido Lateral (Drawer) de Canais na Tela de Vídeo */
+    .livetv-guide-rail {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 380px;
+      background: rgba(8, 11, 18, 0.95);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border-left: 1px solid rgba(255, 255, 255, 0.12);
+      z-index: 9999;
+      display: none;
+      flex-direction: column;
+      box-shadow: -20px 0 50px rgba(0, 0, 0, 0.85);
+      animation: slideInGuide 0.24s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .livetv-guide-rail.active {
+      display: flex !important;
+    }
+
+    @keyframes slideInGuide {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+
+    .livetv-guide-header {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .livetv-guide-items {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .livetv-guide-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1.5px solid transparent;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.15s ease;
+      color: #cbd5e1;
+    }
+
+    .livetv-guide-row:hover,
+    .livetv-guide-row.tv-focused {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: #ffffff;
+      color: #ffffff;
+      transform: scale(1.02);
+      box-shadow: 0 4px 18px rgba(229, 9, 20, 0.4);
+    }
+
+    .livetv-guide-row.active {
+      background: rgba(229, 9, 20, 0.25);
+      border-color: var(--primary);
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .livetv-guide-logo {
+      width: 44px;
+      height: 32px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
     /* ========================================================================= */
     /* 📡 ESTILOS PARA TV AO VIVO (IPTV & CANAIS 24H)                            */
     /* ========================================================================= */
@@ -7334,7 +7528,61 @@
         <div class="tv-quick-rail-hint">Pressione <kbd>OK</kbd> para selecionar • <kbd>▲ Cima</kbd> ou <kbd>▼ Baixo</kbd> para alternar • <kbd>Voltar</kbd> para fechar</div>
       </div>
 
+      <!-- GUIA RÁPIDO LATERAL DE CANAIS AO VIVO (ESTILO SMART TV SAMSUNG / ROKU) -->
+      <div id="liveTvQuickGuideRail" class="livetv-guide-rail" onclick="event.stopPropagation()">
+        <div class="livetv-guide-header">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-size: 16px; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;">
+              <span>📡 Guia de Canais Ao Vivo</span>
+            </h3>
+            <button class="player-back-btn" onclick="toggleLiveChannelGuide()" style="padding: 4px 10px; font-size: 12px;">✕</button>
+          </div>
+          <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">Pressione Enter/OK para sintonizar</div>
+        </div>
+        <div id="liveTvGuideItems" class="livetv-guide-items">
+          <!-- Injetado dinamicamente -->
+        </div>
+      </div>
+
       <div class="player-bottom-controls" onclick="event.stopPropagation()">
+        <!-- BARRA DEDICADA DE CONTROLES SMART TV AO VIVO (IPTV) -->
+        <div class="player-live-bar" id="playerLiveBar">
+          <div class="player-live-left">
+            <span class="live-badge-glow">🔴 AO VIVO</span>
+            <span id="playerLiveChannelName" class="player-live-channel-title">SBT News HD</span>
+            <span id="playerLiveBadgeRes" class="player-live-res-pill">1080p</span>
+          </div>
+
+          <div class="player-live-center">
+            <button class="btn-channel-switch dpad-focusable" onclick="prevLiveChannel()" title="Canal Anterior (←)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="2.5"></line></svg>
+              <span>Canal Anterior</span>
+            </button>
+
+            <button class="btn-channel-switch dpad-focusable" onclick="toggleLiveChannelGuide()" title="Guia Rápido de Canais (▲ / ▼ / C)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+              <span>Guia de Canais</span>
+            </button>
+
+            <button class="btn-channel-switch dpad-focusable" onclick="nextLiveChannel()" title="Próximo Canal (→)">
+              <span>Próximo Canal</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2.5"></line></svg>
+            </button>
+          </div>
+
+          <div class="player-live-right">
+            <button class="btn-ctrl btn-tool-header" onclick="openCurrentLiveInVlc()" title="Abrir no VLC Media Player">
+              <span>🚀 VLC</span>
+            </button>
+            <button class="btn-ctrl" onclick="toggleMute()" title="Mudo (M)">
+              <span id="playerLiveMuteIcon">🔊</span>
+            </button>
+            <button class="btn-ctrl" onclick="toggleFullscreen()" title="Tela Cheia (F)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            </button>
+          </div>
+        </div>
+
         <div class="seek-bar-container" id="seekBarContainer" onclick="handleSeekClick(event)">
           <div id="seekPreviewTooltip" class="seek-preview-tooltip" style="display: none;">
             <canvas id="seekPreviewCanvas" class="seek-preview-canvas" width="140" height="79"></canvas>
@@ -8046,6 +8294,16 @@
             <label style="color: #cbd5e1; font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px;">Logo (URL Opcional):</label>
             <input type="text" id="iptvCustomLogo" placeholder="https://exemplo.com/logo.png" style="width: 100%; padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15); color: #fff; font-size: 14px; outline: none; box-sizing: border-box;">
           </div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); border-radius: 12px; padding: 14px; margin-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 14px; font-weight: 700; color: #fff;">🇧🇷 Grade Completa Brasil (IPTV-ORG)</div>
+            <div style="font-size: 12px; color: #94a3b8;">Importe automaticamente 390+ canais públicos e abertos do Brasil.</div>
+          </div>
+          <button class="btn-profile-action" onclick="importOfficialBrazilIptv()" style="background: #10b981; border-color: #10b981; color: #fff; padding: 8px 18px; font-size: 13px;">
+            <span>📥 Importar Lista Brasil</span>
+          </button>
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">
@@ -8859,8 +9117,43 @@ function escapeHtml(str) {
     /* 📡 MÓDULO CINELOCAL TV AO VIVO & IPTV STREAMING                           */
     /* ========================================================================= */
     let currentLiveTvFilter = 'all';
+    let currentLiveChannelIndex = 0;
 
     const DEFAULT_LIVETV_CHANNELS = [
+      // 1. Abertos & Notícias
+      {
+        id: 'sbt_news',
+        name: 'SBT News HD',
+        category: 'abertos',
+        categoryLabel: 'Notícias 24h',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/4/42/SBT_News_2025.svg',
+        streamUrl: 'https://dai.google.com/linear/hls/event/1XSOdtQ0SH2G8OEmEfGgjQ/master.m3u8',
+        description: 'Jornalismo ao vivo do SBT com notícias 24 horas no ar em alta definição.',
+        resolution: '1080p',
+        isLive: true
+      },
+      {
+        id: 'cnn_brasil',
+        name: 'CNN Brasil HD',
+        category: 'abertos',
+        categoryLabel: 'Notícias 24h',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/CNN_Brasil_logo.svg/512px-CNN_Brasil_logo.svg.png',
+        streamUrl: 'https://d25usgadhphvwi.cloudfront.net/hls/main.m3u8',
+        description: 'Cobertura jornalística da maior rede de notícias do mundo em português.',
+        resolution: '1080p',
+        isLive: true
+      },
+      {
+        id: 'bandnews',
+        name: 'BandNews HD',
+        category: 'abertos',
+        categoryLabel: 'Notícias 24h',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/BandNews_TV_logo_2018.svg/512px-BandNews_TV_logo_2018.svg.png',
+        streamUrl: 'https://cdn-5.nxplay.com.br/BAND_NEWS/index.m3u8',
+        description: 'Em 20 minutos tudo pode mudar. Notícias em tempo real com debate e análise.',
+        resolution: '1080p',
+        isLive: true
+      },
       {
         id: 'tv_brasil',
         name: 'TV Brasil HD',
@@ -8868,18 +9161,18 @@ function escapeHtml(str) {
         categoryLabel: 'Abertos & Notícias',
         logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/TV_Brasil_2019.svg/512px-TV_Brasil_2019.svg.png',
         streamUrl: 'https://ebc-live.ebc.com.br/tvbrasil/index.m3u8',
-        description: 'Emissora pública da Empresa Brasil de Comunicação com notícias, cultura e entretenimento nacional.',
+        description: 'Emissora pública da Empresa Brasil de Comunicação com notícias, cultura e entretenimento.',
         resolution: '1080p',
         isLive: true
       },
       {
         id: 'tv_cultura',
-        name: 'TV Cultura',
+        name: 'TV Cultura HD',
         category: 'abertos',
         categoryLabel: 'Abertos & Cultura',
         logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/TV_Cultura_2020.svg/512px-TV_Cultura_2020.svg.png',
         streamUrl: 'https://streaming.tvcultura.com.br/hls/aovivo/index.m3u8',
-        description: 'Cultura, programação infantil de alta qualidade, programas de entrevistas e jornalismo de referência.',
+        description: 'Cultura, programação infantil de alta qualidade, entrevistas e jornalismo premiado.',
         resolution: '1080p',
         isLive: true
       },
@@ -8895,16 +9188,64 @@ function escapeHtml(str) {
         isLive: true
       },
       {
+        id: 'nasa_tv',
+        name: 'NASA TV HD',
+        category: 'abertos',
+        categoryLabel: 'Ciência & Espaço',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/NASA_logo.svg/512px-NASA_logo.svg.png',
+        streamUrl: 'https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8',
+        description: 'Transmissões espaciais ao vivo da Estação Espacial Internacional, caminhadas espaciais e cosmos.',
+        resolution: '1080p',
+        isLive: true
+      },
+
+      // 2. Esportes
+      {
+        id: 'bandsports',
+        name: 'Band Sports HD',
+        category: 'esportes',
+        categoryLabel: 'Esportes & Futebol',
+        logo: 'https://upload.wikimedia.org/wikipedia/pt/thumb/c/cd/BandSports_logo.png/512px-BandSports_logo.png',
+        streamUrl: 'https://cdn-5.nxplay.com.br/BAND_SPORTS/index.m3u8',
+        description: 'Automobilismo, tênis, futebol, atletismo e programação esportiva de alto nível.',
+        resolution: '1080p',
+        isLive: true
+      },
+      {
+        id: 'caze_tv',
+        name: 'CazéTV Live',
+        category: 'esportes',
+        categoryLabel: 'Esportes & Streaming',
+        logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/6/64/Caz%C3%A9TV_logo.svg/512px-Caz%C3%A9TV_logo.svg.png',
+        streamUrl: 'http://138.204.86.4:8080/CAZE_TV/playlist.m3u8',
+        description: 'O maior canal esportivo digital do Brasil com futebol ao vivo e grandes torneios.',
+        resolution: '1080p',
+        isLive: true
+      },
+      {
         id: 'redbull_tv',
         name: 'Red Bull TV HD',
         category: 'esportes',
         categoryLabel: 'Esportes & Radicais',
         logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Red_Bull_TV_logo.svg/512px-Red_Bull_TV_logo.svg.png',
         streamUrl: 'https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master.m3u8',
-        description: 'Esportes radicais, automobilismo, mountain bike, surfe e documentários esportivos eletrizantes.',
+        description: 'Esportes radicais, automobilismo, mountain bike, surfe e documentários esportivos.',
         resolution: '1080p',
         isLive: true
       },
+      {
+        id: 'fifa_plus',
+        name: 'FIFA+ Brasil',
+        category: 'esportes',
+        categoryLabel: 'Futebol 24h',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/FIFA%2B_%282025%29.svg/512px-FIFA%2B_%282025%29.svg.png',
+        streamUrl: 'https://e3be9ac5.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/TEctYn',
+        description: 'Jogos históricos das Copas do Mundo, futebol feminino, torneios mundiais e documentários da FIFA.',
+        resolution: '720p',
+        isLive: true
+      },
+
+      // 3. Filmes & Séries 24h
       {
         id: 'pluto_cine_sucessos',
         name: 'Pluto TV Cine Sucessos',
@@ -8928,6 +9269,28 @@ function escapeHtml(str) {
         isLive: true
       },
       {
+        id: 'pluto_cine_terror',
+        name: 'Pluto TV Cine Terror',
+        category: 'filmes',
+        categoryLabel: 'Terror & Suspense',
+        logo: 'https://images.pluto.tv/channels/5f12111c9e6c2c00078ef3bb/colorLogoPNG.png',
+        streamUrl: 'https://jmp2.uk/plu-5f12111c9e6c2c00078ef3bb.m3u8',
+        description: 'Sustos, filmes de terror, suspense psicológico e histórias macabras sem parar.',
+        resolution: '720p',
+        isLive: true
+      },
+      {
+        id: 'filmes_suspense',
+        name: 'Filmes Suspense 24h',
+        category: 'filmes',
+        categoryLabel: 'Suspense & Mistério',
+        logo: 'https://images.pluto.tv/channels/5f171d3442a0500007362f22/colorLogoPNG.png',
+        streamUrl: 'https://jmp2.uk/plu-5f171d3442a0500007362f22.m3u8',
+        description: 'Investigações policiais, tramas de espionagem e mistérios intrigantes 24h.',
+        resolution: '720p',
+        isLive: true
+      },
+      {
         id: 'pluto_series',
         name: 'Pluto TV Séries',
         category: 'filmes',
@@ -8938,6 +9301,30 @@ function escapeHtml(str) {
         resolution: '720p',
         isLive: true
       },
+
+      // 4. Infantil & Kids 24h
+      {
+        id: 'bob_esponja',
+        name: 'Bob Esponja 24h',
+        category: 'infantil',
+        categoryLabel: 'Desenhos 24h',
+        logo: 'https://images.pluto.tv/channels/62545c0b002f4b0007688b61/colorLogoPNG.png',
+        streamUrl: 'https://jmp2.uk/plu-62545c0b002f4b0007688b61.m3u8',
+        description: 'As aventuras na Fenda do Biquíni com Bob Esponja, Patrick, Lula Molusco e Sandy o dia todo.',
+        resolution: '720p',
+        isLive: true
+      },
+      {
+        id: 'avatar_aang',
+        name: 'Avatar: A Lenda de Aang',
+        category: 'infantil',
+        categoryLabel: 'Animação 24h',
+        logo: 'https://images.pluto.tv/channels/6759eeb1bd523200083b4f29/colorLogoPNG.png',
+        streamUrl: 'https://jmp2.uk/plu-6759eeb1bd523200083b4f29.m3u8',
+        description: 'Dobre os quatro elementos e acompanhe a jornada épica do jovem Avatar Aang sem parar.',
+        resolution: '720p',
+        isLive: true
+      },
       {
         id: 'pluto_kids',
         name: 'Pluto TV Kids & Nick Jr',
@@ -8945,7 +9332,7 @@ function escapeHtml(str) {
         categoryLabel: 'Infantil & Família',
         logo: 'https://images.pluto.tv/channels/5fa83707c570b50007ec18b8/logo.png',
         streamUrl: 'https://service-stitcher.clusters.pluto.tv/stitch/hls/channel/5fa83707c570b50007ec18b8/master.m3u8?deviceType=samsung-tv&deviceMake=samsung',
-        description: 'Desenhos animados seguros, séries e entretenimento para crianças e toda a família.',
+        description: 'Desenhos animados seguros, séries educativas e entretenimento para crianças.',
         resolution: '720p',
         isLive: true
       },
@@ -8956,19 +9343,8 @@ function escapeHtml(str) {
         categoryLabel: 'Animes 24h',
         logo: 'https://images.pluto.tv/channels/5fa837ba84dfc8000741639c/logo.png',
         streamUrl: 'https://service-stitcher.clusters.pluto.tv/stitch/hls/channel/5fa837ba84dfc8000741639c/master.m3u8?deviceType=samsung-tv&deviceMake=samsung',
-        description: 'Animes clássicos e produções japonesas consagradas dubladas e legendadas.',
+        description: 'Animes clássicos e produções consagradas dubladas e legendadas.',
         resolution: '720p',
-        isLive: true
-      },
-      {
-        id: 'nasa_tv',
-        name: 'NASA TV HD',
-        category: 'abertos',
-        categoryLabel: 'Ciência & Espaço',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/NASA_logo.svg/512px-NASA_logo.svg.png',
-        streamUrl: 'https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8',
-        description: 'Transmissões espaciais ao vivo da Estação Espacial Internacional, lançamentos de foguetes e exploração do cosmos.',
-        resolution: '1080p',
         isLive: true
       }
     ];
@@ -9002,7 +9378,7 @@ function escapeHtml(str) {
         countLabel.innerText = `${filtered.length} canais ao vivo disponíveis em alta definição`;
       }
 
-      grid.innerHTML = filtered.map(ch => {
+      grid.innerHTML = filtered.map((ch, idx) => {
         const chJson = JSON.stringify(ch).replace(/"/g, '&quot;');
         return `
           <div class="livetv-card dpad-focusable" tabindex="0" onclick="playLiveChannel(${chJson})">
@@ -9049,10 +9425,23 @@ function escapeHtml(str) {
       const titleEl = document.getElementById('playerTitle');
       const subEl = document.getElementById('playerSubInfo');
 
+      const channels = getLiveTvChannels();
+      currentLiveChannelIndex = channels.findIndex(c => c.id === channel.id || c.streamUrl === channel.streamUrl);
+      if (currentLiveChannelIndex < 0) currentLiveChannelIndex = 0;
+
+      // ATIVA LAYOUT DEDICADO DE TV AO VIVO
+      if (playerModal) {
+        playerModal.classList.add('active');
+        playerModal.classList.add('is-livetv');
+      }
+
       if (titleEl) titleEl.innerText = `🔴 AO VIVO • ${channel.name}`;
       if (subEl) subEl.innerText = `${channel.categoryLabel || 'IPTV'} • ${channel.resolution || 'HD'}`;
 
-      if (playerModal) playerModal.classList.add('active');
+      const barTitle = document.getElementById('playerLiveChannelName');
+      const barRes = document.getElementById('playerLiveBadgeRes');
+      if (barTitle) barTitle.innerText = channel.name;
+      if (barRes) barRes.innerText = channel.resolution || '1080p';
 
       state.currentPlaying = { ...channel, isLive: true };
 
@@ -9072,7 +9461,7 @@ function escapeHtml(str) {
         hls.on(Hls.Events.ERROR, function(event, data) {
           if (data.fatal) {
             console.warn('Erro Hls fatal:', data);
-            showToast('⚠️ Stream instável. Use "Assistir no VLC" caso não carregue.');
+            showToast('⚠️ Stream instável. Tente pelo VLC com o botão ao lado.');
           }
         });
         window.currentHlsInstance = hls;
@@ -9084,7 +9473,62 @@ function escapeHtml(str) {
         video.play().catch(e => console.log('Autoplay prevent:', e));
       }
 
+      renderLiveChannelGuideItems();
       showToast(`📡 Sintonizando: ${channel.name}`);
+    }
+
+    function prevLiveChannel() {
+      const channels = getLiveTvChannels();
+      if (channels.length === 0) return;
+      currentLiveChannelIndex = (currentLiveChannelIndex - 1 + channels.length) % channels.length;
+      playLiveChannel(channels[currentLiveChannelIndex]);
+    }
+
+    function nextLiveChannel() {
+      const channels = getLiveTvChannels();
+      if (channels.length === 0) return;
+      currentLiveChannelIndex = (currentLiveChannelIndex + 1) % channels.length;
+      playLiveChannel(channels[currentLiveChannelIndex]);
+    }
+
+    function toggleLiveChannelGuide() {
+      const guide = document.getElementById('liveTvQuickGuideRail');
+      if (!guide) return;
+      const isOpen = guide.classList.contains('active');
+      if (isOpen) {
+        guide.classList.remove('active');
+      } else {
+        renderLiveChannelGuideItems();
+        guide.classList.add('active');
+        const activeRow = guide.querySelector('.livetv-guide-row.active') || guide.querySelector('.livetv-guide-row');
+        if (activeRow && typeof setTvFocus === 'function') setTvFocus(activeRow);
+      }
+    }
+
+    function renderLiveChannelGuideItems() {
+      const container = document.getElementById('liveTvGuideItems');
+      if (!container) return;
+      const channels = getLiveTvChannels();
+      container.innerHTML = channels.map((ch, idx) => {
+        const isActive = idx === currentLiveChannelIndex;
+        const chJson = JSON.stringify(ch).replace(/"/g, '&quot;');
+        return `
+          <div class="livetv-guide-row ${isActive ? 'active' : ''} dpad-focusable" tabindex="0" onclick="playLiveChannel(${chJson}); toggleLiveChannelGuide();">
+            <img class="livetv-guide-logo" src="${ch.logo}" alt="${escapeHtml(ch.name)}" onerror="this.style.display='none'">
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-size: 14.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(ch.name)}</div>
+              <div style="font-size: 11.5px; color: #94a3b8;">${escapeHtml(ch.categoryLabel || 'Canal')} • ${ch.resolution || 'HD'}</div>
+            </div>
+            ${isActive ? '<span style="font-size: 12px; color: #10b981; font-weight: 800;">ATIVO</span>' : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openCurrentLiveInVlc() {
+      if (state.currentPlaying && state.currentPlaying.streamUrl) {
+        openLiveChannelInVlc(state.currentPlaying);
+      }
     }
 
     function openLiveChannelInVlc(channel) {
@@ -9108,6 +9552,62 @@ function escapeHtml(str) {
     function closeIptvModal() {
       const modal = document.getElementById('iptvModal');
       if (modal) modal.classList.remove('active');
+    }
+
+    function importOfficialBrazilIptv() {
+      showToast('📥 Carregando grade completa do Brasil...');
+      fetch('https://iptv-org.github.io/iptv/countries/br.m3u')
+        .then(r => r.text())
+        .then(text => {
+          const lines = text.splitlines ? text.splitlines() : text.split('\n');
+          const imported = [];
+          for (let i = 0; i < lines.length; i++) {
+            if (lines[i].startsWith('#EXTINF')) {
+              const inf = lines[i];
+              const stream = (lines[i+1] || '').trim();
+              if (!stream.startsWith('http')) continue;
+
+              const nameMatch = inf.match(/,([^,]+)$/);
+              const logoMatch = inf.match(/tvg-logo="([^"]+)"/);
+              const groupMatch = inf.match(/group-title="([^"]+)"/);
+
+              const name = nameMatch ? nameMatch[1].trim() : 'Canal';
+              const group = groupMatch ? groupMatch[1].trim() : 'Geral';
+
+              let cat = 'abertos';
+              const gLow = group.toLowerCase();
+              if (gLow.includes('movie') || gLow.includes('filme') || gLow.includes('cinema') || gLow.includes('series')) cat = 'filmes';
+              else if (gLow.includes('sport') || gLow.includes('esporte')) cat = 'esportes';
+              else if (gLow.includes('kid') || gLow.includes('infantil') || gLow.includes('animat')) cat = 'infantil';
+              else if (gLow.includes('music') || gLow.includes('musica')) cat = 'musica';
+
+              imported.push({
+                id: 'br_' + imported.length,
+                name: name,
+                category: cat,
+                categoryLabel: group.split(';')[0].toUpperCase(),
+                logo: logoMatch ? logoMatch[1] : '',
+                streamUrl: stream,
+                description: `Canal ${name} da grade nacional.`,
+                resolution: '720p',
+                isLive: true
+              });
+            }
+          }
+
+          if (imported.length > 0) {
+            localStorage.setItem('cinelocal_iptv_custom_channels', JSON.stringify(imported));
+            showToast(`✅ ${imported.length} canais brasileiros importados com sucesso!`);
+            closeIptvModal();
+            renderLiveTvChannels();
+          } else {
+            showToast('⚠️ Não foi possível processar a lista.');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          showToast('⚠️ Erro ao baixar lista online. Tente novamente mais tarde.');
+        });
     }
 
     function saveCustomIptvChannel() {
@@ -9146,8 +9646,7 @@ function escapeHtml(str) {
       showToast(`✅ Canal "${name}" adicionado à lista de TV!`);
       renderLiveTvChannels();
     }
-
-        function toggleTvQuickRail() {
+    function toggleTvQuickRail() {
       const rail = document.getElementById('tvPlayerQuickRail');
       if (!rail) return;
       const isHidden = window.getComputedStyle(rail).display === 'none';
@@ -12119,6 +12618,11 @@ function escapeHtml(str) {
     }
 
     function closePlayer() {
+      const pModal = document.getElementById('playerModal');
+      if (pModal) pModal.classList.remove('is-livetv');
+      const guideRail = document.getElementById('liveTvQuickGuideRail');
+      if (guideRail) guideRail.classList.remove('active');
+
       if (window.currentHlsInstance) {
         try { window.currentHlsInstance.destroy(); } catch (e) {}
         window.currentHlsInstance = null;
@@ -14791,6 +15295,37 @@ function escapeHtml(str) {
         }
 
         if (isPlayerOpen) {
+          const pModal = document.getElementById('playerModal');
+          if (pModal && pModal.classList.contains('is-livetv')) {
+            const guide = document.getElementById('liveTvQuickGuideRail');
+            const isGuideOpen = guide && guide.classList.contains('active');
+
+            if (normKey === 'ArrowLeft') {
+              e.preventDefault();
+              if (isGuideOpen) toggleLiveChannelGuide();
+              else prevLiveChannel();
+              return;
+            } else if (normKey === 'ArrowRight') {
+              e.preventDefault();
+              if (!isGuideOpen) nextLiveChannel();
+              return;
+            } else if (normKey === 'ArrowUp' || normKey === 'ArrowDown') {
+              if (!isGuideOpen) {
+                e.preventDefault();
+                toggleLiveChannelGuide();
+                return;
+              }
+            } else if (normKey === 'Escape') {
+              e.preventDefault();
+              if (isGuideOpen) {
+                toggleLiveChannelGuide();
+                return;
+              }
+              closePlayer();
+              return;
+            }
+          }
+
           const rail = document.getElementById('tvPlayerQuickRail');
           const isRailOpen = rail && window.getComputedStyle(rail).display !== 'none';
 
