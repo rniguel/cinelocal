@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-CineLocal - Construtor de Pacote Desktop e Instalador Windows (Issue #17)
-========================================================================
+CineLocal - Construtor de Pacote Desktop e Executável Windows (Issue #17 & #18)
+==============================================================================
 Compila o CineLocal em um executável autônomo (.exe) sem terminal visível
 e prepara o instalador oficial via Inno Setup (CineLocal-Setup-v2.5.exe).
 """
@@ -47,20 +47,20 @@ def ensure_icon():
 
 def generate_spec_file():
     """Cria a especificação CineLocal.spec para o PyInstaller."""
+    root_path_clean = ROOT_DIR.replace("\\", "/")
+    
     spec_content = f'''# -*- mode: python ; coding: utf-8 -*-
 
 block_cipher = None
 
 added_files = [
     ('app', 'app'),
-    ('media', 'media'),
-    ('README.md', '.'),
-    ('LEIAME.md', '.')
+    ('README.md', '.')
 ]
 
 a = Analysis(
     ['run_desktop.py'],
-    pathex=['{ROOT_DIR.replace("\\\\", "/")}'],
+    pathex=['{root_path_clean}'],
     binaries=[],
     datas=added_files,
     hiddenimports=[
@@ -151,36 +151,35 @@ def build():
         import PyInstaller
         print(f"📦 PyInstaller detectado: versão {PyInstaller.__version__}")
     except ImportError:
-        print("💡 PyInstaller não encontrado no ambiente atual.")
-        print("   Para compilar o binário CineLocal.exe autônomo, execute:")
-        print("   python -m pip install pyinstaller")
-        print("   python build_desktop.py --compile\n")
-        if "--compile" in sys.argv:
-            print("⏳ Instalando pyinstaller...")
-            subprocess.run([sys.executable, "-m", "pip", "install", "pyinstaller"], check=True)
-        else:
-            return
+        print("💡 Instalando PyInstaller no ambiente...")
+        subprocess.run([sys.executable, "-m", "pip", "install", "pyinstaller"], check=True)
 
-    if "--compile" in sys.argv or "-c" in sys.argv:
-        print("\n🔨 Compilando CineLocal.exe com PyInstaller...")
-        subprocess.run([sys.executable, "-m", "PyInstaller", SPEC_FILE, "--clean", "-y"], check=True)
-        print("\n✅ Executável CineLocal.exe construído em: dist/CineLocal/CineLocal.exe")
+    print("\n🔨 Compilando CineLocal.exe com PyInstaller...")
+    subprocess.run([sys.executable, "-m", "PyInstaller", SPEC_FILE, "--clean", "-y"], check=True)
 
-        # Verifica Inno Setup para gerar instalador .exe
-        iscc = find_inno_setup()
-        if iscc and os.path.exists(ISS_FILE):
-            print(f"\n📦 Compilando instalador com Inno Setup ({iscc})...")
-            out_dir = os.path.join(DIST_DIR, "installer")
-            os.makedirs(out_dir, exist_ok=True)
-            subprocess.run([iscc, ISS_FILE], check=True)
-            print("🎉 Instalador oficial criado com sucesso em dist/installer/CineLocal-Setup-v2.5.0.exe!")
-        else:
-            print("\n💡 Para gerar o instalador final CineLocal-Setup.exe:")
-            print("   1. Instale o Inno Setup gratuito: https://jrsoftware.org/isdl.php")
-            print("   2. Abra 'installer/CineLocal.iss' e clique em Compile (F9).")
+    exe_path = os.path.join(DIST_DIR, "CineLocal", "CineLocal.exe")
+    if os.path.exists(exe_path):
+        print(f"\n✅ Executável CineLocal.exe construído com sucesso!")
+        print(f"   Local: {exe_path}")
+        print(f"   Tamanho: {os.path.getsize(exe_path) / 1024:.1f} KB")
+
+    # Verifica Inno Setup para gerar instalador .exe
+    iscc = find_inno_setup()
+    if iscc and os.path.exists(ISS_FILE):
+        print(f"\n📦 Compilando instalador oficial com Inno Setup ({iscc})...")
+        out_dir = os.path.join(DIST_DIR, "installer")
+        os.makedirs(out_dir, exist_ok=True)
+        subprocess.run([iscc, ISS_FILE], check=True)
+        print("🎉 Instalador criado com sucesso em dist/installer/CineLocal-Setup-v2.5.0.exe!")
+    else:
+        print("\n💡 Dica sobre o Instalador:")
+        print("   O executável portátil 'CineLocal.exe' já está 100% pronto em dist/CineLocal/CineLocal.exe!")
+        print("   Para empacotar em assistente de instalação (CineLocal-Setup.exe):")
+        print("   1. Baixe o Inno Setup gratuito: https://jrsoftware.org/isdl.php")
+        print("   2. Abra 'installer/CineLocal.iss' e clique em Compile (F9).")
 
     print("\n" + "=" * 70)
-    print("✨ Preparação do pacote desktop concluída com sucesso!")
+    print("✨ Processo de compilação desktop finalizado com sucesso!")
     print("=" * 70)
 
 if __name__ == "__main__":

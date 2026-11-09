@@ -10,29 +10,12 @@ const APP_DIR = path.resolve(__dirname, '..');
 const ROOT_DIR = path.resolve(APP_DIR, '..');
 const CACHE_DIR = path.join(APP_DIR, 'data', 'torrent_cache');
 
-// Garante que o diretório de cache exista
 if (!fs.existsSync(CACHE_DIR)) {
   fs.mkdirSync(CACHE_DIR, { recursive: true });
 }
 
 const PORT = parseInt(process.env.TORRENT_PORT || '8888', 10);
 const HOST = '0.0.0.0';
-
-let client = new WebTorrent();
-let torrentServer = client.createServer({ pathname: '/webtorrent' });
-
-let currentTorrent = null;
-let currentMetadata = {
-  active: false,
-  ready: false,
-  name: '',
-  infoHash: '',
-  title: '',
-  year: '',
-  error: null,
-  videoFileIndex: 0,
-  cachePath: ''
-};
 
 const DEFAULT_TRACKERS = [
   'udp://tracker.opentrackr.org:1337/announce',
@@ -45,8 +28,14 @@ const DEFAULT_TRACKERS = [
   'wss://tracker.btorrent.xyz'
 ];
 
+const client = new WebTorrent();
+const torrentServer = client.createServer({ pathname: '/webtorrent' });
+
+// Mapa de múltiplos torrents ativos (Issue #18)
+const torrentsMap = new Map();
+
 function formatBytes(bytes, decimals = 2) {
-  if (bytes === 0) return '0 B';
+  if (!bytes || bytes === 0) return '0 B';
   const k = 1024;
   const dm = decimals < 0 ? 0 : decimals;
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -57,232 +46,234 @@ function formatBytes(bytes, decimals = 2) {
 const VIDEO_EXTENSIONS = new Set(['.mp4', '.mkv', '.avi', '.webm', '.m4v', '.ts', '.mov', '.wmv']);
 
 function isVideoFile(fileName) {
-  const ext = path.extname(fileName).toLowerCase();
+  const ext = path.extname(fileName || '').toLowerCase();
   return VIDEO_EXTENSIONS.has(ext);
 }
 
-function getTorrentStatus() {
-  if (!currentTorrent) {
-    return {
-      active: false,
-      ready: false,
-      name: '',
-      infoHash: '',
-      title: currentMetadata.title || '',
-      downloadSpeed: 0,
-      uploadSpeed: 0,
-      downloadSpeedFormatted: '0 KB/s',
-      uploadSpeedFormatted: '0 KB/s',
-      progress: 0,
-      progressPercent: '0.0%',
-      numPeers: 0,
-      downloaded: 0,
-      downloadedFormatted: '0 B',
-      total: 0,
-      totalFormatted: '0 B',
-      timeRemaining: 0,
-      files: [],
-      videoFile: null,
-      streamUrl: '',
-      error: currentMetadata.error
-    };
-  }
+function getTorrentEntryStatus(item) {
+  const t = item.torrent;
+  const progress = t ? (t.progress || 0) : item.progress || 0;
+  const downloadSpeed = t ? (t.downloadSpeed || 0) : 0;
+  const uploadSpeed = t ? (t.uploadSpeed || 0) : 0;
+  const numPeers = t ? (t.numPeers || 0) : 0;
+  const downloaded = t ? (t.downloaded || 0) : 0;
+  const total = t ? (t.length || 0) : 0;
 
-  const t = currentTorrent;
-  const files = (t.files || []).map((f, idx) => ({
+  const files = (t && t.files ? t.files : []).map((f, idx) => ({
     index: idx,
     name: f.name,
     path: f.path.replace(/\\/g, '/'),
     length: f.length,
     lengthFormatted: formatBytes(f.length),
     isVideo: isVideoFile(f.name),
+    isMkv: f.name.toLowerCase().endsWith('.mkv'),
     streamUrl: `/webtorrent/${t.infoHash}/${encodeURIComponent(f.path.replace(/\\/g, '/'))}`
   }));
 
   let videoFile = null;
   if (files.length > 0) {
-    if (files[currentMetadata.videoFileIndex] && files[currentMetadata.videoFileIndex].isVideo) {
-      videoFile = files[currentMetadata.videoFileIndex];
-    } else {
-      const videoFiles = files.filter(f => f.isVideo);
-      videoFile = videoFiles.length > 0 ? videoFiles[0] : files[0];
-    }
+    const videoFiles = files.filter(f => f.isVideo);
+    videoFile = videoFiles.length > 0 ? videoFiles[0] : files[0];
   }
 
-  const progress = t.progress || 0;
+  const isMkv = videoFile ? videoFile.isMkv : false;
+  const streamUrl = videoFile ? videoFile.streamUrl : '';
+  const initialBufferReady = downloaded >= 8 * 1024 * 1024 || progress >= 0.02 || (item.ready && downloaded > 2 * 1024 * 1024);
+
   return {
-    active: true,
-    ready: currentMetadata.ready,
-    name: t.name || currentMetadata.name || '',
-    infoHash: t.infoHash || '',
-    title: currentMetadata.title || t.name || '',
-    year: currentMetadata.year || '',
-    downloadSpeed: t.downloadSpeed || 0,
-    uploadSpeed: t.uploadSpeed || 0,
-    downloadSpeedFormatted: formatBytes(t.downloadSpeed || 0) + '/s',
-    uploadSpeedFormatted: formatBytes(t.uploadSpeed || 0) + '/s',
+    infoHash: item.infoHash,
+    name: item.name || (t ? t.name : '') || 'Torrent',
+    title: item.title || item.name || (t ? t.name : '') || 'Torrent',
+    year: item.year || '',
+    poster: item.poster || '',
+    overview: item.overview || '',
+    imdbId: item.imdbId || '',
+    active: !t ? false : !t.paused,
+    ready: item.ready,
+    initialBufferReady: initialBufferReady,
+    downloadSpeed: downloadSpeed,
+    uploadSpeed: uploadSpeed,
+    downloadSpeedFormatted: formatBytes(downloadSpeed) + '/s',
+    uploadSpeedFormatted: formatBytes(uploadSpeed) + '/s',
     progress: progress,
     progressPercent: (progress * 100).toFixed(1) + '%',
-    numPeers: t.numPeers || 0,
-    downloaded: t.downloaded || 0,
-    downloadedFormatted: formatBytes(t.downloaded || 0),
-    total: t.length || 0,
-    totalFormatted: formatBytes(t.length || 0),
-    timeRemaining: t.timeRemaining || 0,
+    numPeers: numPeers,
+    downloaded: downloaded,
+    downloadedFormatted: formatBytes(downloaded),
+    total: total,
+    totalFormatted: formatBytes(total),
+    timeRemaining: t ? t.timeRemaining : 0,
     files: files,
     videoFile: videoFile,
-    streamUrl: videoFile ? videoFile.streamUrl : '',
-    piecesTotal: t.pieces ? t.pieces.length : 0,
-    error: currentMetadata.error
+    isMkv: isMkv,
+    streamUrl: streamUrl,
+    vlcUrl: streamUrl ? `http://localhost:${PORT}${streamUrl}` : '',
+    piecesTotal: t && t.pieces ? t.pieces.length : 0,
+    error: item.error || null,
+    addedAt: item.addedAt
   };
 }
 
-function stopCurrentTorrent(deleteCache = false) {
-  return new Promise((resolve) => {
-    if (!currentTorrent) {
-      currentMetadata = { active: false, ready: false, name: '', infoHash: '', title: '', year: '', error: null, videoFileIndex: 0, cachePath: '' };
-      return resolve({ success: true, message: 'Nenhum torrent em execução' });
-    }
+function getAllTorrentsStatus() {
+  const list = [];
+  let totalSpeed = 0;
+  for (const item of torrentsMap.values()) {
+    const s = getTorrentEntryStatus(item);
+    totalSpeed += s.downloadSpeed;
+    list.push(s);
+  }
+  // Ordena por data de adição (mais recente primeiro)
+  list.sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0));
 
-    const t = currentTorrent;
-    const infoHash = t.infoHash;
-    const torrentPath = currentMetadata.cachePath;
+  return {
+    activeCount: list.filter(i => i.active).length,
+    totalCount: list.length,
+    totalDownloadSpeedFormatted: formatBytes(totalSpeed) + '/s',
+    torrents: list
+  };
+}
 
+function addTorrent(torrentId, title = '', year = '', poster = '', overview = '', imdbId = '') {
+  return new Promise((resolve, reject) => {
     try {
-      client.remove(t.infoHash, { destroyStore: deleteCache }, (err) => {
-        currentTorrent = null;
-        currentMetadata = { active: false, ready: false, name: '', infoHash: '', title: '', year: '', error: null, videoFileIndex: 0, cachePath: '' };
-        if (err) console.error('Erro ao remover torrent:', err);
+      const opts = {
+        path: CACHE_DIR,
+        destroyStoreOnDestroy: false,
+        announce: DEFAULT_TRACKERS
+      };
 
-        if (deleteCache && torrentPath && fs.existsSync(torrentPath)) {
+      const torrent = client.add(torrentId, opts);
+      const infoHash = torrent.infoHash;
+
+      let item = torrentsMap.get(infoHash);
+      if (!item) {
+        item = {
+          infoHash: infoHash,
+          name: title || 'Carregando metadados...',
+          title: title,
+          year: year,
+          poster: poster,
+          overview: overview,
+          imdbId: imdbId,
+          torrent: torrent,
+          ready: false,
+          error: null,
+          addedAt: Date.now()
+        };
+        torrentsMap.set(infoHash, item);
+      } else {
+        item.torrent = torrent;
+        if (title) item.title = title;
+        if (year) item.year = year;
+        if (poster) item.poster = poster;
+        if (overview) item.overview = overview;
+      }
+
+      torrent.on('infoHash', () => {
+        item.infoHash = torrent.infoHash;
+      });
+
+      torrent.on('metadata', () => {
+        item.name = torrent.name;
+        if (!item.title || item.title === 'Carregando metadados...') {
+          item.title = torrent.name;
+        }
+      });
+
+      torrent.on('ready', () => {
+        item.ready = true;
+        item.name = torrent.name;
+        if (!item.title) item.title = torrent.name;
+
+        // Identifica melhor arquivo de vídeo
+        let bestIdx = 0;
+        let maxLen = -1;
+        torrent.files.forEach((f, idx) => {
+          if (isVideoFile(f.name) && f.length > maxLen) {
+            maxLen = f.length;
+            bestIdx = idx;
+          }
+        });
+
+        // Configuração sequencial com janela prioritária
+        if (torrent.pieces && torrent.pieces.length > 0) {
           try {
-            fs.rmSync(torrentPath, { recursive: true, force: true });
-          } catch (e) {
-            console.error('Erro ao limpar cache de torrent:', e);
+            torrent.deselect(0, torrent.pieces.length - 1);
+          } catch (e) {}
+
+          // Prioridade 1: Primeiras 20 peças (cabeçalho de vídeo container)
+          const headPieces = Math.min(20, torrent.pieces.length - 1);
+          try {
+            torrent.critical(0, headPieces);
+          } catch (e) {}
+
+          // Prioridade 2: Últimas 15 peças (índice moov / seek MP4/MKV)
+          const tailPieces = Math.max(0, torrent.pieces.length - 15);
+          try {
+            torrent.critical(tailPieces, torrent.pieces.length - 1);
+          } catch (e) {}
+
+          // Seleciona arquivo de vídeo
+          if (torrent.files[bestIdx]) {
+            try {
+              torrent.files[bestIdx].select();
+            } catch (e) {}
           }
         }
-        resolve({ success: true, message: 'Torrent encerrado com sucesso' });
+
+        console.log(`[Torrent Ready] "${torrent.name}" (${formatBytes(torrent.length)}) - Arquivo principal: "${torrent.files[bestIdx]?.name}"`);
       });
-    } catch (e) {
-      currentTorrent = null;
-      currentMetadata = { active: false, ready: false, name: '', infoHash: '', title: '', year: '', error: null, videoFileIndex: 0, cachePath: '' };
-      resolve({ success: true, message: 'Torrent encerrado' });
+
+      torrent.on('error', (err) => {
+        console.error(`[Torrent Error] ${infoHash}:`, err);
+        item.error = err.message || String(err);
+      });
+
+      resolve({
+        success: true,
+        message: 'Torrent adicionado à fila de downloads',
+        infoHash: torrent.infoHash,
+        title: item.title
+      });
+    } catch (err) {
+      console.error('Erro ao adicionar torrent:', err);
+      reject(err);
     }
   });
 }
 
-function startTorrent(torrentId, title = '', year = '') {
-  return new Promise((resolve, reject) => {
-    // Para qualquer torrent em execução anterior
-    stopCurrentTorrent(false).then(() => {
-      currentMetadata = {
-        active: true,
-        ready: false,
-        name: title || 'Carregando metadados...',
-        infoHash: '',
-        title: title,
-        year: year,
-        error: null,
-        videoFileIndex: 0,
-        cachePath: ''
-      };
+function removeTorrent(infoHash, deleteCache = false) {
+  return new Promise((resolve) => {
+    const item = torrentsMap.get(infoHash);
+    if (!item) {
+      return resolve({ success: true, message: 'Torrent não encontrado na fila' });
+    }
 
-      try {
-        const opts = {
-          path: CACHE_DIR,
-          destroyStoreOnDestroy: false,
-          announce: DEFAULT_TRACKERS
-        };
-
-        const torrent = client.add(torrentId, opts);
-        currentTorrent = torrent;
-        currentMetadata.infoHash = torrent.infoHash;
-
-        torrent.on('infoHash', () => {
-          currentMetadata.infoHash = torrent.infoHash;
-        });
-
-        torrent.on('metadata', () => {
-          currentMetadata.name = torrent.name;
-          currentMetadata.cachePath = path.join(CACHE_DIR, torrent.name || torrent.infoHash);
-        });
-
-        torrent.on('ready', () => {
-          currentMetadata.ready = true;
-          currentMetadata.name = torrent.name;
-          currentMetadata.cachePath = path.join(CACHE_DIR, torrent.name || torrent.infoHash);
-
-          // Identifica o arquivo de vídeo principal (maior arquivo de vídeo)
-          let bestVideoIdx = 0;
-          let maxLen = -1;
-          torrent.files.forEach((f, idx) => {
-            if (isVideoFile(f.name) && f.length > maxLen) {
-              maxLen = f.length;
-              bestVideoIdx = idx;
-            }
-          });
-          currentMetadata.videoFileIndex = bestVideoIdx;
-
-          // Configuração de Streaming Sequencial com Janela Deslizante (Issue #16):
-          // 1. Desmarca o download completo não-sequencial para economizar banda
-          if (torrent.pieces && torrent.pieces.length > 0) {
-            try {
-              torrent.deselect(0, torrent.pieces.length - 1);
-            } catch (e) {
-              console.warn('Deselect pieces warning:', e.message);
-            }
-
-            // 2. Prioridade Máxima (Critical): Primeiras 15 peças (cabeçalhos de container e índices de áudio)
-            const headPieces = Math.min(15, torrent.pieces.length - 1);
-            try {
-              torrent.critical(0, headPieces);
-            } catch (e) {
-              console.warn('Critical head pieces warning:', e.message);
-            }
-
-            // 3. Prioridade Alta: Últimas 10 peças (átomo 'moov' / índice de seek MP4/MKV)
-            const tailPieces = Math.max(0, torrent.pieces.length - 10);
-            try {
-              torrent.critical(tailPieces, torrent.pieces.length - 1);
-            } catch (e) {
-              console.warn('Critical tail pieces warning:', e.message);
-            }
-
-            // 4. Seleciona o arquivo de vídeo principal
-            if (torrent.files[bestVideoIdx]) {
-              try {
-                torrent.files[bestVideoIdx].select();
-              } catch (e) {
-                console.warn('Select video file warning:', e.message);
-              }
+    try {
+      if (item.torrent) {
+        client.remove(infoHash, { destroyStore: deleteCache }, (err) => {
+          if (err) console.error('Erro ao remover do cliente:', err);
+          torrentsMap.delete(infoHash);
+          if (deleteCache && item.name) {
+            const cacheFolder = path.join(CACHE_DIR, item.name);
+            if (fs.existsSync(cacheFolder)) {
+              try { fs.rmSync(cacheFolder, { recursive: true, force: true }); } catch (e) {}
             }
           }
-
-          console.log(`[Torrent Ready] "${torrent.name}" (${formatBytes(torrent.length)}) - Arquivo: "${torrent.files[bestVideoIdx]?.name}"`);
+          resolve({ success: true, message: 'Torrent removido com sucesso' });
         });
-
-        torrent.on('error', (err) => {
-          console.error('[Torrent Error]', err);
-          currentMetadata.error = err.message || String(err);
-        });
-
-        resolve({
-          success: true,
-          message: 'Torrent iniciado com sucesso',
-          infoHash: torrent.infoHash,
-          title: title
-        });
-      } catch (err) {
-        console.error('Erro ao adicionar torrent:', err);
-        currentMetadata.error = err.message;
-        reject(err);
+      } else {
+        torrentsMap.delete(infoHash);
+        resolve({ success: true, message: 'Torrent removido' });
       }
-    });
+    } catch (e) {
+      torrentsMap.delete(infoHash);
+      resolve({ success: true, message: 'Torrent removido' });
+    }
   });
 }
 
 const server = http.createServer((req, res) => {
-  // CORS Headers universais
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Range, Authorization');
@@ -296,20 +287,43 @@ const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = url.pathname;
 
-  // Roteamento para streaming de vídeo WebTorrent
+  // Roteamento WebTorrent (Range Requests HTTP 206)
   if (pathname.startsWith('/webtorrent')) {
     return torrentServer.wrapRequest(req, res);
   }
 
-  // API: Status
-  if (pathname === '/api/torrent/status' && req.method === 'GET') {
-    const status = getTorrentStatus();
+  // API: Listar Todos os Torrents (Multi-Torrent Issue #18)
+  if (pathname === '/api/torrent/list' && req.method === 'GET') {
+    const list = getAllTorrentsStatus();
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify(status));
+    res.end(JSON.stringify(list));
     return;
   }
 
-  // API: Iniciar Torrent
+  // API: Status de um torrent específico ou ativo
+  if (pathname === '/api/torrent/status' && req.method === 'GET') {
+    const infoHash = url.searchParams.get('infoHash');
+    let item = null;
+    if (infoHash && torrentsMap.has(infoHash)) {
+      item = torrentsMap.get(infoHash);
+    } else if (torrentsMap.size > 0) {
+      // Retorna o mais recente
+      item = Array.from(torrentsMap.values()).pop();
+    }
+
+    if (!item) {
+      const empty = { active: false, ready: false, name: '', infoHash: '', title: '', downloadSpeedFormatted: '0 B/s', progressPercent: '0.0%', numPeers: 0, files: [], videoFile: null, streamUrl: '' };
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify(empty));
+      return;
+    }
+
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify(getTorrentEntryStatus(item)));
+    return;
+  }
+
+  // API: Iniciar/Adicionar Torrent
   if (pathname === '/api/torrent/start' && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => { body += chunk; });
@@ -319,6 +333,9 @@ const server = http.createServer((req, res) => {
         const magnet = data.magnet || data.torrentUrl || data.url;
         const title = data.title || '';
         const year = data.year || '';
+        const poster = data.poster || '';
+        const overview = data.overview || '';
+        const imdbId = data.imdbId || '';
 
         if (!magnet) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -326,7 +343,7 @@ const server = http.createServer((req, res) => {
           return;
         }
 
-        const result = await startTorrent(magnet, title, year);
+        const result = await addTorrent(magnet, title, year, poster, overview, imdbId);
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
         res.end(JSON.stringify(result));
       } catch (err) {
@@ -337,17 +354,28 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // API: Parar Torrent
-  if (pathname === '/api/torrent/stop' && req.method === 'POST') {
+  // API: Remover Torrent da fila
+  if ((pathname === '/api/torrent/remove' || pathname === '/api/torrent/stop') && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => { body += chunk; });
     req.on('end', async () => {
       try {
         const data = JSON.parse(body || '{}');
+        const infoHash = data.infoHash;
         const deleteCache = Boolean(data.deleteCache);
-        const result = await stopCurrentTorrent(deleteCache);
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-        res.end(JSON.stringify(result));
+
+        if (infoHash) {
+          const result = await removeTorrent(infoHash, deleteCache);
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify(result));
+        } else {
+          // Remove todos
+          for (const hash of Array.from(torrentsMap.keys())) {
+            await removeTorrent(hash, deleteCache);
+          }
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: true, message: 'Todos os torrents encerrados' }));
+        }
       } catch (err) {
         res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
         res.end(JSON.stringify({ success: false, error: err.message }));
@@ -356,15 +384,24 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // API: Salvar na Coleção Permanente (Issue #16)
+  // API: Salvar na Coleção Permanente
   if (pathname === '/api/torrent/save' && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => { body += chunk; });
     req.on('end', async () => {
       try {
         const data = JSON.parse(body || '{}');
-        const title = data.title || (currentTorrent && currentTorrent.name) || 'Filme Torrent';
-        const year = data.year || '';
+        const infoHash = data.infoHash;
+        let item = infoHash ? torrentsMap.get(infoHash) : Array.from(torrentsMap.values()).pop();
+
+        if (!item || !item.torrent) {
+          res.writeHead(404, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: false, error: 'Torrent não encontrado para salvar' }));
+          return;
+        }
+
+        const title = data.title || item.title || item.name || 'Filme Torrent';
+        const year = data.year || item.year || '';
         const folderName = year ? `${title} (${year})` : title;
         const safeFolderName = folderName.replace(/[<>:"/\\|?*]/g, '').trim();
 
@@ -373,32 +410,24 @@ const server = http.createServer((req, res) => {
           fs.mkdirSync(destDir, { recursive: true });
         }
 
-        const status = getTorrentStatus();
-        if (!status.videoFile) {
+        // Procura arquivo de vídeo
+        const t = item.torrent;
+        const videoFiles = (t.files || []).filter(f => isVideoFile(f.name));
+        const vFile = videoFiles.length > 0 ? videoFiles[0] : (t.files && t.files[0]);
+
+        if (!vFile) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
-          res.end(JSON.stringify({ success: false, error: 'Nenhum arquivo de vídeo encontrado no torrent' }));
+          res.end(JSON.stringify({ success: false, error: 'Nenhum arquivo de vídeo encontrado' }));
           return;
         }
 
-        // Procura o arquivo no cache do torrent
-        const currentFile = currentTorrent ? currentTorrent.files[currentMetadata.videoFileIndex] : null;
-        if (!currentFile) {
-          res.writeHead(404, { 'Content-Type': 'application/json; charset=utf-8' });
-          res.end(JSON.stringify({ success: false, error: 'Arquivo do torrent não acessível' }));
-          return;
-        }
-
-        const ext = path.extname(currentFile.name) || '.mp4';
-        const finalFileName = `${safeFolderName}${ext}`;
-        const finalFilePath = path.join(destDir, finalFileName);
-
-        // Caminho na pasta de cache
-        const cacheFilePath = path.join(CACHE_DIR, currentFile.path);
+        const ext = path.extname(vFile.name) || '.mp4';
+        const finalFilePath = path.join(destDir, `${safeFolderName}${ext}`);
+        const cacheFilePath = path.join(CACHE_DIR, vFile.path);
 
         if (fs.existsSync(cacheFilePath)) {
-          // Copia ou move o arquivo baixado
           fs.copyFileSync(cacheFilePath, finalFilePath);
-          console.log(`[Torrent Save] Arquivo salvo em "${finalFilePath}"`);
+          console.log(`[Torrent Save] Salvo em "${finalFilePath}"`);
           res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
           res.end(JSON.stringify({
             success: true,
@@ -409,7 +438,7 @@ const server = http.createServer((req, res) => {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
           res.end(JSON.stringify({
             success: false,
-            error: 'Arquivo ainda não foi completamente baixado para o disco'
+            error: 'Arquivo ainda não foi suficientemente baixado no disco para ser copiado'
           }));
         }
       } catch (err) {
@@ -420,41 +449,17 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Rota de Health Check
+  // Health
   if (pathname === '/api/torrent/health' || pathname === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify({ status: 'ok', version: '2.5.0', engine: 'WebTorrent' }));
+    res.end(JSON.stringify({ status: 'ok', version: '2.5.0', engine: 'WebTorrent Multi', count: torrentsMap.size }));
     return;
   }
 
   res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-  res.end('CineLocal Torrent Engine - Rota não encontrada');
+  res.end('CineLocal Multi-Torrent Engine');
 });
 
 server.listen(PORT, HOST, () => {
-  console.log(`=======================================================`);
-  console.log(`🚀 CineLocal Torrent Streaming Engine rodando em:`);
-  console.log(`   http://localhost:${PORT}`);
-  console.log(`   Stream endpoint: http://localhost:${PORT}/webtorrent/`);
-  console.log(`   Cache dir: ${CACHE_DIR}`);
-  console.log(`=======================================================`);
-});
-
-// Finalização limpa ao receber sinais de encerramento
-process.on('SIGINT', () => {
-  console.log('Encerrando Torrent Engine...');
-  stopCurrentTorrent(false).then(() => {
-    client.destroy(() => {
-      server.close(() => process.exit(0));
-    });
-  });
-});
-
-process.on('SIGTERM', () => {
-  console.log('Encerrando Torrent Engine...');
-  stopCurrentTorrent(false).then(() => {
-    client.destroy(() => {
-      server.close(() => process.exit(0));
-    });
-  });
+  console.log(`🚀 CineLocal Multi-Torrent Engine ativo na porta ${PORT}`);
 });
