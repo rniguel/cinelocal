@@ -66,7 +66,7 @@ Bem-vindo ao **CineLocal**, uma central de streaming multimídia de alta perform
 ### 4. ⚡ Módulo Universo Marvel (MCU) & Rastreador Canônico (Opcional)
 * Se você adicionar produções da Marvel Studios em `media/filmes/Marvel/`, o CineLocal ativa automaticamente:
   * **Carrossel Cronológico do MCU:** Filmes e séries ordenados pela cronologia narrativa canônica.
-  * **Guia & Rastreador (66 Títulos):** Modal interativo que rastreia os 66 lançamentos oficiais da Marvel Studios até 2026, indicando o que já está disponível na sua coleção e o que falta baixar.
+  * **Guia & Rastreador (67 Títulos):** Modal interativo que rastreia os 67 lançamentos oficiais da Marvel Studios até 2026, indicando o que já está disponível na sua coleção e o que falta baixar.
 
 ### 5. 🛠️ Recursos Opcionais & Detecção Automática
 * **FFmpeg (Opcional):** Utilizado para identificar precisamente faixas de áudio dublado/original e analisar canais de som.
@@ -93,7 +93,7 @@ CineLocal/
 ├── docs/                              # Documentações técnicas e aprofundadas
 │   ├── ARQUITETURA.md                 # Arquitetura do backend e frontend
 │   ├── GUIA_MIDIA.md                  # Padrões de arquivos, codecs e legendas
-│   ├── MCU_TIMELINE.md                # Linha do tempo completa dos 66 títulos Marvel
+│   ├── MCU_TIMELINE.md                # Linha do tempo completa dos 67 títulos Marvel
 │   └── SCRIPTS_UTILITARIOS.md         # Detalhes dos scripts utilitários
 ├── app/                               # Código-fonte da aplicação
 │   ├── index.html                     # Interface web do CineLocal (SPA)
@@ -185,6 +185,7 @@ feature/fix              ●──────────● (Sua Branch de Tra
    * Após revisão e testes em `develop`, os mantenedores promovem as novidades para a `main` em cada lançamento estável de release.
 
 📖 Para detalhes completos sobre templates de issues, convenções de código e checklist de revisão, consulte o [**Guia de Contribuição Completo (CONTRIBUTING.md)**](CONTRIBUTING.md).
+🚀 Para consultar o refinamento e arquitetura das próximas grandes funcionalidades (Web Media Manager e Streaming Torrent estilo Stremio), veja o documento [**Roadmap & Issues Refinadas (docs/ROADMAP_ISSUES.md)**](docs/ROADMAP_ISSUES.md).
 
 ---
 

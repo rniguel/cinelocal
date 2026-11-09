@@ -1,10 +1,10 @@
 # ⚡ Cronologia do Universo Cinematográfico Marvel (MCU)
 
-O **CineLocal** possui suporte nativo à cronologia do MCU, integrando tanto a ordem narrativa da sua coleção pessoal quanto um **Rastreador Completo de 66 Títulos** que cobre todas as produções canônicas da Marvel Studios desde a década de 1940 até os lançamentos de 2026.
+O **CineLocal** possui suporte nativo à cronologia do MCU, integrando tanto a ordem narrativa da sua coleção pessoal quanto um **Rastreador Completo de 67 Títulos** que cobre todas as produções canônicas da Marvel Studios desde a década de 1940 até os lançamentos de 2026.
 
 ---
 
-## 🎯 1. Ordem da Sua Coleção CineLocal (#01 a #16)
+## 🎯 1. Ordem da Sua Coleção CineLocal (#01 a #17)
 
 A sua coleção local da Marvel está organizada na ordem narrativa canônica ideal para maratona:
 
@@ -26,10 +26,11 @@ A sua coleção local da Marvel está organizada na ordem narrativa canônica id
 | **#14** | Capitão América: Admirável Mundo Novo (2025) | Filme | 2025 (Sam Wilson assume o escudo perante a Casa Branca) |
 | **#15** | Thunderbolts* (2025) | Filme | 2025 (Equipe de operações secretas de anti-heróis) |
 | **#16** | Quarteto Fantástico: Primeiros Passos (2025) | Filme | Universo alternativo anos 1960 preparando terreno para Avengers: Doomsday |
+| **#17** | VisionQuest (2026) | Série | Sequência de WandaVision (Visão Branco busca sua identidade e memórias) |
 
 ---
 
-## 📜 2. Linha do Tempo Canônica Completa (66 Títulos do MCU)
+## 📜 2. Linha do Tempo Canônica Completa (67 Títulos do MCU)
 
 O rastreador interativo dentro do CineLocal monitora a coleção completa:
 
@@ -99,13 +100,14 @@ O rastreador interativo dentro do CineLocal monitora a coleção completa:
 64. **Capitão América: Admirável Mundo Novo (2025)**
 65. **Thunderbolts\*** *(2025)*
 66. **Quarteto Fantástico: Primeiros Passos (2025)** *(universo alternativo ambientado nos anos 1960 que converge para o MCU)*
+67. **VisionQuest (2026)** *(o renascimento do Visão Branco e a busca pela sua identidade)*
 
 ---
 
 ## ⚡ 3. Como Funciona o Rastreador na Interface
 
 1. No Carrossel Marvel da página inicial, o primeiro card destaca a **Linha do Tempo MCU**.
-2. Ao clicar no card ou no botão `Guia Cronológico Completo (66 Títulos) ➔`, abre-se o modal do rastreador.
+2. Ao clicar no card ou no botão `Guia Cronológico Completo (67 Títulos) ➔`, abre-se o modal do rastreador.
 3. O CineLocal varre automaticamente a coleção em tempo real:
    * Itens presentes ganham a tag **`✓ NA COLEÇÃO`** em verde esmeralda com botão **`Assistir ▶`** ou **`Ver Episódios 📺`**.
    * Itens ainda não baixados aparecem com a tag **`NÃO BAIXADO`**.

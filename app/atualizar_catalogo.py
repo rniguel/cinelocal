@@ -118,7 +118,15 @@ def probe_audio_and_subs(filepath, cache, stats=None):
     if ffmpeg_bin:
         try:
             cmd = [ffmpeg_bin, '-i', filepath]
-            proc = subprocess.run(cmd, stderr=subprocess.PIPE, stdout=subprocess.DEVNULL, text=True, encoding='utf-8', errors='ignore')
+            proc = subprocess.run(
+                cmd,
+                stderr=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                text=True,
+                encoding='utf-8',
+                errors='ignore',
+                timeout=25
+            )
             for line in proc.stderr.splitlines():
                 if 'Audio:' in line:
                     m = re.search(r'Stream #0:\d+(?:\[0x[0-9a-fA-F]+\])?(?:\(([a-zA-Z]{2,4})\))?: Audio:', line)
@@ -126,6 +134,8 @@ def probe_audio_and_subs(filepath, cache, stats=None):
                     audio_langs.append(lang)
                 if 'Subtitle:' in line:
                     has_sub = True
+        except subprocess.TimeoutExpired:
+            print(f"      ⚠️ [Timeout] FFmpeg excedeu o limite de 25s ao analisar '{os.path.basename(filepath)}'")
         except Exception:
             pass
             
@@ -489,7 +499,8 @@ def build_catalog():
                 'pluribus': 2025,
                 'severance': 2022,
                 'the bear': 2022,
-                'wandavision': 2021
+                'wandavision': 2021,
+                'visionquest': 2026
             }
             s_info = get_series_info(item)
             s_year = s_info.get('year') or SERIES_YEARS.get(item.lower(), get_year(item))
@@ -512,7 +523,8 @@ def build_catalog():
             series_has_subs = any(all_ep_subs)
             SERIES_FRANCHISE = {
                 'loki': ('Marvel', 9),
-                'wandavision': ('Marvel', 10)
+                'wandavision': ('Marvel', 10),
+                'visionquest': ('Marvel', 17)
             }
             s_franchise = None
             s_sequence = None

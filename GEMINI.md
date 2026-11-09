@@ -48,9 +48,9 @@ Este documento define os padrões arquiteturais, regras operacionais e boas prá
 
 ## ⚡ 3. Universo Cinematográfico Marvel (MCU)
 
-* A coleção da Marvel segue a **Ordem Cronológica Canônica** definida pelo usuário (com números de sequência `#01` a `#16` na coleção local).
-* As séries **Loki** (#09) e **WandaVision** (#10) possuem mapeamento especial em `SERIES_FRANCHISE` dentro de `app/atualizar_catalogo.py` para serem indexadas no carrossel da Marvel.
-* O rastreador geral do MCU (`window.MCU_CANONICAL_TIMELINE` em `generate_netflix_ui.py`) monitora todas as 66 produções oficiais da Marvel Studios até 2026. Ao adicionar um novo filme ou série da Marvel, garanta que suas palavras-chave em `keywords` permitam a correspondência automática no rastreador.
+* A coleção da Marvel segue a **Ordem Cronológica Canônica** definida pelo usuário (com números de sequência `#01` a `#17` na coleção local).
+* As séries **Loki** (#09), **WandaVision** (#10) e **VisionQuest** (#17) possuem mapeamento especial em `SERIES_FRANCHISE` dentro de `app/atualizar_catalogo.py` para serem indexadas no carrossel da Marvel.
+* O rastreador geral do MCU (`window.MCU_CANONICAL_TIMELINE` em `generate_netflix_ui.py`) monitora todas as 67 produções oficiais da Marvel Studios até 2026. Ao adicionar um novo filme ou série da Marvel, garanta que suas palavras-chave em `keywords` permitam a correspondência automática no rastreador.
 
 ---
 

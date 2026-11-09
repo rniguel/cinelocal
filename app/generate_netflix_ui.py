@@ -3856,7 +3856,7 @@ html_content = r"""<!DOCTYPE html>
           <span class="m-link-icon">📊</span> Meu Cinema em Números
         </button>
         <button class="mobile-drawer-link" onclick="openMcuTrackerModal(); closeMobileMenu();">
-          <span class="m-link-icon">⚡</span> Universo Marvel (MCU 66)
+          <span class="m-link-icon">⚡</span> Universo Marvel (MCU)
         </button>
       </nav>
 
@@ -4094,7 +4094,7 @@ html_content = r"""<!DOCTYPE html>
     </div>
   </div>
 
-  <!-- MODAL RASTREADOR & LINHA DO TEMPO DO MCU (66 TÍTULOS) -->
+  <!-- MODAL RASTREADOR & LINHA DO TEMPO DO MCU -->
   <div id="mcuTrackerModal" class="series-modal" onclick="closeMcuTrackerOnOut(event)">
     <div class="series-modal-box mcu-modal-box">
       <button class="series-modal-close" onclick="closeMcuTrackerModal()">&times;</button>
@@ -4109,7 +4109,7 @@ html_content = r"""<!DOCTYPE html>
         
         <div class="mcu-stats-dashboard">
           <div class="mcu-stat-card">
-            <div class="mcu-stat-card-val" id="mcuStatTotal">66</div>
+            <div class="mcu-stat-card-val" id="mcuStatTotal">67</div>
             <div class="mcu-stat-card-lbl">Total Canônico</div>
           </div>
           <div class="mcu-stat-card">
@@ -4137,7 +4137,7 @@ html_content = r"""<!DOCTYPE html>
           <input type="text" id="mcuSearchInput" class="mcu-search-input" placeholder="Pesquisar filme ou série na cronologia..." oninput="filterMcuList()">
         </div>
         <div class="mcu-filter-chips">
-          <button class="mcu-chip active" data-filter="all" onclick="setMcuFilter('all')">Todos (66)</button>
+          <button class="mcu-chip active" data-filter="all" onclick="setMcuFilter('all')">Todos (<span id="mcuChipAllCount">67</span>)</button>
           <button class="mcu-chip" data-filter="downloaded" onclick="setMcuFilter('downloaded')">✓ Na Minha Coleção (<span id="mcuChipDownloadedCount">0</span>)</button>
           <button class="mcu-chip" data-filter="missing" onclick="setMcuFilter('missing')">⏳ Faltando Baixar (<span id="mcuChipMissingCount">0</span>)</button>
           <button class="mcu-chip" data-filter="movie" onclick="setMcuFilter('movie')">🎬 Filmes</button>
@@ -5901,7 +5901,7 @@ html_content = r"""<!DOCTYPE html>
               <div class="optional-icon">⚡</div>
               <div class="optional-content">
                 <h4>Universo Marvel (MCU)</h4>
-                <p>Ao adicionar produções da Marvel Studios, o CineLocal ativa automaticamente o Carrossel Cronológico e o Rastreador Canônico de 66 títulos.</p>
+                <p>Ao adicionar produções da Marvel Studios, o CineLocal ativa automaticamente o Carrossel Cronológico e o Rastreador Canônico do MCU.</p>
                 <span style="font-size: 0.8rem; color: var(--text-muted);">Ativação automática por detecção</span>
               </div>
             </div>
@@ -5917,7 +5917,7 @@ html_content = r"""<!DOCTYPE html>
       const section = document.createElement('section');
       section.className = 'carousel-section marvel-section';
 
-      const totalMcu = (window.MCU_CANONICAL_TIMELINE || []).length || 66;
+      const totalMcu = (window.MCU_CANONICAL_TIMELINE || []).length || 67;
       let downloadedCount = 0;
       if (window.MCU_CANONICAL_TIMELINE) {
         window.MCU_CANONICAL_TIMELINE.forEach(entry => {
@@ -5935,7 +5935,7 @@ html_content = r"""<!DOCTYPE html>
             <span class="carousel-count">Ordem Cronológica • ${items.length} títulos na sua coleção</span>
           </div>
           <button class="btn-mcu-timeline-header" onclick="openMcuTrackerModal()">
-            <span class="pulse-dot"></span> Guia Cronológico (66 Títulos) ➔
+            <span class="pulse-dot"></span> Guia Cronológico (${totalMcu} Títulos) ➔
           </button>
         </div>
         <div class="carousel-track-wrapper">
@@ -6497,7 +6497,7 @@ html_content = r"""<!DOCTYPE html>
     }
 
     /* ============================================================= */
-    /* LINHA DO TEMPO CANÔNICA DO MCU & RASTREADOR (66 PRODUÇÕES)   */
+    /* LINHA DO TEMPO CANÔNICA DO MCU & RASTREADOR   */
     /* ============================================================= */
     window.MCU_CANONICAL_TIMELINE = [
       { seq: 1, title: 'Capitão América: O Primeiro Vingador', year: 2011, type: 'movie', note: 'se passa na década de 1940', keywords: ['primeiro vingador', 'first avenger'] },
@@ -6565,7 +6565,8 @@ html_content = r"""<!DOCTYPE html>
       { seq: 63, title: 'Demolidor: Renascido — 1ª Temporada', year: 2025, type: 'series', note: 'o novo capítulo de Matt Murdock no MCU', keywords: ['demolidor: renascido', 'daredevil: born again'] },
       { seq: 64, title: 'Capitão América: Admirável Mundo Novo', year: 2025, type: 'movie', note: 'Sam Wilson e a conspiração da Casa Branca', keywords: ['admirável mundo novo', 'admiravel mundo novo', 'brave new world'] },
       { seq: 65, title: 'Thunderbolts*', year: 2025, type: 'movie', note: 'a equipe de anti-heróis clandestinos do governo', keywords: ['thunderbolts'] },
-      { seq: 66, title: 'Quarteto Fantástico: Primeiros Passos', year: 2025, type: 'movie', note: 'universo alternativo nos anos 1960 convergindo ao MCU', keywords: ['quarteto fantástico', 'quarteto fantastico', 'fantastic four'] }
+      { seq: 66, title: 'Quarteto Fantástico: Primeiros Passos', year: 2025, type: 'movie', note: 'universo alternativo nos anos 1960 convergindo ao MCU', keywords: ['quarteto fantástico', 'quarteto fantastico', 'fantastic four'] },
+      { seq: 67, title: 'VisionQuest', year: 2026, type: 'series', note: 'o renascimento do Visão Branco e a busca pela sua identidade', keywords: ['visionquest', 'vision quest'] }
     ];
 
     let currentMcuFilter = 'all';
@@ -6644,6 +6645,8 @@ html_content = r"""<!DOCTYPE html>
       if (elProg) elProg.style.width = pct + '%';
       if (chipDown) chipDown.innerText = downloaded;
       if (chipMiss) chipMiss.innerText = missing;
+      const chipAll = document.getElementById('mcuChipAllCount');
+      if (chipAll) chipAll.innerText = total;
     }
 
     function setMcuFilter(filterName) {
@@ -8395,9 +8398,10 @@ html_content = r"""<!DOCTYPE html>
       const mcuFill = document.getElementById('statMcuFill');
       const mcuLbl = document.getElementById('statMcuLabel');
       if (mcuFill && mcuLbl) {
-        const mcuPct = Math.round((mcuWatched / 66) * 100);
+        const totalMcu = (window.MCU_CANONICAL_TIMELINE || []).length || 67;
+        const mcuPct = Math.round((mcuWatched / totalMcu) * 100);
         mcuFill.style.width = `${mcuPct}%`;
-        mcuLbl.innerText = `${mcuWatched} de 66 títulos assistidos (${mcuPct}%)`;
+        mcuLbl.innerText = `${mcuWatched} de ${totalMcu} títulos assistidos (${mcuPct}%)`;
       }
     }
 

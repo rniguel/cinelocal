@@ -120,6 +120,17 @@ SERIES_METADATA = {
         'rating': 7.9,
         'tmdbUrl': 'https://www.themoviedb.org/tv/85271-wandavision',
         'imdbUrl': 'https://www.imdb.com/title/tt9140560/'
+    },
+    'visionquest': {
+        'title': 'VisionQuest',
+        'year': 2026,
+        'overview': 'Após os eventos de WandaVision, o sintozóide Visão Branco busca recuperar sua humanidade, redescobrir suas memórias perdidas e encontrar seu propósito existencial em um mundo transformado.',
+        'cast': ['Paul Bettany', 'James Spader', 'Ruaridh Mollica', 'Todd Stashwick', 'T\'Nia Miller'],
+        'creator': 'Terry Matalas',
+        'genres': ['Ficção Científica', 'Ação', 'Aventura', 'Drama'],
+        'rating': 8.4,
+        'tmdbUrl': 'https://www.themoviedb.org/tv/213375-visionquest',
+        'imdbUrl': 'https://www.imdb.com/title/tt22985168/'
     }
 }
 
@@ -128,6 +139,15 @@ SERIES_METADATA = {
 # =====================================================================
 MOVIES_METADATA = {
     # Standalones clássicos
+    'resident evil': {
+        'overview': 'Bryan, um despretensioso entregador médico novato, precisa levar uma encomenda urgente até o Hospital Geral de Raccoon City. No caminho, ele se vê preso em meio ao caos de um aterrorizante surto biológico e precisa lutar desesperadamente pela sobrevivência contra mutações mortais.',
+        'cast': ['Austin Abrams', 'Zach Cherry', 'Kali Reis', 'Paul Walter Hauser'],
+        'director': 'Zach Cregger',
+        'genres': ['Terror', 'Ficção Científica', 'Ação'],
+        'rating': 7.4,
+        'tmdbUrl': 'https://www.themoviedb.org/movie/1423191-resident-evil',
+        'imdbUrl': 'https://www.imdb.com/title/tt35688536/'
+    },
     '10 coisas que eu odeio em você': {
         'overview': 'Em seu primeiro dia no novo colégio, Cameron se apaixona perdidamente por Bianca. Porém, o pai superprotetor dela só permite que ela namore se sua irmã mais velha, a rebelde e antissocial Kat, também arrumar um pretendente. Para driblar a regra, Cameron arquiteta um audacioso plano e suborna o misterioso Patrick Verona para conquistar o coração de Kat.',
         'cast': ['Heath Ledger', 'Julia Stiles', 'Joseph Gordon-Levitt', 'Larisa Oleynik', 'David Krumholtz'],

@@ -67,7 +67,7 @@ O **CineLocal** é projetado como uma aplicação web híbrida de alto desempenh
     * `#trailerModal`: Modal escuro dedicado com reprodução em alta definição do trailer oficial via YouTube.
     * `#surpriseModal`: Roleta aleatória que sorteia produções bem avaliadas do acervo.
     * `#qrModal`: Exibe QR Code com abas para assistir na TV ou abrir o controle remoto no celular.
-    * `#mcuTrackerModal`: Linha do tempo de 66 produções da Marvel, monitoramento de coleção e filtros dinâmicos.
+    * `#mcuTrackerModal`: Linha do tempo de 67 produções da Marvel, monitoramento de coleção e filtros dinâmicos.
 
 ---
 
@@ -129,3 +129,30 @@ O **CineLocal** é projetado como uma aplicação web híbrida de alto desempenh
   * Realiza consultas via API v3 do TMDb em português brasileiro (pt-BR).
   * Faz download de pôsteres oficiais (`poster.jpg`) somente nas pastas que não tiverem imagem.
   * **Preservação de Mídia:** Nunca altera, move ou renomeia os arquivos de vídeo.
+
+---
+
+## 🚀 6. Módulos em Expansão (Roadmap de Arquitetura)
+
+### A. Web Media Manager & Local-First Cloud App (Issue #15)
+* **Objetivo:** Permitir publicar o CineLocal na nuvem (Vercel, Netlify, GitHub Pages) como uma SPA moderna e permitir que qualquer usuário conecte e reproduza suas pastas de filmes locais diretamente pelo navegador.
+* **Componentes:**
+  * **File System Access API (`showDirectoryPicker`):** Leitura de diretórios e arquivos de mídia locais com permissão nativa do navegador.
+  * **Blob Streaming (`URL.createObjectURL`):** Reprodução instantânea de vídeos locais no player HTML5 sem consumir tráfego de internet ou custos de servidor.
+  * **IndexedDB Persistence:** Armazenamento seguro do handle da pasta e do cache de metadados para carregamento instantâneo em visitas recorrentes.
+  * **Organizador em Disco:** Com permissão de escrita, cria pastas no padrão canônico, faz download de posters oficiais do TMDb e move/organiza mídias no próprio disco do usuário.
+  * **Modo Dual (Híbrido):** Funciona tanto como Web App online estático quanto integrado ao servidor local Python (`servidor.py`).
+
+### B. Torrent Streaming Engine (Reprodução Direta de Magnet Links - Issue #16)
+* **Objetivo:** Reprodução instantânea de torrents no player do CineLocal estilo Stremio.
+* **Componentes:**
+  * Motor BitTorrent sequencial (`torrent-stream` / `libtorrent`) com janela deslizante de priorização de peças (cabeçalho, índice e agulha de reprodução).
+  * Servidor de stream HTTP local suportando `Range: bytes=...` (HTTP 206 Partial Content).
+  * Pipeline automático de legendas pt-BR via OpenSubtitles v3 / Cinemeta já integrado ao ecossistema do CineLocal.
+  * HUD de buffer, seeds e velocidade de download diretamente na barra do player.
+
+### C. CineLocal Desktop: Aplicativo Instalável Autônomo (Issue #17)
+* **Objetivo:** Empacotar todo o ecossistema (servidor Python embutido, FFmpeg, interface e utilitários) em um instalador oficial `.exe` para Windows sem dependência de scripts `.bat` ou instalação prévia de Python pelo usuário final.
+* **Componentes:**
+  * **Instalador Oficial (`CineLocal-Setup.exe`):** Criado via Inno Setup com atalhos na Área de Trabalho e Menu Iniciar.
+  * **Painel Unificado de Gerenciamento:** Botões de scan de catálogo, busca TMDb, otimização de áudio e chave de servidor para Smart TV centralizados dentro da própria interface web.

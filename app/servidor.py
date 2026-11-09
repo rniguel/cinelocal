@@ -112,7 +112,7 @@ def get_best_audio_stream(movie_path):
     if not ffmpeg_bin:
         return "1"
     try:
-        res = subprocess.run([ffmpeg_bin, "-i", movie_path], capture_output=True, text=True, encoding="utf-8", errors="ignore")
+        res = subprocess.run([ffmpeg_bin, "-i", movie_path], capture_output=True, text=True, encoding="utf-8", errors="ignore", timeout=15)
         lines = res.stderr.split("\n")
         por_streams = []
         all_audio_streams = []
@@ -140,7 +140,8 @@ def get_audio_streams_info(movie_path):
     try:
         res = subprocess.run(
             [ffmpeg_bin, "-i", movie_path],
-            capture_output=True, text=True, encoding="utf-8", errors="ignore"
+            capture_output=True, text=True, encoding="utf-8", errors="ignore",
+            timeout=15
         )
         duration_sec = 0.0
         dur_match = re.search(r"Duration:\s*(\d+):(\d+):(\d+\.?\d*)", res.stderr)
@@ -519,7 +520,7 @@ def extract_embedded_subtitles(video_rel):
         return {"success": False, "message": "FFmpeg não disponível para extração"}
     
     try:
-        res = subprocess.run([ffmpeg_bin, "-i", full_video_path], capture_output=True, text=True, encoding="utf-8", errors="ignore")
+        res = subprocess.run([ffmpeg_bin, "-i", full_video_path], capture_output=True, text=True, encoding="utf-8", errors="ignore", timeout=15)
         lines = res.stderr.split("\n")
         
         extracted_subs = []
@@ -735,7 +736,18 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
         client_ip = self.client_address[0]
         parsed = urllib.parse.urlparse(self.path)
         
-        content_length = int(self.headers.get('Content-Length', 0))
+        # Limite de segurança de payload (5 MB) contra DoS / OutOfMemory (Issue #12)
+        MAX_PAYLOAD_SIZE = 5 * 1024 * 1024
+        try:
+            content_length = int(self.headers.get('Content-Length', 0))
+        except (ValueError, TypeError):
+            content_length = 0
+
+        if content_length > MAX_PAYLOAD_SIZE:
+            log_event("⚠️", "SEGURANÇA", f"Payload rejeitado de {client_ip}: {content_length} bytes (limite de 5MB excedido)")
+            self.send_error(413, "Payload Too Large: o corpo da requisição excede o limite máximo permitido de 5MB")
+            return
+
         body = self.rfile.read(content_length) if content_length > 0 else b'{}'
         try:
             payload = json.loads(body.decode('utf-8')) if body else {}
@@ -1209,7 +1221,11 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             try:
                 query_params = urllib.parse.parse_qs(parsed.query)
                 video_rel = query_params.get('path', [''])[0]
-                ss = query_params.get('ss', ['0'])[0]
+                ss_raw = query_params.get('ss', ['0'])[0]
+                try:
+                    seek_val = max(0.0, float(ss_raw))
+                except (ValueError, TypeError):
+                    seek_val = 0.0
                 audio_idx = query_params.get('audio', [''])[0]
                 
                 full_movie_path = safe_resolve_media_path(MOVIES_DIR, video_rel)
@@ -1230,7 +1246,7 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                     "-nostdin",
                     "-nostats",
                     "-loglevel", "error",
-                    "-ss", str(ss),
+                    "-ss", str(seek_val),
                     "-i", full_movie_path,
                     "-map", "0:v:0",
                     "-map", f"0:{audio_idx}",
