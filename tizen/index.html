@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>CineLocal • Samsung Smart TV</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <script type="text/javascript" src="$WEBAPIS/webapis/webapis.js"></script>
+  <style>
+    :root {
+      --bg: #0b0e14;
+      --primary: #e50914;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --card-bg: rgba(20, 25, 35, 0.85);
+      --border: rgba(255, 255, 255, 0.12);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+    body {
+      background: radial-gradient(circle at 50% 30%, #1a2234 0%, var(--bg) 85%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+    }
+    .launcher-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.7);
+    }
+    .logo {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .logo span {
+      color: var(--primary);
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(229, 9, 20, 0.2);
+      border: 1px solid var(--primary);
+      color: #ff6b6b;
+      margin-bottom: 20px;
+      letter-spacing: 0.5px;
+    }
+    p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    .ip-input {
+      width: 100%;
+      background: rgba(0,0,0,0.5);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 1.25rem;
+      color: #fff;
+      font-family: monospace;
+      text-align: center;
+      outline: none;
+      margin-bottom: 18px;
+      transition: border-color 0.2s ease;
+    }
+    .ip-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 16px rgba(229, 9, 20, 0.4);
+    }
+    .btn-connect {
+      background: var(--primary);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 700;
+      padding: 14px 28px;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+    .btn-connect:focus, .btn-connect:hover {
+      background: #f40612;
+      transform: scale(1.02);
+      box-shadow: 0 8px 24px rgba(229, 9, 20, 0.5);
+      outline: none;
+    }
+    .status-msg {
+      margin-top: 16px;
+      font-size: 0.88rem;
+      color: #fbbf24;
+      min-height: 24px;
+    }
+    .hint {
+      margin-top: 24px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .hint kbd {
+      background: rgba(255,255,255,0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #cbd5e1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="launcher-box">
+    <div class="logo">🍿 Cine<span>Local</span></div>
+    <div class="badge">SAMSUNG SMART TV • TIZEN OS</div>
+    
+    <p>
+      Conecte este aplicativo ao servidor CineLocal rodando no seu computador na mesma rede Wi-Fi:
+    </p>
+
+    <input 
+      type="text" 
+      id="serverIpInput" 
+      class="ip-input" 
+      placeholder="Ex: 192.168.0.15" 
+      autofocus
+    />
+
+    <button id="btnConnect" class="btn-connect" onclick="handleConnect()">
+      🚀 Conectar ao Servidor
+    </button>
+
+    <div id="statusMsg" class="status-msg"></div>
+
+    <div class="hint">
+      Dica: Você pode reconfigurar o IP a qualquer momento pressionando o botão <kbd>Vermelho</kbd> do controle.
+    </div>
+  </div>
+
+  <script>
+    // Registro de Teclas do Controle Remoto Samsung
+    try {
+      if (window.tizen && window.tizen.tvinputdevice) {
+        const keysToRegister = [
+          'MediaPlay', 'MediaPause', 'MediaPlayPause', 
+          'MediaFastForward', 'MediaRewind', 
+          '10009', 'Return', 'ColorF0Red'
+        ];
+        keysToRegister.forEach(k => {
+          try { tizen.tvinputdevice.registerKey(k); } catch(e){}
+        });
+      }
+    } catch(e) {}
+
+    // Tratamento de Teclas Físicas
+    document.addEventListener('keydown', (e) => {
+      const code = e.keyCode || e.which;
+      // Botão Vermelho do Controle (ColorF0Red = 403) ou Tecla R
+      if (code === 403 || e.key === 'ColorF0Red' || e.key === 'r') {
+        localStorage.removeItem('cinelocal_server_ip');
+        document.getElementById('statusMsg').textContent = 'Configurações de IP redefinidas.';
+        document.getElementById('serverIpInput').value = '';
+        document.getElementById('serverIpInput').focus();
+      }
+      // Enter no controle
+      if (code === 13 || e.key === 'Enter') {
+        handleConnect();
+      }
+    });
+
+    const input = document.getElementById('serverIpInput');
+    const statusMsg = document.getElementById('statusMsg');
+
+    // Recupera IP prévio se houver
+    const savedIp = localStorage.getItem('cinelocal_server_ip');
+    if (savedIp) {
+      input.value = savedIp;
+      attemptAutoConnect(savedIp);
+    } else {
+      // Tenta hostname mDNS padrão
+      input.value = 'cinelocal.local';
+    }
+
+    async function attemptAutoConnect(ip) {
+      statusMsg.textContent = `Conectando a ${ip}:8000...`;
+      try {
+        const cleanHost = ip.replace(/^http:\/\//, '').replace(/:8000\/?$/, '').trim();
+        const testUrl = `http://${cleanHost}:8000/api/capabilities`;
+        
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 3500);
+        
+        const res = await fetch(testUrl, { signal: controller.signal });
+        clearTimeout(timer);
+        
+        if (res.ok) {
+          statusMsg.textContent = '✅ Conectado com sucesso! Abrindo CineLocal...';
+          localStorage.setItem('cinelocal_server_ip', cleanHost);
+          setTimeout(() => {
+            window.location.replace(`http://${cleanHost}:8000/app/index.html?tizen=1&host=${encodeURIComponent(cleanHost)}`);
+          }, 600);
+          return;
+        }
+      } catch (err) {
+        statusMsg.textContent = 'Servidor não respondeu. Verifique se o CineLocal está aberto no PC.';
+      }
+    }
+
+    async function handleConnect() {
+      const val = (input.value || '').trim();
+      if (!val) {
+        statusMsg.textContent = 'Por favor, digite o endereço IP do seu PC.';
+        return;
+      }
+      await attemptAutoConnect(val);
+    }
+  </script>
+</body>
+</html>
