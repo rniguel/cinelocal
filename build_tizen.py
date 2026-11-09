@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 🎬 CINELOCAL - GERENCIADOR & INSTALADOR AUTOMÁTICO SAMSUNG SMART TV (TIZEN OS)
-Empacota o aplicativo .wgt, gerencia certificados e instala na TV via rede Wi-Fi.
+Empacota o aplicativo .wgt assinado com o perfil oficial Samsung e instala na TV via rede Wi-Fi.
 """
 
 import os
@@ -20,13 +20,15 @@ TIZEN_SRC = os.path.join(BASE_DIR, "tizen")
 DIST_DIR = os.path.join(BASE_DIR, "dist")
 OUTPUT_WGT = os.path.join(DIST_DIR, "CineLocal.wgt")
 
-# Localização automática das ferramentas oficiais instaladas pela Extensão Tizen
 USER_HOME = os.path.expanduser("~")
 TIZEN_PLATFORM_DIR = os.path.join(USER_HOME, ".tizen-extension-platform")
 SDB_BIN = os.path.join(TIZEN_PLATFORM_DIR, "server", "sdktools", "data", "tools", "sdb.exe")
 TZ_BIN = os.path.join(TIZEN_PLATFORM_DIR, "server", "sdktools", "data", "tools", "tizen-core", "tz.exe")
 CERT_MGR_BIN = os.path.join(TIZEN_PLATFORM_DIR, "server", "sdktools", "data", "tools", "certificate-manager", "certificate-manager.exe")
 DEV_MGR_BIN = os.path.join(TIZEN_PLATFORM_DIR, "server", "sdktools", "data", "tools", "device-manager", "device-manager.exe")
+PROFILE_NAME = "Cinelocal"
+PACKAGE_ID = "cinelocal1"
+APP_ID = "cinelocal1.CineLocal"
 
 def banner():
     print("=" * 68)
@@ -58,12 +60,36 @@ def check_sdk_status():
     print("-" * 68)
     return has_sdb
 
-def package_wgt():
+def clean_build_artifacts():
+    rds = os.path.join(TIZEN_SRC, ".tizen-rds")
+    debug = os.path.join(TIZEN_SRC, "Debug")
+    for d in (rds, debug):
+        if os.path.exists(d):
+            shutil.rmtree(d, ignore_errors=True)
+
+def package_wgt(profile=PROFILE_NAME):
     os.makedirs(DIST_DIR, exist_ok=True)
     if not os.path.exists(TIZEN_SRC):
         print(f"❌ Diretório fonte '{TIZEN_SRC}' não encontrado!")
         return False
 
+    clean_build_artifacts()
+
+    if os.path.exists(TZ_BIN):
+        print(f"🔐 Empacotando e assinando com o perfil Samsung '{profile}' via tz.exe...")
+        cmd = [TZ_BIN, "pack", "-w", TIZEN_SRC, "-t", "wgt", "-s", profile, "-o", OUTPUT_WGT]
+        res = subprocess.run(cmd, capture_output=True, text=True, errors="ignore")
+        debug_wgt = os.path.join(TIZEN_SRC, "Debug", "tizen.wgt")
+        if os.path.exists(debug_wgt):
+            shutil.copy2(debug_wgt, OUTPUT_WGT)
+            size_kb = round(os.path.getsize(OUTPUT_WGT) / 1024, 1)
+            print(f"✅ Pacote assinado com sucesso: {OUTPUT_WGT} ({size_kb} KB)")
+            print("-" * 68)
+            return True
+        else:
+            print(f"⚠️ Erro ao assinar pacote:\n{res.stdout}\n{res.stderr}")
+
+    print("⚠️ tz.exe indisponível ou falhou, gerando pacote zip simples...")
     files_to_pack = []
     for root, _, files in os.walk(TIZEN_SRC):
         for f in files:
@@ -71,10 +97,8 @@ def package_wgt():
             rel = os.path.relpath(fp, TIZEN_SRC)
             files_to_pack.append((fp, rel))
 
-    print(f"📦 Empacotando {len(files_to_pack)} arquivo(s) para o widget Tizen...")
     with zipfile.ZipFile(OUTPUT_WGT, 'w', zipfile.ZIP_DEFLATED) as z:
         for full_path, arc_name in files_to_pack:
-            print(f"   ↳ {arc_name}")
             z.write(full_path, arc_name)
 
     size_kb = round(os.path.getsize(OUTPUT_WGT) / 1024, 1)
@@ -116,8 +140,7 @@ def connect_to_tv(tv_ip):
         return False
 
 def install_on_tv(tv_ip=None):
-    if not os.path.exists(OUTPUT_WGT):
-        package_wgt()
+    package_wgt()
 
     devices = list_connected_devices()
     if tv_ip:
@@ -129,15 +152,22 @@ def install_on_tv(tv_ip=None):
         print(f"👉 Para conectar, execute: python build_tizen.py --connect <IP_DA_TV>")
         return False
 
-    print(f"📺 Dispositivo(s) detectado(s): {devices}")
-    print(f"🚀 Instalando {OUTPUT_WGT} na Smart TV...")
-    try:
+    serial = devices[0].split()[0]
+    print(f"📺 Dispositivo detectado: {serial}")
+    print(f"🚀 Instalando {OUTPUT_WGT} na Smart TV Samsung...")
+
+    if os.path.exists(TZ_BIN):
+        cmd = [TZ_BIN, "install", "-p", OUTPUT_WGT, "-e", serial]
+    else:
         cmd = [SDB_BIN, "install", OUTPUT_WGT]
-        res = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+
+    try:
+        res = subprocess.run(cmd, capture_output=True, text=True, errors="ignore", timeout=60)
         output = (res.stdout + res.stderr).strip()
         print(f"   ↳ Log da instalação:\n{output}")
-        if "100%" in output or "success" in output.lower() or "installed" in output.lower():
+        if "completed" in output.lower() or "success" in output.lower():
             print("🎉 CineLocal instalado com sucesso na sua Smart TV Samsung!")
+            run_on_tv(serial)
             return True
         else:
             print("⚠️ A TV retornou resposta inesperada durante a instalação.")
@@ -145,6 +175,22 @@ def install_on_tv(tv_ip=None):
     except Exception as e:
         print(f"❌ Erro na instalação: {e}")
         return False
+
+def run_on_tv(serial=None):
+    if not serial:
+        devices = list_connected_devices()
+        if not devices:
+            print("❌ Nenhuma TV conectada para executar o app.")
+            return False
+        serial = devices[0].split()[0]
+
+    print(f"▶️ Executando {PACKAGE_ID} na TV ({serial})...")
+    if os.path.exists(TZ_BIN):
+        res = subprocess.run([TZ_BIN, "run", "-p", PACKAGE_ID, "-e", serial], capture_output=True, text=True, errors="ignore")
+        out = (res.stdout + res.stderr).strip()
+        print(f"   ↳ {out}")
+        return "successfully" in out.lower()
+    return False
 
 def open_certificate_manager():
     if os.path.exists(CERT_MGR_BIN):
@@ -168,7 +214,6 @@ def scan_local_subnet():
 
     found = []
     def check_ip(ip):
-        # Tenta porta 26101 (SDB) e portas padrão de Smart TV Samsung (8001, 8002)
         for p in (26101, 8001, 8002):
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.settimeout(0.35)
@@ -200,9 +245,10 @@ def main():
     check_sdk_status()
 
     parser = argparse.ArgumentParser(description="Gerenciador CineLocal para Samsung Smart TV (Tizen OS)")
-    parser.add_argument("--build", action="store_true", help="Gera o pacote dist/CineLocal.wgt")
+    parser.add_argument("--build", action="store_true", help="Gera o pacote dist/CineLocal.wgt assinado")
     parser.add_argument("--connect", type=str, help="Conecta à Smart TV via SDB usando o IP fornecido")
     parser.add_argument("--install", type=str, nargs="?", const="auto", help="Instala o pacote CineLocal.wgt na TV (opcional: passe o IP)")
+    parser.add_argument("--run", action="store_true", help="Abre o aplicativo CineLocal diretamente na tela da TV")
     parser.add_argument("--cert", action="store_true", help="Abre a interface gráfica do Certificate Manager")
     parser.add_argument("--device-manager", action="store_true", help="Abre a interface gráfica do Device Manager")
     parser.add_argument("--scan", action="store_true", help="Efetua varredura na rede local procurando a Smart TV")
@@ -231,13 +277,17 @@ def main():
         install_on_tv(ip)
         return
 
-    # Se nenhum argumento for passado, empacota e mostra o menu interativo
+    if args.run:
+        run_on_tv()
+        return
+
     package_wgt()
     devices = list_connected_devices()
     print("📋 STATUS ATUAL:")
     if devices:
         print(f"   🟢 TV Conectada: {devices}")
         print("   Para instalar agora, execute: python build_tizen.py --install")
+        print("   Para abrir na TV, execute:    python build_tizen.py --run")
     else:
         print("   ⚪ Nenhuma TV conectada no momento via SDB.")
         print(f"   1. Ative o Developer Mode na TV (Apps -> 12345 -> Host PC IP: {get_local_pc_ip()})")

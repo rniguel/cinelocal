@@ -69,3 +69,9 @@ app/data/torrent_cache/
 dist/
 build/
 *.spec
+
+# Tizen Smart TV Build Artifacts
+tizen/.tizen-rds/
+tizen/Debug/
+tizen/Release/
+*.wgt

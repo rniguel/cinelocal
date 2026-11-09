@@ -3,22 +3,23 @@
         xmlns:tizen="http://tizen.org/ns/widgets" 
         id="http://cinelocal.app/CineLocal" 
         version="2.5.0" 
-        viewmode="fullscreen">
+        viewmodes="maximized">
     
     <content src="index.html"/>
     <icon src="icon.png"/>
     <name>CineLocal</name>
-    <description>Streaming cinematográfico local e torrent com aceleração de hardware Samsung AVPlay</description>
+    <description>Streaming cinematografico local CineLocal</description>
     
-    <tizen:application id="cinelocal01.CineLocal" package="cinelocal01" required_version="4.0"/>
+    <tizen:application id="cinelocal1.CineLocal" package="cinelocal1" required_version="4.0"/>
+    <tizen:profile name="tv-samsung"/>
     
-    <!-- Permissões Obrigatórias -->
+    <!-- Permissoes Obrigatorias -->
     <tizen:privilege name="http://tizen.org/privilege/internet"/>
     <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
     
-    <!-- Configurações de Orientação e Tela -->
-    <tizen:setting screen-orientation="landscape" context-menu="enable" background-support="disable" encryption="disable" install-location="auto"/>
+    <!-- Configuracoes de Tela Samsung Smart TV -->
+    <tizen:setting screen-orientation="landscape" context-menu="enable" background-support="disable" encryption="disable" install-location="auto" hwkey-event="enable"/>
     
-    <!-- Permissão de Acesso a Rede Local e APIs -->
+    <!-- Permissao de Acesso a Rede Local e APIs -->
     <access subdomains="true" origin="*"/>
 </widget>
