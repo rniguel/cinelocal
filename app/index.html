@@ -10720,7 +10720,7 @@ function launchTorrentInPlayer(statusData) {
 
   openPlayer(torrentMedia, false, 0);
   startTorrentHud(statusData.infoHash);
-  fetchTorrentSubtitles(displayTitle, window.currentTorrentImdb);
+  fetchTorrentSubtitles(displayTitle, window.currentTorrentImdb, window.currentTorrentYear);
 
   if (isMkv) {
     showToast('⚡ Remuxando contêiner MKV em tempo real para o navegador.');
@@ -10933,10 +10933,11 @@ async function saveTorrentToCollection() {
   saveTorrentItem(infoHash, encodeURIComponent(title), year);
 }
 
-async function fetchTorrentSubtitles(title, imdbId) {
+async function fetchTorrentSubtitles(title, imdbId, year) {
   try {
     const imdbParam = encodeURIComponent(imdbId || '');
-    const titleParam = encodeURIComponent(title || '');
+    const searchTitle = (title && year && !title.includes(year)) ? ${title}  : (title || '');
+    const titleParam = encodeURIComponent(searchTitle);
     const res = await fetch(`/api/buscar_legendas?path=torrent_stream&title=${titleParam}&imdb=${imdbParam}`);
     const data = await res.json();
 
