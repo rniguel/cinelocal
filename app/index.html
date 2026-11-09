@@ -411,11 +411,67 @@
       background: rgba(100, 116, 139, 0.5);
     }
 
-    /* CARROSSEL NETFLIX (TRILHOS HORIZONTAIS) */
+    /* CARROSSEL NETFLIX (TRILHOS HORIZONTAIS) COM OTIMIZAÇÃO MODERNA */
     .carousel-section {
       position: relative;
       margin-bottom: 34px;
       padding: 0 40px;
+      content-visibility: auto;
+      contain-intrinsic-size: auto none auto 380px;
+    }
+
+    /* PERFIL DE ALTA PERFORMANCE PARA SMART TV (TIZEN / MALI GPU) */
+    body.is-tv {
+      --blur-strength: 0px !important;
+    }
+
+    body.is-tv header {
+      background: #090b10 !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    body.is-tv *,
+    body.is-tv *::before,
+    body.is-tv *::after {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    body.is-tv .carousel-track {
+      transform: translateZ(0);
+      will-change: scroll-position;
+    }
+
+    body.is-tv .movie-card {
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7) !important;
+      contain: paint layout;
+      transform: translateZ(0);
+      transition: transform 0.15s ease-out, outline 0.15s ease-out !important;
+    }
+
+    body.is-tv .movie-card:hover {
+      transform: none !important;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7) !important;
+      border-color: var(--border) !important;
+    }
+
+    body.is-tv .movie-card.tv-focused {
+      transform: scale(1.06) translateZ(0) !important;
+      outline: 4px solid var(--primary) !important;
+      outline-offset: 3px !important;
+      box-shadow: 0 0 28px rgba(229, 9, 20, 0.75) !important;
+      z-index: 30 !important;
+    }
+
+    body.is-tv .carousel-btn {
+      display: none !important;
+    }
+
+    body.is-tv .modal-overlay,
+    body.is-tv .modal-overlay * {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
     }
 
     .carousel-header {
@@ -5714,8 +5770,16 @@ function escapeHtml(str) {
       setupSeekHoverPreview();
       setupPlayerEvents();
 
-      // Aplica Modo Sala (Elementos maiores para TV e sofá) se ativo
-      if (state.tvScale) {
+      // Detecção de Ambiente Smart TV (Samsung Tizen, LG webOS ou flags ?tizen=1 / ?tv=1)
+      const isTvDevice = /Tizen|SMART-TV|SmartTV|webOS|NetCast|Opera TV|Android TV/i.test(navigator.userAgent) 
+        || window.location.search.includes('tizen=1') 
+        || window.location.search.includes('tv=1');
+
+      if (isTvDevice) {
+        document.body.classList.add('is-tv');
+        document.body.classList.add('tv-scale-large');
+        state.tvScale = true;
+      } else if (state.tvScale) {
         document.body.classList.add('tv-scale-large');
       }
       updateTvScaleUI();
@@ -6474,7 +6538,7 @@ function escapeHtml(str) {
       }
 
       // 5. TODOS OS FILMES
-      addCarousel(container, '🎬 Catálogo Completo de Longas-Metragens', state.movies);
+      addCarousel(container, '🎬 Catálogo Completo de Longas-Metragens', state.movies.slice(0, 24));
     }
 
     function addContinueWatchingCarousel(container, title, items) {
@@ -6954,7 +7018,7 @@ function escapeHtml(str) {
 
       return `
         <div class="movie-card dpad-focusable" tabindex="0" onclick="${clickAction}" data-id="${item.id}" onmouseenter="setTvFocus(this, false)">
-          <img class="card-poster" src="${posterSrc}" alt="${item.title}" loading="lazy" onerror="this.src='';">
+          <img class="card-poster" src="${posterSrc}" alt="${item.title}" loading="lazy" decoding="async" onerror="this.src='';">
           <span class="card-badge ${qualityClass}">${tagText}</span>
           ${seqBadge}
           ${watchedBadge}
