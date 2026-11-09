@@ -1,0 +1,14 @@
+.git/
+.gemini/
+.vscode/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.tmp*
+.audio_cache.json
+app/bin/*.exe
+app/vlc/
+app/data/*.tmp*
+*.bat
+scratch/

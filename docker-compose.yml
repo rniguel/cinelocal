@@ -1,0 +1,23 @@
+services:
+  cinelocal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cinelocal:latest
+    container_name: cinelocal
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - TZ=America/Sao_Paulo
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Mapeie sua pasta de filmes e séries local (ro = somente leitura para segurança absoluta)
+      - ./media:/cinelocal/media:ro
+      # Persistência de progresso, favoritos e estado do usuário
+      - ./app/data:/cinelocal/app/data:rw
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

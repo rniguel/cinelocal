@@ -17,6 +17,16 @@ Para usuários **Windows**, utilize os arquivos `.bat`. Para **Linux** e **macOS
 | **`Otimizar Audio Web.bat`** | **`Otimizar Audio Web.sh`** | Adiciona faixa estéreo AAC sem recodificar o vídeo para reprodução com áudio perfeito em qualquer navegador web. |
 | **`run.py`** | **`run.sh`** | Inicializador unificado e direto do CineLocal no terminal. |
 
+### 🐳 Execução via Docker (HomeLabs, NAS e Servidores Linux)
+
+Se você utiliza **Docker** ou gerencia um servidor doméstico (HomeLab / NAS / unRAID / TrueNAS):
+
+```bash
+# Iniciar o CineLocal em segundo plano
+docker compose up -d
+```
+Acesse `http://localhost:8000` (ou o IP do seu servidor na rede local). As suas mídias são mapeadas em modo seguro somente leitura (`:ro`) e seus favoritos/progresso são preservados em `./app/data`.
+
 ---
 
 ## 🚀 Principais Funcionalidades
