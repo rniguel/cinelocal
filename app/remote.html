@@ -653,9 +653,14 @@
     <div class="brand">
       🍿 Cine<span>Local</span>
     </div>
-    <div id="statusBadge" class="status-badge">
-      <div class="status-dot"></div>
-      <span id="statusText">Conectado à TV</span>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <div id="targetBadgeWrapper" style="font-size: 11px; padding: 3px 8px; border-radius: 12px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; cursor: pointer; display: flex; align-items: center; gap: 4px;" onclick="promptChangeTargetScreen()" title="Clique para parear com uma tela específica">
+        <span>🎯</span> <strong id="targetScreenDisplay">Carregando...</strong>
+      </div>
+      <div id="statusBadge" class="status-badge">
+        <div class="status-dot"></div>
+        <span id="statusText">Conectado à TV</span>
+      </div>
     </div>
   </header>
 
@@ -878,6 +883,38 @@
   <div id="toast" class="remote-toast"></div>
 
   <script>
+
+    // Identificação de Tela Alvo (Issue #19)
+    const urlParams = new URLSearchParams(window.location.search);
+    let targetSessionId = urlParams.get('target') || localStorage.getItem('cinelocal_remote_target') || '';
+    if (urlParams.get('target')) {
+      localStorage.setItem('cinelocal_remote_target', urlParams.get('target'));
+    }
+
+    function updateTargetBadgeUI() {
+      const badge = document.getElementById('targetScreenDisplay');
+      if (badge) {
+        badge.textContent = targetSessionId ? targetSessionId : 'Todas';
+        badge.style.color = targetSessionId ? '#fbbf24' : '#94a3b8';
+      }
+    }
+
+    function promptChangeTargetScreen() {
+      const current = targetSessionId || '';
+      const newTarget = prompt('Informe a ID da tela para parear (ex: tela_a1b2) ou deixe vazio para controlar todas as telas abertas:', current);
+      if (newTarget !== null) {
+        targetSessionId = newTarget.trim();
+        if (targetSessionId) {
+          localStorage.setItem('cinelocal_remote_target', targetSessionId);
+          showToast(`🎯 Pareado com: ${targetSessionId}`);
+        } else {
+          localStorage.removeItem('cinelocal_remote_target');
+          showToast('📡 Modo Transmissão Geral (Todas as Telas)');
+        }
+        updateTargetBadgeUI();
+      }
+    }
+
     const toast = document.getElementById('toast');
     let toastTimeout = null;
 
@@ -896,7 +933,7 @@
       }
 
       try {
-        const bodyData = { action, ...payload };
+        const bodyData = { action, target: targetSessionId || '', ...payload };
         const res = await fetch('/api/remote/action', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1161,6 +1198,8 @@
       showToast(`🍿 Reproduzindo "${title}" na TV...`);
     }
 
+  
+    updateTargetBadgeUI();
   </script>
 </body>
 </html>

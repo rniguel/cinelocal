@@ -9986,7 +9986,7 @@ function escapeHtml(str) {
       const isInstall = (tabName === 'tv_install');
       const baseIpUrl = state.localUrl || `http://${window.location.hostname || 'localhost'}:8000/`;
       const genericUrl = state.genericUrl || 'http://cinelocal.local:8000/';
-      const targetUrl = isRemote ? `${baseIpUrl.replace(/\/$/, '')}/remote` : (state.genericUrl || baseIpUrl);
+      const targetUrl = isRemote ? `${baseIpUrl.replace(/\/$/, '')}/remote?target=${window.cinelocalSessionId || ''}` : (state.genericUrl || baseIpUrl);
 
       const tabTv = document.getElementById('qrTabTv');
       const tabRemote = document.getElementById('qrTabRemote');
@@ -10018,9 +10018,11 @@ function escapeHtml(str) {
 
       const descEl = document.getElementById('qrModalDesc');
       if (descEl) {
-        descEl.innerText = isRemote 
-          ? 'Abra a câmera do seu celular para comandar a Smart TV sem mouse nem teclado:'
-          : 'Conecte seu dispositivo na mesma rede Wi-Fi e aponte a câmera para abrir o CineLocal:';
+        if (isRemote) {
+          descEl.innerHTML = `Aponte a câmera do celular para controlar <strong>exclusivamente esta tela</strong> (Sessão: <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color: #fbbf24;">${window.cinelocalSessionId || 'ativa'}</code>):`;
+        } else {
+          descEl.innerText = 'Conecte seu dispositivo na mesma rede Wi-Fi e aponte a câmera para abrir o CineLocal:';
+        }
       }
 
       const genUrlEl = document.getElementById('qrGenericUrlDisplay');
@@ -10083,6 +10085,17 @@ function escapeHtml(str) {
 
     /* RECEPTOR DO CONTROLE REMOTO VIRTUAL (SMART TV / PC) */
     function setupRemoteControlListener() {
+
+      // Identificador único de aba/tela para pareamento isolado do controle remoto (Issue #19)
+      if (!window.cinelocalSessionId) {
+        let sid = sessionStorage.getItem('cinelocal_tab_session');
+        if (!sid) {
+          sid = 'tela_' + Math.random().toString(36).substring(2, 7);
+          sessionStorage.setItem('cinelocal_tab_session', sid);
+        }
+        window.cinelocalSessionId = sid;
+      }
+
       if (!window.location.protocol.startsWith('http')) return;
 
       function executeRemoteCommand(action, payload) {
@@ -10235,6 +10248,10 @@ function escapeHtml(str) {
           try {
             const data = JSON.parse(e.data);
             if (data && data.action) {
+              // Ignora comando se direcionado exclusivamente a outra tela (Issue #19)
+              if (data.target && data.target !== '*' && data.target !== window.cinelocalSessionId) {
+                return;
+              }
               executeRemoteCommand(data.action, data.payload);
             }
           } catch (err) {}
@@ -10260,6 +10277,10 @@ function escapeHtml(str) {
               data.events.forEach(ev => {
                 if (ev.id > lastPolledRemoteId) {
                   lastPolledRemoteId = ev.id;
+                  // Ignora comando se direcionado a outra tela (Issue #19)
+                  if (ev.target && ev.target !== '*' && ev.target !== window.cinelocalSessionId) {
+                    return;
+                  }
                   callback(ev.action, ev.payload);
                 }
               });

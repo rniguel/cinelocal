@@ -601,10 +601,12 @@ class RemoteControllerHub:
             if q in self.listeners:
                 self.listeners.remove(q)
 
-    def dispatch(self, action, payload=None):
+    def dispatch(self, action, payload=None, target=None):
+        target_val = target or (payload.get('target') if isinstance(payload, dict) else '') or ''
         event = {
             "action": action,
             "payload": payload or {},
+            "target": target_val,
             "id": int(time.time() * 1000)
         }
         with self.lock:
@@ -1232,14 +1234,16 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(data)
             return
 
-        # 1. Comando do Controle Remoto Virtual
+        # 1. Comando do Controle Remoto Virtual (com suporte a Sessão Alvo - Issue #19)
         if parsed.path == '/api/remote/action':
             action = payload.get('action') or urllib.parse.parse_qs(parsed.query).get('action', [''])[0]
+            target = payload.get('target', '') or urllib.parse.parse_qs(parsed.query).get('target', [''])[0]
             if action:
-                ev = REMOTE_HUB.dispatch(action, payload)
-                if should_log_activity(('remote', client_ip, action), 2):
-                    log_event("📱", "REMOTE ACTION", f"Comando '{action}' recebido de {client_ip}")
-                res = json.dumps({"status": "ok", "action": action, "id": ev["id"]}).encode('utf-8')
+                ev = REMOTE_HUB.dispatch(action, payload, target=target)
+                if should_log_activity(('remote', client_ip, action, target), 2):
+                    dest_info = f" -> tela [{target}]" if target else " -> todas as telas"
+                    log_event("📱", "REMOTE ACTION", f"Comando '{action}'{dest_info} recebido de {client_ip}")
+                res = json.dumps({"status": "ok", "action": action, "target": ev.get("target", ""), "id": ev["id"]}).encode('utf-8')
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.send_header('Access-Control-Allow-Origin', '*')
