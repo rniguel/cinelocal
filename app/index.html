@@ -3708,8 +3708,16 @@
           <button id="searchClearBtn" class="search-clear" onclick="clearSearch()">&times;</button>
         </div>
 
+        <!-- BOTÃO DE DESTAQUE: CONECTAR PASTA LOCAL (ISSUE #15) -->
+        <button id="btnConnectLocalMedia" class="btn-header-action primary-pill" onclick="openMediaManagerModal()" title="Conectar Pasta de Filmes do Computador">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span id="localFolderLabel">Pasta de Filmes</span>
+        </button>
+
         <!-- BOTÃO DE DESTAQUE: CONECTAR SMART TV -->
-        <button class="btn-header-action primary-pill" onclick="openQrConnectModal('tv')" title="Conectar Smart TV ou Celular">
+        <button class="btn-header-action" onclick="openQrConnectModal('tv')" title="Conectar Smart TV ou Celular">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
             <polyline points="17 2 12 7 7 2"></polyline>
@@ -3873,6 +3881,9 @@
         </button>
         <button class="mobile-drawer-link" onclick="openQrConnectModal('remote'); closeMobileMenu();">
           <span class="m-link-icon">📱</span> Controle Remoto Celular
+        </button>
+        <button class="mobile-drawer-link" onclick="openMediaManagerModal(); closeMobileMenu();">
+          <span class="m-link-icon">📁</span> Conectar Pasta de Filmes
         </button>
         <button class="mobile-drawer-link" onclick="openQrConnectModal('tv'); closeMobileMenu();">
           <span class="m-link-icon">📺</span> Conectar Smart TV / QR
@@ -4675,6 +4686,67 @@
           Selecionar Arquivo para Restaurar
         </button>
         <div id="backupStatusMsg" style="margin-top: 12px; font-size: 0.85rem; display: none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE GERENCIADOR DE MÍDIA LOCAL (ISSUE #15) -->
+  <div id="mediaManagerModal" class="series-modal" onclick="closeMediaManagerModalOnOut(event)">
+    <div class="series-modal-box" style="max-width: 580px; padding: 28px;">
+      <button class="series-modal-close" onclick="closeMediaManagerModal()">&times;</button>
+      
+      <div style="margin-bottom: 20px; text-align: left;">
+        <span class="badge-tag" style="background: rgba(16,185,129,0.2); border: 1px solid #10b981; color: #6ee7b7;">LOCAL-FIRST & CLOUD</span>
+        <h2 style="font-size: 1.45rem; color: #fff; margin: 6px 0 4px;">📁 Gerenciador de Mídia Local</h2>
+        <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">
+          Acesse filmes do seu computador diretamente pelo navegador. <strong>Zero upload</strong> para a nuvem, 0ms de delay e qualidade máxima original.
+        </p>
+      </div>
+
+      <!-- STATUS DA PASTA CONECTADA -->
+      <div id="localMediaStatusBox" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: left;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Status da Biblioteca Local</div>
+            <div id="localMediaFolderName" style="font-size: 1rem; font-weight: 700; color: #fff; margin-top: 2px;">Nenhuma pasta conectada</div>
+            <div id="localMediaFolderCount" style="font-size: 0.82rem; color: var(--text-muted);">Conecte uma pasta para assistir aos seus vídeos locais sem upload.</div>
+          </div>
+          <button id="btnDisconnectFolder" class="btn-card-action" style="display: none; background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.4); padding: 6px 12px; border-radius: 8px; flex: none;" onclick="disconnectLocalFolder()">
+            Desconectar
+          </button>
+        </div>
+      </div>
+
+      <!-- BOTÃO CONECTAR PASTA NATIVA -->
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
+        <button id="btnPickFolder" class="btn-primary" style="width: 100%; padding: 14px; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px;" onclick="connectLocalMediaFolder()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+          Selecionar Pasta de Filmes no PC
+        </button>
+        <input type="file" id="fallbackLocalFolderInput" webkitdirectory directory multiple style="display: none;" onchange="handleFallbackFolderSelect(event)">
+      </div>
+
+      <!-- ADICIONAR FILME INDIVIDUAL COM BUSCA TMDB -->
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: left;">
+        <div style="font-weight: 600; color: #fff; font-size: 0.95rem; margin-bottom: 4px;">🎬 Adicionar Filme Avulso com Capa do TMDb</div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Busque o título oficial no TMDb e selecione o arquivo de vídeo do seu disco.</p>
+        
+        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+          <input 
+            type="text" 
+            id="tmdbSearchAddInput" 
+            placeholder="Nome do filme (ex: Interestelar, Duna 2)..." 
+            style="flex: 1; padding: 10px 14px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;"
+            onkeydown="if(event.key==='Enter') searchTmdbForSingleMovie()"
+          >
+          <button class="btn-secondary" style="padding: 10px 16px; font-size: 13px;" onclick="searchTmdbForSingleMovie()">Buscar</button>
+        </div>
+
+        <div id="tmdbAddResults" style="display: none; max-height: 200px; overflow-y: auto; margin-top: 10px; border-radius: 8px; background: rgba(0,0,0,0.4); border: 1px solid var(--border);"></div>
+      </div>
+
+      <div id="localMediaLoadingIndicator" style="display: none; margin-top: 14px; font-size: 0.88rem; color: #38bdf8; text-align: center;">
+        ⏳ Escaneando arquivos e baixando capas do TMDb...
       </div>
     </div>
   </div>
@@ -8332,6 +8404,413 @@
       if (e.target.id === 'statsModal') closeStatsModal();
     }
 
+    /* =========================================================================
+       LOCAL MEDIA MANAGER & CLOUD LOCAL-FIRST ENGINE (ISSUE #15)
+       ========================================================================= */
+    const TMDB_PUBLIC_API_KEY = "1cf50e6248dc270629e802686245c2c8";
+    let localDirectoryHandle = null;
+    let localMediaItems = [];
+
+    function getIndexedDb() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open('CineLocalDB', 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('handles')) {
+            db.createObjectStore('handles');
+          }
+        };
+        req.onsuccess = (e) => resolve(e.target.result);
+        req.onerror = (e) => reject(e);
+      });
+    }
+
+    async function saveDirectoryHandle(handle) {
+      try {
+        const db = await getIndexedDb();
+        const tx = db.transaction('handles', 'readwrite');
+        tx.objectStore('handles').put(handle, 'mediaFolderHandle');
+        return new Promise((res) => { tx.oncomplete = () => res(true); });
+      } catch (err) {
+        console.warn('Erro ao salvar handle no IndexedDB:', err);
+      }
+    }
+
+    async function loadSavedDirectoryHandle() {
+      try {
+        const db = await getIndexedDb();
+        const tx = db.transaction('handles', 'readonly');
+        const req = tx.objectStore('handles').get('mediaFolderHandle');
+        return new Promise((res) => {
+          req.onsuccess = () => res(req.result || null);
+          req.onerror = () => res(null);
+        });
+      } catch (err) {
+        return null;
+      }
+    }
+
+    async function clearSavedDirectoryHandle() {
+      try {
+        const db = await getIndexedDb();
+        const tx = db.transaction('handles', 'readwrite');
+        tx.objectStore('handles').delete('mediaFolderHandle');
+      } catch (err) {}
+    }
+
+    function openMediaManagerModal() {
+      const modal = document.getElementById('mediaManagerModal');
+      if (modal) modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      updateLocalMediaStatusUI();
+    }
+
+    function closeMediaManagerModal() {
+      const modal = document.getElementById('mediaManagerModal');
+      if (modal) modal.classList.remove('active');
+      const p = document.getElementById('playerModal');
+      if (!p || !p.classList.contains('active')) {
+        document.body.style.overflow = '';
+      }
+    }
+
+    function closeMediaManagerModalOnOut(e) {
+      if (e.target.id === 'mediaManagerModal') closeMediaManagerModal();
+    }
+
+    function updateLocalMediaStatusUI() {
+      const nameEl = document.getElementById('localMediaFolderName');
+      const countEl = document.getElementById('localMediaFolderCount');
+      const btnDisconnect = document.getElementById('btnDisconnectFolder');
+      const headerLabel = document.getElementById('localFolderLabel');
+
+      if (localDirectoryHandle) {
+        const folderName = localDirectoryHandle.name || 'Pasta Conectada';
+        if (nameEl) nameEl.textContent = `📁 ${folderName}`;
+        if (countEl) countEl.textContent = `${localMediaItems.length} arquivo(s) de vídeo indexado(s) localmente`;
+        if (btnDisconnect) btnDisconnect.style.display = 'block';
+        if (headerLabel) headerLabel.textContent = folderName.length > 14 ? folderName.slice(0, 12) + '...' : folderName;
+      } else {
+        if (nameEl) nameEl.textContent = 'Nenhuma pasta conectada';
+        if (countEl) countEl.textContent = 'Conecte uma pasta para assistir aos seus vídeos locais sem upload.';
+        if (btnDisconnect) btnDisconnect.style.display = 'none';
+        if (headerLabel) headerLabel.textContent = 'Pasta de Filmes';
+      }
+    }
+
+    async function disconnectLocalFolder() {
+      localDirectoryHandle = null;
+      localMediaItems = [];
+      await clearSavedDirectoryHandle();
+      updateLocalMediaStatusUI();
+      state.all = (state.all || []).filter(i => !i.isLocalBlob);
+      state.movies = (state.movies || []).filter(i => !i.isLocalBlob);
+      state.series = (state.series || []).filter(i => !i.isLocalBlob);
+      renderAllViews();
+      showToast('Pasta desconectada.');
+    }
+
+    async function connectLocalMediaFolder() {
+      if ('showDirectoryPicker' in window) {
+        try {
+          const dirHandle = await window.showDirectoryPicker({
+            id: 'cinelocal_media_dir',
+            mode: 'read'
+          });
+          localDirectoryHandle = dirHandle;
+          await saveDirectoryHandle(dirHandle);
+          await processLocalDirectory(dirHandle);
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            console.error('Erro ao selecionar pasta:', err);
+            triggerFallbackFolderInput();
+          }
+        }
+      } else {
+        triggerFallbackFolderInput();
+      }
+    }
+
+    function triggerFallbackFolderInput() {
+      const input = document.getElementById('fallbackLocalFolderInput');
+      if (input) input.click();
+    }
+
+    async function handleFallbackFolderSelect(event) {
+      const files = Array.from(event.target.files || []);
+      if (files.length === 0) return;
+      
+      const loadingEl = document.getElementById('localMediaLoadingIndicator');
+      if (loadingEl) {
+        loadingEl.style.display = 'block';
+        loadingEl.textContent = `⏳ Lendo ${files.length} arquivos locais...`;
+      }
+
+      const videoExts = ['.mp4', '.mkv', '.webm', '.avi', '.mov'];
+      const videoFiles = files.filter(f => videoExts.some(ext => f.name.toLowerCase().endsWith(ext)));
+
+      localDirectoryHandle = { name: files[0].webkitRelativePath ? files[0].webkitRelativePath.split('/')[0] : 'Meus Arquivos' };
+      localMediaItems = [];
+
+      for (let i = 0; i < videoFiles.length; i++) {
+        const file = videoFiles[i];
+        const blobUrl = URL.createObjectURL(file);
+        const cleanInfo = cleanTitleAndYear(file.name);
+        
+        let meta = await fetchTmdbMetadata(cleanInfo.title, cleanInfo.year);
+        const item = buildLocalMediaItem(file.name, cleanInfo.title, cleanInfo.year, blobUrl, meta, i);
+        localMediaItems.push(item);
+      }
+
+      mergeLocalItemsIntoCatalog(localMediaItems);
+      if (loadingEl) loadingEl.style.display = 'none';
+      updateLocalMediaStatusUI();
+      closeMediaManagerModal();
+      showToast(`🎉 ${localMediaItems.length} filme(s) conectados do seu computador!`);
+    }
+
+    async function processLocalDirectory(dirHandle) {
+      const loadingEl = document.getElementById('localMediaLoadingIndicator');
+      if (loadingEl) {
+        loadingEl.style.display = 'block';
+        loadingEl.textContent = '⏳ Escaneando pastas locais e consultando capas no TMDb...';
+      }
+
+      const foundVideos = [];
+      const foundPosters = {};
+
+      async function scanDir(handle, currentPath = '') {
+        for await (const entry of handle.values()) {
+          const entryPath = currentPath ? `${currentPath}/${entry.name}` : entry.name;
+          if (entry.kind === 'file') {
+            const lower = entry.name.toLowerCase();
+            if (lower.endsWith('.mp4') || lower.endsWith('.mkv') || lower.endsWith('.webm') || lower.endsWith('.avi') || lower.endsWith('.mov')) {
+              foundVideos.push({ handle: entry, path: entryPath, parentPath: currentPath });
+            } else if (lower === 'poster.jpg' || lower === 'poster.png' || lower === 'cover.jpg') {
+              foundPosters[currentPath] = entry;
+            }
+          } else if (entry.kind === 'directory') {
+            if (!entry.name.startsWith('.') && entry.name !== '$RECYCLE.BIN') {
+              await scanDir(entry, entryPath);
+            }
+          }
+        }
+      }
+
+      try {
+        await scanDir(dirHandle);
+      } catch (e) {
+        console.error('Erro na varredura:', e);
+      }
+
+      localMediaItems = [];
+      for (let i = 0; i < foundVideos.length; i++) {
+        const v = foundVideos[i];
+        try {
+          const file = await v.handle.getFile();
+          const blobUrl = URL.createObjectURL(file);
+          const cleanInfo = cleanTitleAndYear(v.handle.name);
+
+          let localPosterBlob = null;
+          if (foundPosters[v.parentPath]) {
+            try {
+              const pFile = await foundPosters[v.parentPath].getFile();
+              localPosterBlob = URL.createObjectURL(pFile);
+            } catch (err) {}
+          }
+
+          let meta = null;
+          if (!localPosterBlob) {
+            meta = await fetchTmdbMetadata(cleanInfo.title, cleanInfo.year);
+          }
+
+          const item = buildLocalMediaItem(v.handle.name, cleanInfo.title, cleanInfo.year, blobUrl, meta, i, localPosterBlob);
+          localMediaItems.push(item);
+        } catch (e) {
+          console.warn('Erro ao processar arquivo:', v.handle.name, e);
+        }
+      }
+
+      mergeLocalItemsIntoCatalog(localMediaItems);
+      if (loadingEl) loadingEl.style.display = 'none';
+      updateLocalMediaStatusUI();
+      closeMediaManagerModal();
+      showToast(`🎉 ${localMediaItems.length} filme(s) conectados do seu computador!`);
+    }
+
+    function cleanTitleAndYear(filename) {
+      let name = filename.replace(/\.(mkv|mp4|avi|webm|mov)$/i, '');
+      const yearMatch = name.match(/\b(19\d{2}|20\d{2})\b/);
+      const year = yearMatch ? parseInt(yearMatch[1]) : null;
+
+      const patterns = [
+        /\b(1080p|720p|2160p|4k|uhd|bluray|blu-ray|web-dl|webrip|hdtv|dvdrip|remux)\b/gi,
+        /\b(x264|x265|hevc|h264|h265|avc|10bit|aac|ac3|dts|dts-hd|truehd|ddp5\.1|atmos)\b/gi,
+        /\b(dual|dublado|legendado|multi|cinelocal|bludv|comandotorrents|yts|yify|rarbg|1xbet)\b/gi,
+        /\b(versao estendida|extended|imax|directors cut|remastered)\b/gi,
+        /[\[\]\(\)\._-]/g
+      ];
+      for (const pat of patterns) {
+        name = name.replace(pat, ' ');
+      }
+      if (year) {
+        name = name.replace(String(year), ' ');
+      }
+      name = name.replace(/\s+/g, ' ').trim();
+      return { title: name || filename, year };
+    }
+
+    async function fetchTmdbMetadata(title, year) {
+      try {
+        let url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_PUBLIC_API_KEY}&language=pt-BR&query=${encodeURIComponent(title)}&include_adult=false`;
+        if (year) url += `&year=${year}`;
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.results && data.results.length > 0) {
+            return data.results[0];
+          }
+        }
+      } catch (err) {}
+      return null;
+    }
+
+    function buildLocalMediaItem(rawName, title, year, videoBlobUrl, tmdbData, index, localPosterBlob = null) {
+      const id = 'local_' + (index + 1) + '_' + Date.now();
+      const poster = localPosterBlob || (tmdbData && tmdbData.poster_path ? `https://image.tmdb.org/t/p/w500${tmdbData.poster_path}` : '');
+      const backdrop = tmdbData && tmdbData.backdrop_path ? `https://image.tmdb.org/t/p/original${tmdbData.backdrop_path}` : '';
+      const overview = (tmdbData && tmdbData.overview) ? tmdbData.overview : 'Vídeo local reproduzido diretamente do seu computador em alta definição.';
+      const rating = tmdbData && tmdbData.vote_average ? Math.round(tmdbData.vote_average * 10) / 10 : 7.5;
+      const releaseYear = year || (tmdbData && tmdbData.release_date ? parseInt(tmdbData.release_date.slice(0, 4)) : 2024);
+
+      return {
+        id: id,
+        type: 'movie',
+        title: (tmdbData && (tmdbData.title || tmdbData.original_title)) || title,
+        rawName: rawName,
+        year: releaseYear,
+        overview: overview,
+        rating: rating,
+        genres: ['Local', 'Cinema'],
+        videoPath: videoBlobUrl,
+        posterPath: poster,
+        backdropPath: backdrop,
+        isLocalBlob: true,
+        duration: 7200,
+        subtitles: []
+      };
+    }
+
+    function mergeLocalItemsIntoCatalog(items) {
+      if (!items || items.length === 0) return;
+      const nonLocal = (state.all || []).filter(i => !i.isLocalBlob);
+      state.all = [...items, ...nonLocal];
+      state.catalogo = state.all;
+      state.movies = state.all.filter(i => i.type === 'movie');
+      state.series = state.all.filter(i => i.type === 'series');
+      window.CATALOGO = state.all;
+      window.CATALOGO_FILMES = state.movies;
+      window.CATALOGO_SERIES = state.series;
+      renderAllViews();
+    }
+
+    function renderAllViews() {
+      try {
+        setupHeroBanner();
+        renderHomeCarousels();
+        populateGenreFilter();
+        renderMoviesGrid();
+        renderSeriesGrid();
+        if (typeof updateStats === 'function') updateStats();
+      } catch (err) {
+        console.error('Erro ao renderizar views:', err);
+      }
+    }
+
+    async function searchTmdbForSingleMovie() {
+      const input = document.getElementById('tmdbSearchAddInput');
+      const resultsEl = document.getElementById('tmdbAddResults');
+      if (!input || !resultsEl) return;
+      const q = input.value.trim();
+      if (!q) return;
+
+      resultsEl.style.display = 'block';
+      resultsEl.innerHTML = '<div style="padding: 12px; color: var(--text-muted); font-size: 12px; text-align: center;">Buscando no TMDb...</div>';
+
+      try {
+        const url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_PUBLIC_API_KEY}&language=pt-BR&query=${encodeURIComponent(q)}&include_adult=false`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const results = (data.results || []).slice(0, 5);
+
+        if (results.length === 0) {
+          resultsEl.innerHTML = '<div style="padding: 12px; color: var(--text-muted); font-size: 12px; text-align: center;">Nenhum filme encontrado no TMDb.</div>';
+          return;
+        }
+
+        resultsEl.innerHTML = results.map(m => {
+          const poster = m.poster_path ? `https://image.tmdb.org/t/p/w200${m.poster_path}` : '';
+          const year = m.release_date ? ` (${m.release_date.slice(0, 4)})` : '';
+          const safeTitle = (m.title || m.original_title || '').replace(/'/g, "\\'");
+          return `
+            <div style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid var(--border); cursor: pointer;" onclick="selectTmdbAndPickFile('${safeTitle}', ${m.id})">
+              <img src="${poster}" style="width: 32px; height: 46px; object-fit: cover; border-radius: 4px; background: #222;" onerror="this.style.display='none'">
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 700; font-size: 13px; color: #fff;">${m.title || m.original_title}${year}</div>
+                <div style="font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.overview || 'Sem sinopse'}</div>
+              </div>
+              <button class="btn-card-action btn-card-play" style="flex: none; padding: 4px 10px; font-size: 11px;">Vincular Vídeo</button>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        resultsEl.innerHTML = `<div style="padding: 12px; color: #ff6b6b; font-size: 12px; text-align: center;">Erro: ${err.message}</div>`;
+      }
+    }
+
+    async function selectTmdbAndPickFile(movieTitle, tmdbId) {
+      if ('showOpenFilePicker' in window) {
+        try {
+          const [fileHandle] = await window.showOpenFilePicker({
+            types: [{
+              description: 'Vídeos',
+              accept: { 'video/*': ['.mp4', '.mkv', '.webm', '.avi', '.mov'] }
+            }]
+          });
+          const file = await fileHandle.getFile();
+          const blobUrl = URL.createObjectURL(file);
+          
+          let meta = null;
+          try {
+            const res = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_PUBLIC_API_KEY}&language=pt-BR`);
+            if (res.ok) meta = await res.json();
+          } catch(e) {}
+
+          const item = buildLocalMediaItem(file.name, movieTitle, null, blobUrl, meta, localMediaItems.length);
+          localMediaItems.unshift(item);
+          mergeLocalItemsIntoCatalog([item]);
+          closeMediaManagerModal();
+          showToast(`🎬 "${item.title}" adicionado à sua biblioteca!`);
+        } catch (e) {}
+      } else {
+        alert('Seu navegador não suporta seleção direta de arquivo único. Conecte a pasta completa pelo botão principal.');
+      }
+    }
+
+    // Auto-reconexão da pasta salva na inicialização
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const savedHandle = await loadSavedDirectoryHandle();
+        if (savedHandle) {
+          localDirectoryHandle = savedHandle;
+          updateLocalMediaStatusUI();
+          if (await savedHandle.queryPermission({ mode: 'read' }) === 'granted') {
+            processLocalDirectory(savedHandle);
+          }
+        }
+      } catch (e) {}
+    });
+
     /* MODAL DE BACKUP E RESTAURAÇÃO (ISSUE #14) */
     function openBackupModal() {
       const modal = document.getElementById('backupModal');
@@ -8388,6 +8867,7 @@
           }
           setTimeout(() => {
             closeBackupModal();
+          closeMediaManagerModal();
           }, 2200);
         } else {
           throw new Error(data.message || 'Falha ao importar backup');
@@ -8948,6 +9428,7 @@
               closeQrModal();
               closeStatsModal();
               closeBackupModal();
+          closeMediaManagerModal();
             }
             break;
         }
@@ -9331,6 +9812,7 @@
           closeQrModal();
           closeStatsModal();
           closeBackupModal();
+          closeMediaManagerModal();
           closeMobileSearchBar();
           return;
         }

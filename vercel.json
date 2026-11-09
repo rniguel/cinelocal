@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/", "destination": "/app/index.html" },
+    { "source": "/remote", "destination": "/app/remote.html" },
+    { "source": "/manifest.json", "destination": "/app/manifest.json" },
+    { "source": "/sw.js", "destination": "/app/sw.js" },
+    { "source": "/icon-(.*)", "destination": "/app/icon-$1" },
+    { "source": "/(.*)", "destination": "/app/$1" }
+  ]
+}

@@ -1,0 +1,24 @@
+[[redirects]]
+  from = "/"
+  to = "/app/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/remote"
+  to = "/app/remote.html"
+  status = 200
+
+[[redirects]]
+  from = "/manifest.json"
+  to = "/app/manifest.json"
+  status = 200
+
+[[redirects]]
+  from = "/sw.js"
+  to = "/app/sw.js"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/app/:splat"
+  status = 200
