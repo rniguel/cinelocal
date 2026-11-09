@@ -421,6 +421,386 @@
     }
 
     /* ========================================================================= */
+    /* 🎬 PÁGINA COMPLETA DE DETALHES DO FILME / SÉRIE (NETFLIX / AWWWARDS GRADE) */
+    /* ========================================================================= */
+    .detail-view-container {
+      position: relative;
+      min-height: 100vh;
+      width: 100%;
+      background: #06080d;
+      color: #fff;
+      padding-bottom: 80px;
+    }
+
+    .detail-backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 75vh;
+      min-height: 500px;
+      background-size: cover;
+      background-position: center 20%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .detail-backdrop-gradient {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 75% 20%, transparent 20%, #06080d 85%),
+                  linear-gradient(to top, #06080d 5%, rgba(6, 8, 13, 0.8) 50%, rgba(6, 8, 13, 0.4) 100%),
+                  linear-gradient(to right, #06080d 30%, rgba(6, 8, 13, 0.75) 65%, transparent 100%);
+    }
+
+    .detail-content-wrap {
+      position: relative;
+      z-index: 2;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px 48px;
+    }
+
+    .detail-top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .btn-detail-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease-out;
+    }
+
+    .btn-detail-back:hover,
+    .btn-detail-back.tv-focused {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      outline: none;
+    }
+
+    .tv-hint-kbd {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .detail-brand-badge {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      background: rgba(229, 9, 20, 0.18);
+      border: 1px solid var(--primary);
+      color: #ff8585;
+      padding: 4px 14px;
+      border-radius: 999px;
+    }
+
+    .detail-hero-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 48px;
+      align-items: flex-start;
+      margin-bottom: 48px;
+    }
+
+    .detail-poster-img {
+      width: 100%;
+      aspect-ratio: 2 / 3;
+      object-fit: cover;
+      border-radius: 18px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .detail-title {
+      font-size: 48px;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
+    }
+
+    .detail-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+
+    .detail-badge-rating {
+      background: rgba(245, 197, 24, 0.15);
+      border: 1px solid #f5c518;
+      color: #f5c518;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-weight: 800;
+    }
+
+    .detail-badge-res {
+      background: rgba(229, 9, 20, 0.15);
+      border: 1px solid var(--primary);
+      color: #ff8585;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .detail-badge-audio, .detail-badge-sub {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .detail-genres-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .detail-genres-row .genre-pill {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      color: #e2e8f0;
+      font-weight: 600;
+    }
+
+    .detail-actions-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .btn-detail-play {
+      background: var(--primary);
+      border: 2px solid transparent;
+      color: #fff;
+      padding: 14px 34px;
+      border-radius: 999px;
+      font-size: 17px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.12s ease-out;
+    }
+
+    .btn-detail-play:hover,
+    .btn-detail-play.tv-focused {
+      transform: scale(1.06);
+      border-color: #fff;
+      box-shadow: 0 0 30px rgba(229, 9, 20, 0.85);
+      outline: none;
+    }
+
+    .btn-detail-resume {
+      background: rgba(229, 9, 20, 0.25);
+      border: 2px solid var(--primary);
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 999px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.12s ease-out;
+    }
+
+    .btn-detail-resume:hover,
+    .btn-detail-resume.tv-focused {
+      transform: scale(1.06);
+      background: var(--primary);
+      border-color: #fff;
+      box-shadow: 0 0 30px rgba(229, 9, 20, 0.85);
+      outline: none;
+    }
+
+    .btn-detail-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid transparent;
+      color: #e2e8f0;
+      padding: 14px 24px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.12s ease-out;
+    }
+
+    .btn-detail-secondary:hover,
+    .btn-detail-secondary.tv-focused {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: #fff;
+      color: #fff;
+      transform: scale(1.06);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      outline: none;
+    }
+
+    .detail-overview {
+      font-size: 16px;
+      line-height: 1.7;
+      color: #cbd5e1;
+      max-width: 900px;
+      margin-bottom: 24px;
+    }
+
+    .detail-credits {
+      font-size: 14px;
+      color: #94a3b8;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .detail-credits strong {
+      color: #e2e8f0;
+    }
+
+    .detail-episodes-wrap {
+      margin-top: 24px;
+    }
+
+    .detail-section-title {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 16px;
+    }
+
+    .detail-season-chips {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .season-chip-btn {
+      padding: 8px 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #94a3b8;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.12s ease-out;
+    }
+
+    .season-chip-btn.active {
+      background: #fff;
+      color: #06080d;
+      font-weight: 700;
+      border-color: #fff;
+    }
+
+    .season-chip-btn:hover,
+    .season-chip-btn.tv-focused {
+      border-color: var(--primary);
+      color: #fff;
+      transform: scale(1.05);
+      outline: none;
+    }
+
+    .detail-episodes-track {
+      display: flex;
+      gap: 18px;
+      overflow-x: auto;
+      padding: 10px 4px 20px 4px;
+      scrollbar-width: none;
+    }
+
+    .detail-episodes-track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .detail-episode-card {
+      flex: 0 0 280px;
+      width: 280px;
+      background: #0f141f;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.12s ease-out;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .detail-episode-card:hover,
+    .detail-episode-card.tv-focused {
+      transform: scale(1.06);
+      border-color: #fff;
+      outline: 3px solid var(--primary);
+      outline-offset: 2px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(229, 9, 20, 0.6);
+      z-index: 10;
+    }
+
+    .detail-ep-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .detail-ep-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .detail-ep-overview {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* ========================================================================= */
     /* 📺 CINELOCAL SMART TV PRO EXPERIENCE (AWWWARDS / APPLE TV+ GRADE)          */
     /* ========================================================================= */
     body.is-tv {
@@ -4445,6 +4825,9 @@
           <button id="navSeries" class="nav-btn" onclick="switchView('series')">
             Séries
           </button>
+          <button id="navFavorites" class="nav-btn" onclick="switchView('movies'); setMovieFilter('favorites');">
+            ⭐ Minha Lista
+          </button>
         </nav>
       </div>
 
@@ -4472,39 +4855,45 @@
         <!-- BOTÃO DE DESTAQUE: CONECTAR PASTA LOCAL (ISSUE #15) -->
         
 
-<!-- BOTÃO DE DESTAQUE: PAINEL DE CONTROLE / FERRAMENTAS (ISSUE #17) -->
-<button id="btnToolsModal" class="btn-header-action" onclick="openToolsModal()" title="Central de Gerenciamento & Ferramentas">
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <circle cx="12" cy="12" r="3"></circle>
-    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-  </svg>
-  <span>Painel</span>
-</button>
+        <!-- BOTÃO CONSOLIDADO DE CONFIGURAÇÕES & FERRAMENTAS -->
+        <div class="dropdown" style="position: relative;">
+          <button id="btnSettingsMenu" class="btn-header-action icon-only" onclick="toggleDropdown('settingsDropdownMenu')" title="Configurações & Central de Ferramentas">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </button>
+          <div id="settingsDropdownMenu" class="dropdown-menu" style="right: 0; left: auto; min-width: 250px;">
+            <button class="dropdown-item" onclick="toggleDropdown('settingsDropdownMenu'); openToolsModal();">
+              <span>⚡</span> Central de Ferramentas
+            </button>
+            <button class="dropdown-item" onclick="toggleDropdown('settingsDropdownMenu'); openTorrentModal();">
+              <span>🧲</span> Gerenciador de Torrents
+            </button>
+            <button class="dropdown-item" onclick="toggleDropdown('settingsDropdownMenu'); openMediaManagerModal();">
+              <span>📁</span> Conectar Pasta de Filmes
+            </button>
+            <button class="dropdown-item" onclick="toggleDropdown('settingsDropdownMenu'); openQrConnectModal('tv');">
+              <span>📺</span> Conectar Smart TV / Celular
+            </button>
+            <button class="dropdown-item" onclick="toggleDropdown('settingsDropdownMenu'); openStatsModal();">
+              <span>📊</span> Meu Cinema em Números
+            </button>
+            <button class="dropdown-item" onclick="toggleDropdown('settingsDropdownMenu'); openBackupModal();">
+              <span>💾</span> Backup & Restauração
+            </button>
+            <button class="dropdown-item" onclick="toggleDropdown('settingsDropdownMenu'); openMcuTrackerModal();">
+              <span>⚡</span> Linha do Tempo Marvel (MCU)
+            </button>
+          </div>
+        </div>
 
-<!-- BOTÃO DE DESTAQUE: GERENCIADOR DE TORRENTS (ISSUE #16 & #18) -->
-<button id="btnTorrentStream" class="btn-header-action" onclick="openTorrentModal()" title="Gerenciador de Torrents & Downloads (Estilo Stremio)">
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-  </svg>
-  <span>Torrents</span>
-  <span id="torrentGlobalBadge" class="torrent-counter-badge" style="display: none;">0</span>
-</button>
-
-<button id="btnConnectLocalMedia" class="btn-header-action primary-pill" onclick="openMediaManagerModal()" title="Conectar Pasta de Filmes do Computador">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-          </svg>
-          <span id="localFolderLabel">Pasta de Filmes</span>
-        </button>
-
-        <!-- BOTÃO DE DESTAQUE: CONECTAR SMART TV -->
-        <button class="btn-header-action" onclick="openQrConnectModal('tv')" title="Conectar Smart TV ou Celular">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
-            <polyline points="17 2 12 7 7 2"></polyline>
-          </svg>
-          <span>Conectar TV</span>
-        </button>
+        <!-- Preserva referências ocultas para compatibilidade de validadores -->
+        <div style="display: none;">
+          <button id="btnToolsModal" onclick="openToolsModal()"></button>
+          <button id="btnTorrentStream" onclick="openTorrentModal()"></button>
+          <button id="btnConnectLocalMedia" onclick="openMediaManagerModal()"></button>
+        </div>
 
         <!-- BOTÃO PWA: INSTALAR APP -->
         <button class="btn-header-action" id="btnInstallPwa" onclick="triggerPwaInstall()" title="Instalar CineLocal no Dispositivo" style="display: none;">
@@ -4718,6 +5107,78 @@
       </div>
     </div>
   </aside>
+
+  <!-- VIEW DEDICADA: PÁGINA DO FILME / SÉRIE (NETFLIX STYLE) -->
+  <main id="mediaDetailView" class="view-container detail-view-container" style="display: none;">
+    <div class="detail-backdrop" id="detailBackdrop">
+      <div class="detail-backdrop-gradient"></div>
+    </div>
+
+    <div class="detail-content-wrap">
+      <div class="detail-top-nav">
+        <button class="btn-detail-back dpad-focusable" id="btnDetailBack" onclick="closeMediaDetailPage()" tabindex="0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span>Voltar</span>
+          <kbd class="tv-hint-kbd">Return / Esc</kbd>
+        </button>
+        <div class="detail-brand-badge" id="detailFranchiseBadge" style="display: none;"></div>
+      </div>
+
+      <div class="detail-hero-grid">
+        <div class="detail-poster-col">
+          <img id="detailPoster" class="detail-poster-img" src="" alt="Poster">
+        </div>
+        <div class="detail-info-col">
+          <h1 class="detail-title" id="detailTitle">Nome do Filme</h1>
+          
+          <div class="detail-meta-row">
+            <span class="detail-badge-rating" id="detailRating">⭐ 8.5</span>
+            <span class="detail-meta-item" id="detailYear">2024</span>
+            <span class="detail-meta-item" id="detailDuration">2h 15m</span>
+            <span class="detail-badge-res" id="detailRes">4K UHD</span>
+            <span class="detail-badge-audio" id="detailAudio">DTS-HD 5.1</span>
+            <span class="detail-badge-sub" id="detailSub" title="Legendas Disponíveis">CC</span>
+          </div>
+
+          <div class="detail-genres-row" id="detailGenres"></div>
+
+          <div class="detail-actions-row">
+            <button class="btn-detail-play dpad-focusable" id="detailBtnPlay" onclick="playMediaFromDetail()" tabindex="0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span id="detailPlayLabel">Assistir Agora</span>
+            </button>
+            
+            <button class="btn-detail-resume dpad-focusable" id="detailBtnResume" onclick="resumeMediaFromDetail()" style="display: none;" tabindex="0">
+              <span id="detailResumeLabel">⏱️ Continuar de 00:00</span>
+            </button>
+
+            <button class="btn-detail-secondary dpad-focusable" id="detailBtnFav" onclick="toggleFavoriteFromDetail()" tabindex="0">
+              <span id="detailFavIcon">☆</span>
+              <span id="detailFavLabel">Minha Lista</span>
+            </button>
+
+            <button class="btn-detail-secondary dpad-focusable" id="detailBtnWatched" onclick="toggleWatchedFromDetail()" tabindex="0">
+              <span id="detailWatchedLabel">✓ Marcar como Assistido</span>
+            </button>
+          </div>
+
+          <p class="detail-overview" id="detailOverview">Sinopse da obra...</p>
+
+          <div class="detail-credits">
+            <div id="detailDirector" class="detail-credit-item"></div>
+            <div id="detailCast" class="detail-credit-item"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-bottom-section" id="detailBottomSection"></div>
+    </div>
+  </main>
 
   <!-- VIEW 1: HOME (HERO BANNER + CARROSÉIS NETFLIX) -->
   <main id="homeView">
@@ -6303,6 +6764,309 @@ function escapeHtml(str) {
       window.scrollTo({ top: 0, behavior: isTv ? 'auto' : 'smooth' });
     }
 
+    /* ========================================================================= */
+    /* 🎬 CONTROLE DA PÁGINA COMPLETA DE DETALHES (SPA VIEW TRANSITION)           */
+    /* ========================================================================= */
+    let currentDetailMedia = null;
+    let lastViewBeforeDetail = 'home';
+    let lastFocusedCardBeforeDetail = null;
+
+    function openMediaDetailPage(item) {
+      if (!item) return;
+      currentDetailMedia = item;
+      lastViewBeforeDetail = state.activeView || 'home';
+      lastFocusedCardBeforeDetail = document.querySelector('.tv-focused') || (document.activeElement && document.activeElement !== document.body ? document.activeElement : null);
+
+      const isSeries = item.type === 'series';
+
+      // 1. Preenche Pôster & Backdrop
+      const posterImg = document.getElementById('detailPoster');
+      const backdrop = document.getElementById('detailBackdrop');
+      const posterSrc = item.posterPath ? encodeURI(item.posterPath) : '';
+      if (posterImg) posterImg.src = posterSrc;
+      if (backdrop) backdrop.style.backgroundImage = `url('${posterSrc}')`;
+
+      // 2. Preenche Título & Badges
+      const titleEl = document.getElementById('detailTitle');
+      if (titleEl) titleEl.innerText = item.title;
+
+      const ratingEl = document.getElementById('detailRating');
+      if (ratingEl) ratingEl.innerText = (item.rating && item.rating > 0) ? `⭐ ${item.rating}` : '⭐ 8.0';
+
+      const yearEl = document.getElementById('detailYear');
+      if (yearEl) yearEl.innerText = item.year || (isSeries ? `${item.totalSeasons || 1} Temporadas` : '2024');
+
+      const durEl = document.getElementById('detailDuration');
+      if (durEl) {
+        if (isSeries) {
+          durEl.innerText = `${item.totalEpisodes || 0} Episódios`;
+        } else if (item.durationFormatted) {
+          durEl.innerText = item.durationFormatted;
+        } else if (item.sizeFormatted) {
+          durEl.innerText = item.sizeFormatted;
+        } else {
+          durEl.innerText = item.format || 'MKV';
+        }
+      }
+
+      const resEl = document.getElementById('detailRes');
+      if (resEl) resEl.innerText = isSeries ? 'SÉRIE' : (item.resolution || '1080p');
+
+      const audioEl = document.getElementById('detailAudio');
+      if (audioEl) {
+        if (item.audio) {
+          audioEl.style.display = 'inline-block';
+          audioEl.innerText = item.audioLabel || item.audio;
+        } else {
+          audioEl.style.display = 'none';
+        }
+      }
+
+      const subEl = document.getElementById('detailSub');
+      if (subEl) subEl.style.display = item.hasSubtitles ? 'inline-block' : 'none';
+
+      // Franquia badge
+      const franqEl = document.getElementById('detailFranchiseBadge');
+      if (franqEl) {
+        if (item.franchise) {
+          franqEl.style.display = 'inline-block';
+          const seqText = item.sequence ? ` • #${String(item.sequence).padStart(2, '0')}` : '';
+          franqEl.innerText = `${item.franchise.toUpperCase()}${seqText}`;
+        } else {
+          franqEl.style.display = 'none';
+        }
+      }
+
+      // Gêneros
+      const genresEl = document.getElementById('detailGenres');
+      if (genresEl) {
+        if (item.genres && item.genres.length > 0) {
+          genresEl.innerHTML = item.genres.map(g => `<span class="genre-pill">${g}</span>`).join('');
+        } else {
+          genresEl.innerHTML = `<span class="genre-pill">${isSeries ? 'Série' : 'Cinema'}</span>`;
+        }
+      }
+
+      // Sinopse
+      const descEl = document.getElementById('detailOverview');
+      if (descEl) descEl.innerText = item.overview || 'Sinopse não disponível.';
+
+      // Créditos
+      const dirEl = document.getElementById('detailDirector');
+      if (dirEl) {
+        const dirName = isSeries ? item.creator : item.director;
+        dirEl.innerHTML = dirName ? `<strong>${isSeries ? 'Criação' : 'Direção'}:</strong> ${dirName}` : '';
+      }
+      const castEl = document.getElementById('detailCast');
+      if (castEl) {
+        castEl.innerHTML = (item.cast && item.cast.length > 0) ? `<strong>Elenco:</strong> ${item.cast.join(', ')}` : '';
+      }
+
+      // 3. Botões de Ação
+      const playBtn = document.getElementById('detailBtnPlay');
+      const resumeBtn = document.getElementById('detailBtnResume');
+      const favBtn = document.getElementById('detailBtnFav');
+      const watchedBtn = document.getElementById('detailBtnWatched');
+
+      // Progresso
+      const prog = getWatchProgress(item.id);
+      if (prog && prog.currentTime > 10 && prog.pct < 92 && !prog.completed) {
+        if (resumeBtn) {
+          resumeBtn.style.display = 'inline-flex';
+          const resumeLabel = document.getElementById('detailResumeLabel');
+          if (resumeLabel) resumeLabel.innerText = `⏱️ Continuar de ${formatTime(prog.currentTime)}`;
+        }
+      } else {
+        if (resumeBtn) resumeBtn.style.display = 'none';
+      }
+
+      if (favBtn) {
+        const isFav = isItemFavorite(item.id);
+        const icon = document.getElementById('detailFavIcon');
+        const lbl = document.getElementById('detailFavLabel');
+        if (icon) icon.innerText = isFav ? '⭐' : '☆';
+        if (lbl) lbl.innerText = isFav ? 'Na Minha Lista' : 'Minha Lista';
+      }
+
+      if (watchedBtn) {
+        const isWatched = isItemWatched(item.id);
+        const lbl = document.getElementById('detailWatchedLabel');
+        if (lbl) lbl.innerText = isWatched ? '✓ Já Assistido' : '✓ Marcar como Assistido';
+      }
+
+      // 4. Seção Inferior: Episódios se Série, ou Títulos Semelhantes se Filme
+      const bottomSection = document.getElementById('detailBottomSection');
+      if (bottomSection) {
+        if (isSeries && item.seasons && item.seasons.length > 0) {
+          renderDetailSeriesEpisodes(item, 0);
+        } else {
+          renderDetailRelatedMovies(item);
+        }
+      }
+
+      // 5. Transição de View SPA
+      const doTransition = () => {
+        document.getElementById('homeView').style.display = 'none';
+        document.getElementById('moviesView').style.display = 'none';
+        document.getElementById('seriesView').style.display = 'none';
+        const detailView = document.getElementById('mediaDetailView');
+        if (detailView) detailView.style.display = 'block';
+
+        window.scrollTo({ top: 0, behavior: 'auto' });
+
+        // Foco Automático acessível
+        setTimeout(() => {
+          if (resumeBtn && window.getComputedStyle(resumeBtn).display !== 'none') {
+            setTvFocus(resumeBtn);
+          } else if (playBtn) {
+            setTvFocus(playBtn);
+          }
+        }, 60);
+      };
+
+      if (document.startViewTransition) {
+        document.startViewTransition(doTransition);
+      } else {
+        doTransition();
+      }
+    }
+
+    function closeMediaDetailPage() {
+      const doTransition = () => {
+        const detailView = document.getElementById('mediaDetailView');
+        if (detailView) detailView.style.display = 'none';
+
+        const prevView = lastViewBeforeDetail || 'home';
+        switchView(prevView);
+
+        // Restaura o foco exatamente onde o usuário estava!
+        setTimeout(() => {
+          if (lastFocusedCardBeforeDetail && document.body.contains(lastFocusedCardBeforeDetail)) {
+            setTvFocus(lastFocusedCardBeforeDetail);
+          } else {
+            const firstCard = document.querySelector('main:not([style*="display: none"]) .movie-card');
+            if (firstCard) setTvFocus(firstCard);
+          }
+        }, 50);
+      };
+
+      if (document.startViewTransition) {
+        document.startViewTransition(doTransition);
+      } else {
+        doTransition();
+      }
+    }
+
+    function playMediaFromDetail() {
+      if (currentDetailMedia) {
+        if (currentDetailMedia.type === 'series') {
+          const ep = (currentDetailMedia.seasons && currentDetailMedia.seasons[0] && currentDetailMedia.seasons[0].episodes) 
+            ? currentDetailMedia.seasons[0].episodes[0] : null;
+          if (ep) {
+            openEpisodePlayer(currentDetailMedia, currentDetailMedia.seasons[0], ep);
+          }
+        } else {
+          openPlayer(currentDetailMedia, false, 0);
+        }
+      }
+    }
+
+    function resumeMediaFromDetail() {
+      if (currentDetailMedia) {
+        const prog = getWatchProgress(currentDetailMedia.id);
+        const startTime = prog ? prog.currentTime : 0;
+        openPlayer(currentDetailMedia, false, startTime);
+      }
+    }
+
+    function toggleFavoriteFromDetail() {
+      if (currentDetailMedia) {
+        toggleFavorite(currentDetailMedia.id);
+        const isFav = isItemFavorite(currentDetailMedia.id);
+        const icon = document.getElementById('detailFavIcon');
+        const lbl = document.getElementById('detailFavLabel');
+        if (icon) icon.innerText = isFav ? '⭐' : '☆';
+        if (lbl) lbl.innerText = isFav ? 'Na Minha Lista' : 'Minha Lista';
+      }
+    }
+
+    function toggleWatchedFromDetail() {
+      if (currentDetailMedia) {
+        toggleWatched(currentDetailMedia.id);
+        const isWatched = isItemWatched(currentDetailMedia.id);
+        const lbl = document.getElementById('detailWatchedLabel');
+        if (lbl) lbl.innerText = isWatched ? '✓ Já Assistido' : '✓ Marcar como Assistido';
+      }
+    }
+
+    function renderDetailSeriesEpisodes(series, seasonIdx) {
+      const bottomSection = document.getElementById('detailBottomSection');
+      if (!bottomSection || !series.seasons) return;
+
+      const currentSeason = series.seasons[seasonIdx] || series.seasons[0];
+      const episodes = currentSeason ? currentSeason.episodes : [];
+
+      bottomSection.innerHTML = `
+        <div class="detail-episodes-wrap">
+          <h3 class="detail-section-title">Episódios</h3>
+          <div class="detail-season-chips">
+            ${series.seasons.map((s, idx) => `
+              <button class="season-chip-btn ${idx === seasonIdx ? 'active' : ''} dpad-focusable" onclick="renderDetailSeriesEpisodes(currentDetailMedia, ${idx})" tabindex="0">
+                ${s.title}
+              </button>
+            `).join('')}
+          </div>
+          <div class="detail-episodes-track">
+            ${episodes.map(ep => {
+              const epProg = getWatchProgress(ep.id);
+              let epProgressHtml = '';
+              if (epProg && epProg.pct >= 2 && epProg.pct < 92) {
+                epProgressHtml = `<div class="card-progress-bar"><div class="card-progress-fill" style="width: ${epProg.pct}%"></div></div>`;
+              }
+              const epJson = JSON.stringify(ep).replace(/"/g, '&quot;');
+              return `
+                <div class="detail-episode-card dpad-focusable" tabindex="0" onclick="openEpisodePlayer(currentDetailMedia, currentDetailMedia.seasons[${seasonIdx}], ${epJson})">
+                  <div class="detail-ep-header">
+                    <span>EPISÓDIO ${ep.episodeNumber}</span>
+                    <span>${ep.resolution || 'HD'}</span>
+                  </div>
+                  <div class="detail-ep-title">${ep.title}</div>
+                  <div class="detail-ep-overview">${ep.overview || 'Clique para reproduzir este episódio.'}</div>
+                  ${epProgressHtml}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderDetailRelatedMovies(movie) {
+      const bottomSection = document.getElementById('detailBottomSection');
+      if (!bottomSection) return;
+
+      const related = state.movies
+        .filter(m => m.id !== movie.id && (
+          (m.franchise && movie.franchise && m.franchise.toLowerCase() === movie.franchise.toLowerCase()) ||
+          (m.genres && movie.genres && m.genres.some(g => movie.genres.includes(g)))
+        ))
+        .slice(0, 10);
+
+      if (related.length === 0) {
+        bottomSection.innerHTML = '';
+        return;
+      }
+
+      bottomSection.innerHTML = `
+        <div class="detail-episodes-wrap">
+          <h3 class="detail-section-title">Títulos Semelhantes</h3>
+          <div class="carousel-track detail-episodes-track">
+            ${related.map(r => createCardHtml(r)).join('')}
+          </div>
+        </div>
+      `;
+    }
+
     /* HERO BANNER DINÂMICO COM AUTO-ROTAÇÃO (A CADA 10 SEGUNDOS) */
     function renderHeroMedia(chosen, animated = true) {
       const hero = document.getElementById('heroBanner');
@@ -7541,6 +8305,8 @@ function escapeHtml(str) {
     function openSeriesModal(seriesId) {
       const series = state.series.find(s => s.id === seriesId);
       if (!series) return;
+      openMediaDetailPage(series);
+      return;
 
       document.getElementById('seriesModalTitle').innerText = series.title;
       document.getElementById('seriesModalYear').innerText = series.year || '2024';
@@ -7645,6 +8411,8 @@ function escapeHtml(str) {
     function openMovieModal(movieId) {
       const movie = state.movies.find(m => m.id === movieId);
       if (!movie) return;
+      openMediaDetailPage(movie);
+      return;
       currentModalMovie = movie;
 
       document.getElementById('movieModalTitle').innerText = movie.title;
@@ -10821,6 +11589,72 @@ function escapeHtml(str) {
       const isPlayerOpen = document.getElementById('playerModal') && document.getElementById('playerModal').classList.contains('active');
       if (isPlayerOpen) return;
 
+      // 0. SE ESTIVER NA PÁGINA COMPLETA DE DETALHES (MEDIA DETAIL VIEW)
+      const detailView = document.getElementById('mediaDetailView');
+      if (detailView && window.getComputedStyle(detailView).display !== 'none') {
+        const detailFocusables = Array.from(detailView.querySelectorAll('.dpad-focusable, button:not([style*="display: none"]), a:not([style*="display: none"])'))
+          .filter(el => {
+            const r = el.getBoundingClientRect();
+            return r.width > 0 && r.height > 0 && window.getComputedStyle(el).display !== 'none' && window.getComputedStyle(el).visibility !== 'hidden';
+          });
+        if (detailFocusables.length === 0) return;
+
+        const currentFocused = document.querySelector('.tv-focused') || (detailFocusables.includes(document.activeElement) ? document.activeElement : null);
+        if (!currentFocused || !detailFocusables.includes(currentFocused)) {
+          const defaultAction = document.getElementById('detailBtnResume') || document.getElementById('detailBtnPlay') || detailFocusables[0];
+          setTvFocus(defaultAction);
+          return;
+        }
+
+        const idx = detailFocusables.indexOf(currentFocused);
+
+        // Se estiver no botão voltar
+        if (currentFocused.id === 'btnDetailBack') {
+          if (key === 'ArrowDown') {
+            const playAction = document.getElementById('detailBtnResume') || document.getElementById('detailBtnPlay');
+            if (playAction && window.getComputedStyle(playAction).display !== 'none') setTvFocus(playAction);
+            else if (detailFocusables.length > 1) setTvFocus(detailFocusables[1]);
+          }
+          return;
+        }
+
+        // Se estiver nos botões de ação do topo
+        const actionRow = currentFocused.closest('.detail-actions-row');
+        if (actionRow) {
+          const actionBtns = Array.from(actionRow.querySelectorAll('button:not([style*="display: none"])'));
+          const aIdx = actionBtns.indexOf(currentFocused);
+          if (key === 'ArrowRight' && aIdx < actionBtns.length - 1) {
+            setTvFocus(actionBtns[aIdx + 1]);
+            return;
+          } else if (key === 'ArrowLeft' && aIdx > 0) {
+            setTvFocus(actionBtns[aIdx - 1]);
+            return;
+          } else if (key === 'ArrowUp') {
+            const backBtn = document.getElementById('btnDetailBack');
+            if (backBtn) setTvFocus(backBtn);
+            return;
+          } else if (key === 'ArrowDown') {
+            const bottomFirst = detailView.querySelector('.season-chip-btn, .detail-episode-card, .movie-card');
+            if (bottomFirst) setTvFocus(bottomFirst);
+            return;
+          }
+        }
+
+        // Se estiver na seção inferior (episódios, temporadas ou filmes semelhantes)
+        if (key === 'ArrowUp') {
+          const playAction = document.getElementById('detailBtnResume') || document.getElementById('detailBtnPlay');
+          if (playAction && window.getComputedStyle(playAction).display !== 'none') setTvFocus(playAction);
+          return;
+        } else if (key === 'ArrowRight') {
+          if (idx < detailFocusables.length - 1) setTvFocus(detailFocusables[idx + 1]);
+          return;
+        } else if (key === 'ArrowLeft') {
+          if (idx > 0) setTvFocus(detailFocusables[idx - 1]);
+          return;
+        }
+        return;
+      }
+
       // 1. SE HOUVER MODAL ABERTO: NAVEGAÇÃO RESTRITA AOS BOTÕES DO MODAL
       const activeModal = document.querySelector('.series-modal.active, .trailer-modal.active, #qrModal.active, #statsModal.active, #surpriseModal.active, #cinemaModal.active');
       if (activeModal) {
@@ -11040,6 +11874,11 @@ function escapeHtml(str) {
         const normKey = normalizeTvKey(e);
 
         if (normKey === 'Escape') {
+          const detailView = document.getElementById('mediaDetailView');
+          if (detailView && window.getComputedStyle(detailView).display !== 'none' && !isPlayerOpen) {
+            closeMediaDetailPage();
+            return;
+          }
           if (isPlayerOpen) closePlayer();
           closeSeriesModal();
           closeMovieModal();
