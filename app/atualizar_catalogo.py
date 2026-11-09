@@ -338,6 +338,32 @@ def parse_subtitles_for_dir(dir_path, rel_prefix, subtitles_db):
             print(f'Erro ao ler legenda {srel}')
     return subtitles
 
+def get_system_videos_dir():
+    """Retorna a pasta padrao de Videos do sistema operacional (Windows, Linux, macOS)."""
+    home = os.path.expanduser("~")
+    if sys.platform == "win32":
+        user_profile = os.environ.get("USERPROFILE", home)
+        return os.path.join(user_profile, "Videos")
+    elif sys.platform == "darwin":
+        return os.path.join(home, "Movies")
+    else:
+        return os.environ.get("XDG_VIDEOS_DIR", os.path.join(home, "Videos"))
+
+def ensure_videos_junction():
+    """Garante que a pasta 'Vídeos' dentro de media/filmes aponte para a pasta nativa de Vídeos do usuário."""
+    try:
+        videos_sys = os.path.join(get_system_videos_dir(), "CineLocal")
+        os.makedirs(videos_sys, exist_ok=True)
+        junction_path = os.path.join(ROOT_DIR, "media", "filmes", "Vídeos")
+        if not os.path.exists(junction_path):
+            if sys.platform == "win32":
+                import _winapi
+                _winapi.CreateJunction(videos_sys, junction_path)
+            else:
+                os.symlink(videos_sys, junction_path)
+    except Exception:
+        pass
+
 def build_catalog():
     t_start = time.time()
     movies_catalog = []
@@ -347,6 +373,7 @@ def build_catalog():
     stats = {'cache_hits': 0, 'new_probes': 0}
     
     # Garante que as pastas de mídia existam
+    ensure_videos_junction()
     os.makedirs(FILMES_DIR, exist_ok=True)
     os.makedirs(SERIES_DIR, exist_ok=True)
     
@@ -376,8 +403,9 @@ def build_catalog():
             subdirs = [d for d in sorted(os.listdir(ipath)) if os.path.isdir(os.path.join(ipath, d))]
             
             if subdirs:
-                # Franquia / Coleção com subpastas numeradas (Marvel, Star Wars, Batman, etc.)
-                franchise_name = item
+                # Franquia ou pasta de Vídeos do Sistema
+                is_videos_junction = item in ('Vídeos', 'Videos')
+                franchise_name = None if is_videos_junction else item
                 for sd in subdirs:
                     sd_path = os.path.join(ipath, sd)
                     files = sorted(os.listdir(sd_path))

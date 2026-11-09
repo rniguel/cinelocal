@@ -1,3 +1,4 @@
+import os from 'os';
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
@@ -9,7 +10,19 @@ const __dirname = path.dirname(__filename);
 const APP_DIR = path.resolve(__dirname, '..');
 const ROOT_DIR = path.resolve(APP_DIR, '..');
 const localAppData = process.env.LOCALAPPDATA || process.env.APPDATA || path.join(APP_DIR, 'data');
-const CACHE_DIR = path.join(localAppData, 'CineLocal', 'torrent_cache');
+function getSystemVideosDir() {
+  const home = os.homedir();
+  if (process.platform === 'win32') {
+    return path.join(process.env.USERPROFILE || home, 'Videos');
+  } else if (process.platform === 'darwin') {
+    return path.join(home, 'Movies');
+  } else {
+    return process.env.XDG_VIDEOS_DIR || path.join(home, 'Videos');
+  }
+}
+const SYSTEM_VIDEOS_DIR = getSystemVideosDir();
+const USER_CINELOCAL_DIR = path.join(SYSTEM_VIDEOS_DIR, 'CineLocal');
+const CACHE_DIR = path.join(USER_CINELOCAL_DIR, '.cache');
 
 if (!fs.existsSync(CACHE_DIR)) {
   fs.mkdirSync(CACHE_DIR, { recursive: true });
@@ -403,7 +416,8 @@ const server = http.createServer((req, res) => {
         const folderName = year ? `${title} (${year})` : title;
         const safeFolderName = folderName.replace(/[<>:"/\\|?*]/g, '').trim();
 
-        const destDir = path.join(ROOT_DIR, 'media', 'filmes', safeFolderName);
+        // Salva diretamente na pasta de Vídeos nativa do usuário (Windows: %USERPROFILE%\Videos\CineLocal, Linux: ~/Videos/CineLocal)
+        const destDir = path.join(USER_CINELOCAL_DIR, safeFolderName);
         if (!fs.existsSync(destDir)) {
           fs.mkdirSync(destDir, { recursive: true });
         }
@@ -429,7 +443,7 @@ const server = http.createServer((req, res) => {
           res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
           res.end(JSON.stringify({
             success: true,
-            message: `Filme salvo com sucesso em media/filmes/${safeFolderName}/`,
+            message: `Filme salvo com sucesso na sua pasta de Vídeos (${safeFolderName})!`,
             savedPath: finalFilePath
           }));
         } else {

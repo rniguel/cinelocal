@@ -109,6 +109,32 @@ def log_event(icon, tag, message):
     ts = datetime.now().strftime("%H:%M:%S")
     print(f"[{ts}] {icon}  {tag:<13} {message}")
 
+def get_system_videos_dir():
+    """Retorna a pasta padrao de Videos do sistema operacional (Windows, Linux, macOS)."""
+    home = os.path.expanduser("~")
+    if sys.platform == "win32":
+        user_profile = os.environ.get("USERPROFILE", home)
+        return os.path.join(user_profile, "Videos")
+    elif sys.platform == "darwin":
+        return os.path.join(home, "Movies")
+    else:
+        return os.environ.get("XDG_VIDEOS_DIR", os.path.join(home, "Videos"))
+
+def ensure_videos_junction():
+    """Garante que a pasta 'Vídeos' dentro de media/filmes aponte para a pasta nativa de Vídeos do usuário."""
+    try:
+        videos_sys = os.path.join(get_system_videos_dir(), "CineLocal")
+        os.makedirs(videos_sys, exist_ok=True)
+        junction_path = os.path.join(MOVIES_DIR, "media", "filmes", "Vídeos")
+        if not os.path.exists(junction_path):
+            if sys.platform == "win32":
+                import _winapi
+                _winapi.CreateJunction(videos_sys, junction_path)
+            else:
+                os.symlink(videos_sys, junction_path)
+    except Exception:
+        pass
+
 def safe_resolve_media_path(base_dir, req_path):
     """
     Resolve com segurança um caminho de mídia relativo garantindo que ele
@@ -137,10 +163,12 @@ def safe_resolve_media_path(base_dir, req_path):
                 
         safe_rel = os.path.join(*parts)
         real_media_base = os.path.realpath(os.path.join(base_dir, 'media'))
+        real_videos_base = os.path.realpath(get_system_videos_dir())
         full_path = os.path.realpath(os.path.abspath(os.path.join(base_dir, safe_rel)))
         
-        # Garante que o caminho final resolvido está estritamente dentro de media/
-        if full_path == real_media_base or full_path.startswith(real_media_base + os.sep):
+        # Garante que o caminho final resolvido está estritamente dentro de media/ ou da pasta de Vídeos do SO
+        if (full_path == real_media_base or full_path.startswith(real_media_base + os.sep) or
+            full_path == real_videos_base or full_path.startswith(real_videos_base + os.sep)):
             return full_path
         return None
     except Exception as e:
@@ -1625,8 +1653,11 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
         """Suporte a HTTP 206 Partial Content / Range para seek rápido em vídeos"""
         path = self.translate_path(self.path)
         real_base = os.path.realpath(MOVIES_DIR)
+        real_videos = os.path.realpath(get_system_videos_dir())
         real_target = os.path.realpath(path)
-        if not (real_target == real_base or real_target.startswith(real_base + os.sep)):
+        is_in_movies = (real_target == real_base or real_target.startswith(real_base + os.sep))
+        is_in_videos = (real_target == real_videos or real_target.startswith(real_videos + os.sep))
+        if not (is_in_movies or is_in_videos):
             self.send_error(403, 'Acesso proibido')
             return None
 
@@ -1709,12 +1740,14 @@ def is_port_in_use(port):
         s.settimeout(0.5)
         return s.connect_ex(('127.0.0.1', port)) == 0
 
-def run():
-    open_browser = True
-    if '--no-browser' in sys.argv:
-        open_browser = False
-    elif '--browser' in sys.argv:
+def run(open_browser=None):
+    ensure_videos_junction()
+    if open_browser is None:
         open_browser = True
+        if "--no-browser" in sys.argv:
+            open_browser = False
+        elif "--browser" in sys.argv:
+            open_browser = True
 
     local_ip = get_local_ip()
     hostname = socket.gethostname().lower()
