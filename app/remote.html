@@ -365,6 +365,124 @@
       opacity: 1;
       transform: translateY(0);
     }
+
+    /* BARRA DE PESQUISA INTEGRADA (ISSUE #2) */
+    .search-box {
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .search-input-wrapper {
+      display: flex;
+      align-items: center;
+      background: rgba(20, 25, 35, 0.85);
+      border: 1px solid var(--btn-border);
+      border-radius: 14px;
+      padding: 10px 14px;
+      gap: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .search-input-wrapper:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 12px rgba(229, 9, 20, 0.35);
+    }
+
+    .search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search-clear {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+      display: none;
+      line-height: 1;
+      padding: 2px 4px;
+    }
+
+    .search-clear.show {
+      display: block;
+    }
+
+    .remote-search-results {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: #141923;
+      border: 1px solid var(--btn-border);
+      border-radius: 14px;
+      max-height: 250px;
+      overflow-y: auto;
+      z-index: 50;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.8);
+      display: none;
+      padding: 6px;
+    }
+
+    .remote-search-results.active {
+      display: block;
+    }
+
+    .search-result-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      text-align: left;
+    }
+
+    .search-result-item:hover, .search-result-item:active {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .result-thumb {
+      width: 36px;
+      height: 52px;
+      object-fit: cover;
+      border-radius: 4px;
+      background: #2a3447;
+      flex-shrink: 0;
+    }
+
+    .result-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .result-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .result-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
   </style>
 </head>
 <body>
@@ -379,6 +497,25 @@
       <span id="statusText">Conectado à TV</span>
     </div>
   </header>
+
+  <!-- BARRA DE BUSCA RÁPIDA NA TV (ISSUE #2) -->
+  <div class="search-box">
+    <div class="search-input-wrapper">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted); flex-shrink: 0;">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input 
+        type="text" 
+        id="remoteSearchInput" 
+        class="search-input" 
+        placeholder="Pesquisar filme na TV..." 
+        autocomplete="off"
+      >
+      <button id="remoteSearchClearBtn" class="search-clear" onclick="clearRemoteSearch()">&times;</button>
+    </div>
+    <div id="remoteSearchResults" class="remote-search-results"></div>
+  </div>
 
   <!-- CORPO DO CONTROLE -->
   <main class="remote-body">
@@ -560,16 +697,17 @@
       }, 1200);
     }
 
-    async function sendAction(action) {
+    async function sendAction(action, payload = {}) {
       if (navigator.vibrate) {
         navigator.vibrate(25);
       }
 
       try {
+        const bodyData = { action, ...payload };
         const res = await fetch('/api/remote/action', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action }),
+          body: JSON.stringify(bodyData),
           keepalive: true
         });
 
@@ -582,6 +720,107 @@
         updateConnectionStatus(false);
       }
     }
+
+    /* LÓGICA DA BARRA DE PESQUISA NA TV (ISSUE #2) */
+    let remoteCatalog = [];
+    let searchDebounceTimer = null;
+
+    async function loadRemoteCatalog() {
+      try {
+        const res = await fetch('/api/filmes');
+        if (res.ok) {
+          const data = await res.json();
+          remoteCatalog = data.catalog || [];
+        }
+      } catch (e) {}
+    }
+    loadRemoteCatalog();
+
+    const searchInput = document.getElementById('remoteSearchInput');
+    const searchClearBtn = document.getElementById('remoteSearchClearBtn');
+    const searchResultsEl = document.getElementById('remoteSearchResults');
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const val = e.target.value;
+        if (val.trim()) {
+          searchClearBtn.classList.add('show');
+        } else {
+          searchClearBtn.classList.remove('show');
+        }
+
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(() => {
+          sendAction('search', { query: val });
+        }, 180);
+
+        renderRemoteSearchResults(val);
+      });
+    }
+
+    function clearRemoteSearch() {
+      if (searchInput) {
+        searchInput.value = '';
+        searchInput.focus();
+      }
+      if (searchClearBtn) searchClearBtn.classList.remove('show');
+      if (searchResultsEl) {
+        searchResultsEl.classList.remove('active');
+        searchResultsEl.innerHTML = '';
+      }
+      sendAction('search', { query: '' });
+    }
+
+    function renderRemoteSearchResults(query) {
+      if (!searchResultsEl) return;
+      if (!query || query.trim().length === 0) {
+        searchResultsEl.classList.remove('active');
+        searchResultsEl.innerHTML = '';
+        return;
+      }
+
+      const q = query.toLowerCase().trim();
+      const matches = remoteCatalog.filter(item => {
+        const titleMatch = (item.title || '').toLowerCase().includes(q);
+        const castMatch = (item.cast || []).some(c => c.toLowerCase().includes(q));
+        const genreMatch = (item.genres || []).some(g => g.toLowerCase().includes(q));
+        return titleMatch || castMatch || genreMatch;
+      }).slice(0, 6);
+
+      if (matches.length === 0) {
+        searchResultsEl.innerHTML = '<div style="padding: 10px; font-size: 12px; color: var(--text-muted); text-align: center;">Nenhum título correspondente</div>';
+        searchResultsEl.classList.add('active');
+        return;
+      }
+
+      searchResultsEl.innerHTML = matches.map(item => {
+        const year = item.year ? ` • ${item.year}` : '';
+        const typeLabel = item.type === 'series' ? 'Série' : 'Filme';
+        return `
+          <div class="search-result-item" onclick="selectRemoteMedia('${item.id}', '${item.title.replace(/'/g, "\\'")}')">
+            <img class="result-thumb" src="${item.posterPath || ''}" alt="" onerror="this.style.display='none'">
+            <div class="result-info">
+              <div class="result-title">${item.title}</div>
+              <div class="result-meta">${typeLabel}${year}</div>
+            </div>
+            <span style="color: var(--primary); font-size: 14px;">➔</span>
+          </div>
+        `;
+      }).join('');
+      searchResultsEl.classList.add('active');
+    }
+
+    function selectRemoteMedia(id, title) {
+      sendAction('open_media', { id: id });
+      showToast(`🍿 Abrindo "${title}" na TV...`);
+      if (searchResultsEl) searchResultsEl.classList.remove('active');
+    }
+
+    document.addEventListener('click', (e) => {
+      if (searchResultsEl && !e.target.closest('.search-box')) {
+        searchResultsEl.classList.remove('active');
+      }
+    });
 
     function updateConnectionStatus(isOnline) {
       const badge = document.getElementById('statusBadge');

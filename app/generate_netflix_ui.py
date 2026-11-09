@@ -8913,6 +8913,36 @@ html_content = r"""<!DOCTYPE html>
           case 'ambilight_toggle':
             toggleAmbilight();
             break;
+          case 'search':
+            const q = (payload && payload.query !== undefined) ? payload.query : '';
+            if (typeof handleSearchInput === 'function') {
+              handleSearchInput(q);
+            }
+            break;
+          case 'open_media':
+            if (payload && payload.id) {
+              const item = (window.CATALOGO || []).find(m => String(m.id) === String(payload.id));
+              if (item) {
+                if (item.type === 'series') {
+                  openSeriesModal(item);
+                } else {
+                  openMovieModal(item);
+                }
+              }
+            }
+            break;
+          case 'play_media':
+            if (payload && payload.id) {
+              const item = (window.CATALOGO || []).find(m => String(m.id) === String(payload.id));
+              if (item) {
+                if (item.type === 'series' && item.seasons && item.seasons[0] && item.seasons[0].episodes && item.seasons[0].episodes[0]) {
+                  startPlayer(item.seasons[0].episodes[0], item);
+                } else {
+                  startPlayer(item);
+                }
+              }
+            }
+            break;
           case 'back':
             if (isPlayerOpen) {
               closePlayer();
