@@ -443,17 +443,31 @@
       will-change: scroll-position;
     }
 
+    body.is-tv {
+      --radius-md: 14px;
+      background: #07090e !important;
+    }
+
     body.is-tv .movie-card {
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7) !important;
-      contain: paint layout;
+      background: #0f141f !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      box-shadow: none !important;
+      contain: layout paint;
       transform: translateZ(0);
-      transition: transform 0.15s ease-out, outline 0.15s ease-out !important;
+      transition: transform 0.1s ease-out, outline 0.1s ease-out !important;
     }
 
     body.is-tv .movie-card:hover {
       transform: none !important;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7) !important;
-      border-color: var(--border) !important;
+      box-shadow: none !important;
+    }
+
+    body.is-tv .card-hover-overlay {
+      display: none !important;
+    }
+
+    body.is-tv .card-btn-fav-floating {
+      display: none !important;
     }
 
     body.is-tv .movie-card.tv-focused {
@@ -462,6 +476,21 @@
       outline-offset: 3px !important;
       box-shadow: 0 0 28px rgba(229, 9, 20, 0.75) !important;
       z-index: 30 !important;
+    }
+
+    body.is-tv .movie-card.tv-focused .card-hover-overlay {
+      display: flex !important;
+      opacity: 1 !important;
+      transform: none !important;
+      background: linear-gradient(0deg, rgba(7, 9, 14, 0.95) 0%, rgba(7, 9, 14, 0.75) 60%, transparent 100%) !important;
+      padding: 12px 14px 14px !important;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+    }
+
+    body.is-tv .movie-card.tv-focused .card-hover-hint,
+    body.is-tv .movie-card.tv-focused .card-btn-fav-floating {
+      display: none !important;
     }
 
     body.is-tv .carousel-btn {
@@ -5896,9 +5925,15 @@ function escapeHtml(str) {
       setupHeroBanner();
       renderHomeCarousels();
       populateGenreFilter();
-      renderMoviesGrid();
-      renderSeriesGrid();
       updateSubSyncUI();
+
+      // Renderização sob demanda ou ociosa para não sobrecarregar CPU da TV
+      if (!document.body.classList.contains('is-tv')) {
+        setTimeout(() => {
+          if (!state.moviesGridRendered) renderMoviesGrid();
+          if (!state.seriesGridRendered) renderSeriesGrid();
+        }, 120);
+      }
     });
 
     function detectProtocol() {
@@ -5976,7 +6011,14 @@ function escapeHtml(str) {
       document.getElementById('moviesView').style.display = viewName === 'movies' ? 'block' : 'none';
       document.getElementById('seriesView').style.display = viewName === 'series' ? 'block' : 'none';
 
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (viewName === 'movies' && !state.moviesGridRendered) {
+        renderMoviesGrid();
+      } else if (viewName === 'series' && !state.seriesGridRendered) {
+        renderSeriesGrid();
+      }
+
+      const isTv = document.body.classList.contains('is-tv');
+      window.scrollTo({ top: 0, behavior: isTv ? 'auto' : 'smooth' });
     }
 
     /* HERO BANNER DINÂMICO COM AUTO-ROTAÇÃO (A CADA 10 SEGUNDOS) */
@@ -6437,9 +6479,6 @@ function escapeHtml(str) {
         addWatchedCarousel(container, '✅ Já Assistidos', watchedItems);
       }
 
-      // 0.08 FILMES EM CARTAZ NOS CINEMAS (Últimos lançamentos do cinema)
-      renderCinemaReleasesCarousel(container);
-
       // 0.1 MINHA LISTA (FAVORITOS)
       if (state.favorites && state.favorites.length > 0) {
         const favItems = state.favorites
@@ -6450,95 +6489,107 @@ function escapeHtml(str) {
         }
       }
 
-      // 1. ADICIONADOS RECENTEMENTE (Ordenados pelo timestamp real mtime gravado no catalogo!)
+      // 1. ADICIONADOS RECENTEMENTE (Lote imediato crítico)
       const recent = [...state.movies]
         .sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0))
         .slice(0, 14);
       addCarousel(container, '🔥 Adicionados Recentemente', recent);
-
-      // 1.1 TOP AVALIADOS IMDB (Obras-Primas: nota >= 8.0 ordenada decrescente)
-      const topRated = [...state.movies]
-        .filter(m => (m.rating || 0) >= 8.0)
-        .sort((a, b) => (b.rating || 0) - (a.rating || 0))
-        .slice(0, 16);
-      if (topRated.length >= 3) {
-        addCarousel(container, '⭐ Obras-Primas: Top IMDb da Sua Coleção', topRated);
-      }
-
-      // 1.2 PLAYLIST SAZONAL INTELIGENTE (Baseada no mês do ano)
-      const curMonth = new Date().getMonth(); // 0 a 11
-      let seasonalTitle = '';
-      let seasonalItems = [];
-      if (curMonth === 8 || curMonth === 9) { // Setembro / Outubro: Halloween
-        seasonalTitle = '🎃 Especial Terror & Suspense: Temporada de Halloween';
-        seasonalItems = state.movies.filter(m => {
-          const g = (m.genres || []).map(x => (x || '').toLowerCase());
-          return g.includes('terror') || g.includes('suspense') || g.includes('mistério') || g.includes('thriller');
-        });
-      } else if (curMonth === 10 || curMonth === 11) { // Novembro / Dezembro: Fim de Ano
-        seasonalTitle = '🎄 Especial Fim de Ano: Clássicos Familiares & Animações';
-        seasonalItems = state.movies.filter(m => {
-          const g = (m.genres || []).map(x => (x || '').toLowerCase());
-          return g.includes('família') || g.includes('animação') || g.includes('comédia');
-        });
-      } else if (curMonth === 0 || curMonth === 1 || curMonth === 2) { // Jan / Fev / Mar: Oscar
-        seasonalTitle = '🎖️ Temporada de Premiações: Aclamados pela Crítica';
-        seasonalItems = state.movies.filter(m => (m.rating || 0) >= 7.8);
-      } else if (curMonth === 5 || curMonth === 6) { // Junho / Julho: Férias & Blockbusters
-        seasonalTitle = '🍿 Pipoca de Férias: Blockbusters & Grandes Aventuras';
-        seasonalItems = state.movies.filter(m => {
-          const g = (m.genres || []).map(x => (x || '').toLowerCase());
-          return g.includes('ação') || g.includes('aventura') || g.includes('ficção científica');
-        });
-      }
-      if (seasonalItems && seasonalItems.length >= 3) {
-        addCarousel(container, seasonalTitle, seasonalItems.slice(0, 14));
-      }
 
       // 2. SÉRIES (The Bear, Loki, etc.)
       if (state.series.length > 0) {
         addCarousel(container, '📺 Séries & Temporadas', state.series);
       }
 
-      // 3. UNIVERSO MARVEL (ORDEM CRONOLÓGICA DO MCU)
-      const allItems = state.all || state.catalogo || window.CATALOGO || [];
-      const marvelItems = allItems
-        .filter(m => m.franchise && m.franchise.toLowerCase().includes('marvel'))
-        .sort((a, b) => (a.sequence || 99) - (b.sequence || 99));
-      if (marvelItems.length > 0) {
-        addMarvelCarousel(container, '⚡ Universo Marvel (MCU)', marvelItems);
-      }
+      // LOTE SECUNDÁRIO PROGRESSIVO (Hidratação suave sem travar CPU na TV)
+      const renderSecondaryCarousels = () => {
+        // 0.08 FILMES EM CARTAZ NOS CINEMAS
+        renderCinemaReleasesCarousel(container);
 
-      // 3.1 SAGAS EM ORDEM DE LANÇAMENTO (Star Wars) E CRONOLÓGICA (Tolkien)
-      const starWarsItems = state.movies
-        .filter(m => m.franchise && m.franchise.toLowerCase().includes('star wars'))
-        .sort((a, b) => (a.year || 0) - (b.year || 0))
-        .map((item, idx) => ({ ...item, displaySequence: idx + 1 }));
-      if (starWarsItems.length >= 2) {
-        addCarousel(container, '🌌 Saga Star Wars (Ordem de Lançamento)', starWarsItems, true);
-      }
+        // 1.1 TOP AVALIADOS IMDB (Obras-Primas: nota >= 8.0 ordenada decrescente)
+        const topRated = [...state.movies]
+          .filter(m => (m.rating || 0) >= 8.0)
+          .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+          .slice(0, 16);
+        if (topRated.length >= 3) {
+          addCarousel(container, '⭐ Obras-Primas: Top IMDb da Sua Coleção', topRated);
+        }
 
-      const tolkienItems = state.movies
-        .filter(m => m.franchise && (m.franchise.toLowerCase().includes('senhor dos anéis') || m.franchise.toLowerCase().includes('hobbit')))
-        .sort((a, b) => (a.sequence || a.year || 0) - (b.sequence || b.year || 0));
-      if (tolkienItems.length >= 2) {
-        addCarousel(container, '💍 Terra-Média: O Senhor dos Anéis & O Hobbit', tolkienItems, true);
-      }
+        // 1.2 PLAYLIST SAZONAL INTELIGENTE (Baseada no mês do ano)
+        const curMonth = new Date().getMonth(); // 0 a 11
+        let seasonalTitle = '';
+        let seasonalItems = [];
+        if (curMonth === 8 || curMonth === 9) { // Setembro / Outubro: Halloween
+          seasonalTitle = '🎃 Especial Terror & Suspense: Temporada de Halloween';
+          seasonalItems = state.movies.filter(m => {
+            const g = (m.genres || []).map(x => (x || '').toLowerCase());
+            return g.includes('terror') || g.includes('suspense') || g.includes('mistério') || g.includes('thriller');
+          });
+        } else if (curMonth === 10 || curMonth === 11) { // Novembro / Dezembro: Fim de Ano
+          seasonalTitle = '🎄 Especial Fim de Ano: Clássicos Familiares & Animações';
+          seasonalItems = state.movies.filter(m => {
+            const g = (m.genres || []).map(x => (x || '').toLowerCase());
+            return g.includes('família') || g.includes('animação') || g.includes('comédia');
+          });
+        } else if (curMonth === 0 || curMonth === 1 || curMonth === 2) { // Jan / Fev / Mar: Oscar
+          seasonalTitle = '🎖️ Temporada de Premiações: Aclamados pela Crítica';
+          seasonalItems = state.movies.filter(m => (m.rating || 0) >= 7.8);
+        } else if (curMonth === 5 || curMonth === 6) { // Junho / Julho: Férias & Blockbusters
+          seasonalTitle = '🍿 Pipoca de Férias: Blockbusters & Grandes Aventuras';
+          seasonalItems = state.movies.filter(m => {
+            const g = (m.genres || []).map(x => (x || '').toLowerCase());
+            return g.includes('ação') || g.includes('aventura') || g.includes('ficção científica');
+          });
+        }
+        if (seasonalItems && seasonalItems.length >= 3) {
+          addCarousel(container, seasonalTitle, seasonalItems.slice(0, 14));
+        }
 
-      // 4. GRANDES FRANQUIAS
-      const sagas = state.movies.filter(m => 
-        m.franchise && 
-        !m.franchise.toLowerCase().includes('marvel') && 
-        !m.franchise.toLowerCase().includes('star wars') && 
-        !m.franchise.toLowerCase().includes('senhor dos anéis') &&
-        !m.franchise.toLowerCase().includes('hobbit')
-      );
-      if (sagas.length > 0) {
-        addCarousel(container, '🏆 Outras Franquias & Sagas', sagas);
-      }
+        // 3. UNIVERSO MARVEL (ORDEM CRONOLÓGICA DO MCU)
+        const allItems = state.all || state.catalogo || window.CATALOGO || [];
+        const marvelItems = allItems
+          .filter(m => m.franchise && m.franchise.toLowerCase().includes('marvel'))
+          .sort((a, b) => (a.sequence || 99) - (b.sequence || 99));
+        if (marvelItems.length > 0) {
+          addMarvelCarousel(container, '⚡ Universo Marvel (MCU)', marvelItems);
+        }
 
-      // 5. TODOS OS FILMES
-      addCarousel(container, '🎬 Catálogo Completo de Longas-Metragens', state.movies.slice(0, 24));
+        // 3.1 SAGAS EM ORDEM DE LANÇAMENTO (Star Wars) E CRONOLÓGICA (Tolkien)
+        const starWarsItems = state.movies
+          .filter(m => m.franchise && m.franchise.toLowerCase().includes('star wars'))
+          .sort((a, b) => (a.year || 0) - (b.year || 0))
+          .map((item, idx) => ({ ...item, displaySequence: idx + 1 }));
+        if (starWarsItems.length >= 2) {
+          addCarousel(container, '🌌 Saga Star Wars (Ordem de Lançamento)', starWarsItems, true);
+        }
+
+        const tolkienItems = state.movies
+          .filter(m => m.franchise && (m.franchise.toLowerCase().includes('senhor dos anéis') || m.franchise.toLowerCase().includes('hobbit')))
+          .sort((a, b) => (a.sequence || a.year || 0) - (b.sequence || b.year || 0));
+        if (tolkienItems.length >= 2) {
+          addCarousel(container, '💍 Terra-Média: O Senhor dos Anéis & O Hobbit', tolkienItems, true);
+        }
+
+        // 4. GRANDES FRANQUIAS
+        const sagas = state.movies.filter(m => 
+          m.franchise && 
+          !m.franchise.toLowerCase().includes('marvel') && 
+          !m.franchise.toLowerCase().includes('star wars') && 
+          !m.franchise.toLowerCase().includes('senhor dos anéis') &&
+          !m.franchise.toLowerCase().includes('hobbit')
+        );
+        if (sagas.length > 0) {
+          addCarousel(container, '🏆 Outras Franquias & Sagas', sagas);
+        }
+
+        // 5. TODOS OS FILMES
+        addCarousel(container, '🎬 Catálogo Completo de Longas-Metragens', state.movies.slice(0, 24));
+      };
+
+      if (document.body.classList.contains('is-tv')) {
+        setTimeout(renderSecondaryCarousels, 40);
+      } else {
+        renderSecondaryCarousels();
+      }
     }
 
     function addContinueWatchingCarousel(container, title, items) {
@@ -7076,6 +7127,7 @@ function escapeHtml(str) {
     }
 
     function renderMoviesGrid() {
+      state.moviesGridRendered = true;
       const grid = document.getElementById('moviesGrid');
       if (state.movies.length === 0) {
         document.getElementById('moviesCountLabel').innerText = `0 títulos`;
@@ -7151,6 +7203,7 @@ function escapeHtml(str) {
 
     /* RENDERIZAÇÃO DA GRADE DE SÉRIES */
     function renderSeriesGrid() {
+      state.seriesGridRendered = true;
       const grid = document.getElementById('seriesGrid');
       if (state.series.length === 0) {
         document.getElementById('seriesCountLabel').innerText = `0 séries`;
@@ -10402,7 +10455,10 @@ function escapeHtml(str) {
       } catch (e) {}
 
       if (smoothScroll) {
-        // 1. ROLAGEM VERTICAL SUAVE DA JANELA (A tela desce e centraliza a linha na TV)
+        const isTv = document.body.classList.contains('is-tv');
+        const scrollBehavior = isTv ? 'auto' : 'smooth';
+
+        // 1. ROLAGEM VERTICAL (Instantânea e sem lag de JS na TV)
         try {
           const elRect = el.getBoundingClientRect();
           const winH = window.innerHeight || document.documentElement.clientHeight;
@@ -10410,11 +10466,11 @@ function escapeHtml(str) {
           const targetScrollY = currentScrollY + elRect.top - (winH / 2) + (elRect.height / 2);
           window.scrollTo({
             top: Math.max(0, targetScrollY),
-            behavior: 'smooth'
+            behavior: scrollBehavior
           });
         } catch (err) {}
 
-        // 2. ROLAGEM HORIZONTAL DO CARROSSEL (Centraliza o card no trilho)
+        // 2. ROLAGEM HORIZONTAL DO CARROSSEL (Instantânea na TV para resposta a 60 FPS)
         const track = el.closest('.carousel-track');
         if (track) {
           try {
@@ -10422,13 +10478,15 @@ function escapeHtml(str) {
             const targetScrollX = el.offsetLeft - (trackWidth / 2) + (el.offsetWidth / 2);
             track.scrollTo({
               left: Math.max(0, targetScrollX),
-              behavior: 'smooth'
+              behavior: scrollBehavior
             });
           } catch (err) {}
         }
       }
 
-      showTvFocusBeacon(el);
+      if (!document.body.classList.contains('is-tv')) {
+        showTvFocusBeacon(el);
+      }
     }
 
     function activateTvMode() {
