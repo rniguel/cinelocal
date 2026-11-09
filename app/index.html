@@ -421,8 +421,956 @@
     }
 
     /* ========================================================================= */
-    /* 🎬 PÁGINA COMPLETA DE DETALHES DO FILME / SÉRIE (NETFLIX / AWWWARDS GRADE) */
+    /* 🎬 PÁGINA COMPLETA DE DETALHES DO FILME / SÉRIE (NETFLIX / APPLE TV+ GRADE) */
     /* ========================================================================= */
+    .detail-view-container {
+      position: relative;
+      min-height: 100vh;
+      width: 100%;
+      background: #06080d;
+      color: #fff;
+      padding-bottom: 90px;
+      overflow-x: hidden;
+    }
+
+    .detail-hero-stage {
+      position: relative;
+      width: 100%;
+      height: 82vh;
+      min-height: 560px;
+      max-height: 860px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 40px 60px 48px;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    .detail-backdrop-art {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center 25%;
+      background-repeat: no-repeat;
+      z-index: 1;
+      pointer-events: none;
+      transition: background-image 0.6s ease-in-out;
+    }
+
+    .detail-backdrop-gradient {
+      position: absolute;
+      inset: -2px;
+      background: 
+        radial-gradient(circle at 75% 30%, transparent 20%, #06080d 92%),
+        linear-gradient(to top, #06080d 0%, #06080d 8%, rgba(6, 8, 13, 0.9) 45%, rgba(6, 8, 13, 0.3) 80%, transparent 100%),
+        linear-gradient(to right, #06080d 0%, rgba(6, 8, 13, 0.95) 32%, rgba(6, 8, 13, 0.65) 65%, transparent 100%),
+        linear-gradient(to bottom, rgba(6, 8, 13, 0.8) 0%, transparent 22%);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .detail-top-nav {
+      position: absolute;
+      top: 32px;
+      left: 60px;
+      right: 60px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .btn-detail-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: all 0.15s ease-out;
+    }
+
+    .btn-detail-back:hover,
+    .btn-detail-back.tv-focused {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      outline: none;
+    }
+
+    .tv-hint-kbd {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .detail-brand-badge {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      background: rgba(229, 9, 20, 0.22);
+      border: 1px solid var(--primary);
+      color: #ff8585;
+      padding: 6px 16px;
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+    }
+
+    .detail-hero-content {
+      position: relative;
+      z-index: 5;
+      max-width: 900px;
+    }
+
+    .detail-meta-pill-tag {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: #38bdf8;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .detail-title {
+      font-size: 52px;
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -1.2px;
+      margin: 8px 0 16px;
+      text-shadow: 0 4px 25px rgba(0, 0, 0, 0.95);
+    }
+
+    .detail-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+
+    .detail-badge-rating {
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid #f59e0b;
+      color: #fbbf24;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-weight: 800;
+    }
+
+    .detail-badge-age {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .detail-badge-res,
+    .detail-badge-audio,
+    .detail-badge-sub {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .detail-genres-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    .detail-genres-row .genre-pill {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      padding: 4px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .detail-actions-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    .btn-detail-play {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #e50914;
+      border: 2px solid #e50914;
+      color: #fff;
+      padding: 14px 34px;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.15s ease-out;
+      box-shadow: 0 8px 24px rgba(229, 9, 20, 0.45);
+    }
+
+    .btn-detail-play:hover,
+    .btn-detail-play.tv-focused {
+      background: #ff1f2d;
+      border-color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 0 35px rgba(229, 9, 20, 0.85);
+    }
+
+    .btn-detail-resume {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(56, 189, 248, 0.15);
+      border: 2px solid #38bdf8;
+      color: #38bdf8;
+      padding: 14px 26px;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.15s ease-out;
+    }
+
+    .btn-detail-resume:hover,
+    .btn-detail-resume.tv-focused {
+      background: #38bdf8;
+      color: #06080d;
+      transform: scale(1.05);
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.7);
+    }
+
+    .btn-detail-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 13px 22px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.15s ease-out;
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-detail-secondary:hover,
+    .btn-detail-secondary.tv-focused {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: #fff;
+      transform: scale(1.04);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+
+    .detail-overview {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #cbd5e1;
+      max-width: 820px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95);
+    }
+
+    /* CORPO INFERIOR DE DETALHES */
+    .detail-body-container {
+      position: relative;
+      z-index: 4;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 60px 80px;
+      box-sizing: border-box;
+    }
+
+    .detail-meta-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 32px;
+      margin-bottom: 48px;
+    }
+
+    .detail-info-card {
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 24px 28px;
+      backdrop-filter: blur(12px);
+    }
+
+    .detail-section-title {
+      font-size: 19px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 16px;
+      letter-spacing: -0.3px;
+    }
+
+    .detail-credits .detail-credit-item {
+      font-size: 14px;
+      color: #cbd5e1;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    .detail-credits .detail-credit-item strong {
+      color: #fff;
+    }
+
+    .detail-specs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 14px;
+    }
+
+    .spec-item-box {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .spec-item-label {
+      font-size: 11px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .spec-item-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* ========================================================================= */
+    /* 🔍 VIEW DEDICADA DE BUSCA INTELIGENTE (#searchView) */
+    /* ========================================================================= */
+    .search-view-container {
+      padding: 40px 60px 80px;
+      box-sizing: border-box;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .search-header-wrap {
+      margin-bottom: 36px;
+    }
+
+    .search-input-box {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin-bottom: 20px;
+    }
+
+    .search-input-icon {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      pointer-events: none;
+    }
+
+    .main-search-input {
+      width: 100%;
+      padding: 18px 60px 18px 64px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 18px;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 600;
+      outline: none;
+      box-sizing: border-box;
+      transition: all 0.2s ease-out;
+    }
+
+    .main-search-input:focus,
+    .main-search-input.tv-focused {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--primary);
+      box-shadow: 0 0 25px rgba(229, 9, 20, 0.45);
+    }
+
+    .search-clear-btn {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.12);
+      border: none;
+      color: #cbd5e1;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease-out;
+    }
+
+    .search-clear-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      color: #fff;
+    }
+
+    .search-chips-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .search-chip {
+      padding: 8px 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.15s ease-out;
+    }
+
+    .search-chip:hover,
+    .search-chip.tv-focused {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border-color: #fff;
+      transform: scale(1.04);
+    }
+
+    .search-chip.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 0 16px rgba(229, 9, 20, 0.4);
+    }
+
+    .search-result-count {
+      font-size: 16px;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+
+    .search-empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: #94a3b8;
+      grid-column: 1 / -1;
+    }
+
+    /* ========================================================================= */
+    /* ⚙️ VIEW DEDICADA DE CONFIGURAÇÕES (#settingsView) */
+    /* ========================================================================= */
+    .settings-view-container {
+      padding: 40px 60px 80px;
+      max-width: 1500px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+
+    .settings-dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 24px;
+    }
+
+    .settings-panel {
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 24px 28px;
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 240px;
+      transition: transform 0.15s ease-out, border-color 0.15s ease-out;
+    }
+
+    .settings-panel:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .settings-panel-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .settings-panel-desc {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .settings-field-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 13px;
+    }
+
+    .settings-field-label {
+      color: #cbd5e1;
+      font-weight: 600;
+    }
+
+    .settings-field-value {
+      color: #fff;
+      font-weight: 700;
+      font-family: monospace;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .settings-select {
+      background: #111622;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      outline: none;
+    }
+
+    .settings-select:focus {
+      border-color: var(--primary);
+    }
+
+    .settings-btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 11px 16px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.15s ease-out;
+      margin-top: 14px;
+      box-sizing: border-box;
+    }
+
+    .settings-btn-primary:hover,
+    .settings-btn-primary.tv-focused {
+      background: var(--primary);
+      border-color: var(--primary);
+      box-shadow: 0 0 20px rgba(229, 9, 20, 0.4);
+      transform: scale(1.02);
+    }
+
+    /* ========================================================================= */
+    /* 👤 MODAL DE TROCA DE PERFIL / SAIR (#profileSwitchModal) */
+    /* ========================================================================= */
+    .profile-switch-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(16px);
+      z-index: 1200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      box-sizing: border-box;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .profile-switch-modal.active {
+      display: flex;
+    }
+
+    .profile-switch-box {
+      background: #0f1420;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      max-width: 640px;
+      width: 100%;
+      padding: 36px 40px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
+    }
+
+    .profile-switch-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .current-profile-badge {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .current-profile-avatar-wrap {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      border: 2px solid var(--primary);
+      overflow: hidden;
+    }
+
+    .current-profile-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #10b981;
+    }
+
+    .current-profile-name {
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      display: block;
+    }
+
+    .profile-switch-close {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 28px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .profile-switch-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .profile-switch-sub {
+      font-size: 14px;
+      color: #94a3b8;
+      margin-bottom: 28px;
+    }
+
+    .profile-switch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 18px;
+      margin-bottom: 32px;
+    }
+
+    .profile-card-item {
+      background: rgba(255, 255, 255, 0.04);
+      border: 2px solid transparent;
+      border-radius: 18px;
+      padding: 18px 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s ease-out;
+      outline: none;
+    }
+
+    .profile-card-item:hover,
+    .profile-card-item.tv-focused {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+    }
+
+    .profile-card-item.active {
+      border-color: var(--primary);
+      background: rgba(229, 9, 20, 0.12);
+    }
+
+    .profile-card-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      margin: 0 auto 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .profile-card-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .profile-card-role {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .profile-active-indicator {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(16, 185, 129, 0.95);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 2px 0;
+    }
+
+    .profile-switch-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 20px;
+    }
+
+    .btn-profile-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.15s ease-out;
+    }
+
+    .btn-profile-action:hover,
+    .btn-profile-action.tv-focused {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: #fff;
+      transform: scale(1.04);
+    }
+
+    /* ========================================================================= */
+    /* 🍿 SIDEBAR NETFLIX - ÍCONES COM ALINHAMENTO PRECISO (QUADRADINHO 44px) */
+    /* ========================================================================= */
+    .sidebar-icon-box {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      background: transparent;
+      flex-shrink: 0;
+      transition: all 0.15s ease-out;
+    }
+
+    .sidebar-avatar-box {
+      border-radius: 50%;
+      border: 2px solid transparent;
+      overflow: hidden;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 4px;
+      border-radius: 14px;
+      background: transparent;
+      border: 2px solid transparent;
+      color: #94a3b8;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.12s ease-out;
+      outline: none;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .sidebar-item:hover,
+    .sidebar-item.tv-focused {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .sidebar-item:hover .sidebar-icon-box,
+    .sidebar-item.tv-focused .sidebar-icon-box {
+      background: rgba(255, 255, 255, 0.16);
+      transform: scale(1.05);
+    }
+
+    .sidebar-item.active {
+      color: #fff;
+      background: rgba(229, 9, 20, 0.16);
+      border-color: var(--primary);
+    }
+
+    .sidebar-item.active .sidebar-icon-box {
+      background: rgba(229, 9, 20, 0.25);
+      color: var(--primary);
+    }    .detail-episodes-wrap {
+      margin-top: 24px;
+    }
+
+    .detail-season-chips {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .season-chip-btn {
+      padding: 8px 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #94a3b8;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.12s ease-out;
+    }
+
+    .season-chip-btn.active {
+      background: #fff;
+      color: #06080d;
+      font-weight: 700;
+      border-color: #fff;
+    }
+
+    .season-chip-btn:hover,
+    .season-chip-btn.tv-focused {
+      border-color: var(--primary);
+      color: #fff;
+      transform: scale(1.05);
+      outline: none;
+    }
+
+    .detail-episodes-track {
+      display: flex;
+      gap: 18px;
+      overflow-x: auto;
+      padding: 10px 4px 20px 4px;
+      scrollbar-width: none;
+    }
+
+    .detail-episodes-track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .detail-episode-card {
+      flex: 0 0 280px;
+      width: 280px;
+      background: #0f141f;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.12s ease-out;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .detail-episode-card:hover,
+    .detail-episode-card.tv-focused {
+      transform: scale(1.06);
+      border-color: #fff;
+      outline: 3px solid var(--primary);
+      outline-offset: 2px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(229, 9, 20, 0.6);
+      z-index: 10;
+    }
+
+    .detail-ep-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .detail-ep-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .detail-ep-overview {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }\n\n    /* ========================================================================= */
     .detail-view-container {
       position: relative;
       min-height: 100vh;
@@ -5115,76 +6063,88 @@
   <aside class="netflix-sidebar" id="netflixSidebar" onmouseenter="expandSidebar()" onmouseleave="collapseSidebar()">
     <div class="sidebar-top">
       <div class="sidebar-brand dpad-focusable" id="sidebarBrand" tabindex="0" onclick="switchView('home')" title="CineLocal Home">
-        <div class="sidebar-brand-icon">🍿</div>
+        <span class="sidebar-icon-box sidebar-brand-icon">🍿</span>
         <span class="sidebar-label sidebar-brand-title">Cine<span>Local</span></span>
       </div>
     </div>
 
     <nav class="sidebar-nav">
       <button class="sidebar-item dpad-focusable active" id="sideBtnHome" tabindex="0" onclick="switchView('home')" title="Início">
-        <svg class="sidebar-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-          <polyline points="9 22 9 12 15 12 15 22"></polyline>
-        </svg>
+        <span class="sidebar-icon-box">
+          <svg class="sidebar-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </span>
         <span class="sidebar-label">Início</span>
       </button>
 
-      <button class="sidebar-item dpad-focusable" id="sideBtnSearch" tabindex="0" onclick="activateSearch()" title="Buscar">
-        <svg class="sidebar-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
+      <button class="sidebar-item dpad-focusable" id="sideBtnSearch" tabindex="0" onclick="switchView('search')" title="Buscar">
+        <span class="sidebar-icon-box">
+          <svg class="sidebar-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </span>
         <span class="sidebar-label">Buscar</span>
       </button>
 
       <button class="sidebar-item dpad-focusable" id="sideBtnMovies" tabindex="0" onclick="switchView('movies')" title="Filmes">
-        <svg class="sidebar-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-          <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
-          <line x1="7" y1="2" x2="7" y2="22"></line>
-          <line x1="17" y1="2" x2="17" y2="22"></line>
-          <line x1="2" y1="12" x2="22" y2="12"></line>
-          <line x1="2" y1="7" x2="7" y2="7"></line>
-          <line x1="2" y1="17" x2="7" y2="17"></line>
-          <line x1="17" y1="17" x2="22" y2="17"></line>
-          <line x1="17" y1="7" x2="22" y2="7"></line>
-        </svg>
+        <span class="sidebar-icon-box">
+          <svg class="sidebar-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+            <line x1="7" y1="2" x2="7" y2="22"></line>
+            <line x1="17" y1="2" x2="17" y2="22"></line>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <line x1="2" y1="7" x2="7" y2="7"></line>
+            <line x1="2" y1="17" x2="7" y2="17"></line>
+            <line x1="17" y1="17" x2="22" y2="17"></line>
+            <line x1="17" y1="7" x2="22" y2="7"></line>
+          </svg>
+        </span>
         <span class="sidebar-label">Filmes</span>
       </button>
 
       <button class="sidebar-item dpad-focusable" id="sideBtnSeries" tabindex="0" onclick="switchView('series')" title="Séries">
-        <svg class="sidebar-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-          <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
-          <polyline points="17 2 12 7 7 2"></polyline>
-        </svg>
+        <span class="sidebar-icon-box">
+          <svg class="sidebar-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+            <polyline points="17 2 12 7 7 2"></polyline>
+          </svg>
+        </span>
         <span class="sidebar-label">Séries</span>
       </button>
 
       <button class="sidebar-item dpad-focusable" id="sideBtnFavorites" tabindex="0" onclick="switchView('movies'); setMovieFilter('favorites');" title="Minha Lista">
-        <svg class="sidebar-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-        </svg>
+        <span class="sidebar-icon-box">
+          <svg class="sidebar-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </span>
         <span class="sidebar-label">Minha Lista</span>
       </button>
     </nav>
 
     <div class="sidebar-bottom">
-      <!-- PERFIL DO USUÁRIO (MIGUEL) -->
-      <button class="sidebar-item sidebar-profile-item dpad-focusable" id="sideBtnProfile" tabindex="0" onclick="openManageProfilesModal()" title="Trocar ou Editar Perfil">
-        <div class="sidebar-avatar-wrap">
+      <!-- PERFIL DO USUÁRIO (MIGUEL) - TROCAR / SAIR -->
+      <button class="sidebar-item sidebar-profile-item dpad-focusable" id="sideBtnProfile" tabindex="0" onclick="openProfileSwitchModal()" title="Trocar ou Sair de Perfil">
+        <span class="sidebar-icon-box sidebar-avatar-box">
           <span id="sideProfileAvatar" class="sidebar-avatar-img">👑</span>
-        </div>
+        </span>
         <div class="sidebar-profile-info">
           <span class="sidebar-label sidebar-profile-name" id="sideProfileName">Miguel</span>
-          <span class="sidebar-profile-sub">Trocar Perfil</span>
+          <span class="sidebar-profile-sub">Trocar / Sair</span>
         </div>
       </button>
 
       <!-- CONFIGURAÇÕES DEDICADAS -->
       <button class="sidebar-item dpad-focusable" id="sideBtnSettings" tabindex="0" onclick="switchView('settings')" title="Configurações">
-        <svg class="sidebar-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-          <circle cx="12" cy="12" r="3"></circle>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-        </svg>
+        <span class="sidebar-icon-box">
+          <svg class="sidebar-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </span>
         <span class="sidebar-label">Configurações</span>
       </button>
     </div>
@@ -5508,15 +6468,16 @@
     </div>
   </aside>
 
-  <!-- VIEW DEDICADA: PÁGINA DO FILME / SÉRIE (NETFLIX STYLE) -->
+  <!-- VIEW DEDICADA: PÁGINA DO FILME / SÉRIE (NETFLIX / APPLE TV+ GRADE) -->
   <main id="mediaDetailView" class="view-container detail-view-container" style="display: none;">
-    <div class="detail-backdrop" id="detailBackdrop">
+    <!-- HERO BACKDROP IMERSIVO EM LARGURA TOTAL COM MÁSCARA MULTI-ANGULAR -->
+    <div class="detail-hero-stage" id="detailHeroStage">
+      <div class="detail-backdrop-art" id="detailBackdrop"></div>
       <div class="detail-backdrop-gradient"></div>
-    </div>
 
-    <div class="detail-content-wrap">
+      <!-- BARRA DE NAVEGAÇÃO SUPERIOR -->
       <div class="detail-top-nav">
-        <button class="btn-detail-back dpad-focusable" id="btnDetailBack" onclick="closeMediaDetailPage()" tabindex="0">
+        <button class="btn-detail-back dpad-focusable" id="btnDetailBack" onclick="closeMediaDetailPage()" tabindex="0" title="Voltar (Esc / Return)">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
@@ -5527,51 +6488,69 @@
         <div class="detail-brand-badge" id="detailFranchiseBadge" style="display: none;"></div>
       </div>
 
-      <div class="detail-hero-grid">
-        <div class="detail-poster-col">
-          <img id="detailPoster" class="detail-poster-img" src="" alt="Poster">
+      <!-- CONTEÚDO PRINCIPAL DO HERO (TÍTULO, BADGES, AÇÕES, SINOPSE) -->
+      <div class="detail-hero-content">
+        <span class="detail-meta-pill-tag" id="detailTypeBadge">FILME</span>
+        <h1 class="detail-title" id="detailTitle">Nome do Filme</h1>
+        
+        <div class="detail-meta-row">
+          <span class="detail-badge-rating" id="detailRating">⭐ 8.5</span>
+          <span class="detail-meta-item" id="detailYear">2024</span>
+          <span class="detail-meta-item" id="detailDuration">2h 15m</span>
+          <span class="detail-badge-age" id="detailAge">14+</span>
+          <span class="detail-badge-res" id="detailRes">4K UHD</span>
+          <span class="detail-badge-audio" id="detailAudio">DTS-HD 5.1</span>
+          <span class="detail-badge-sub" id="detailSub" title="Legendas Disponíveis">CC Legendas</span>
         </div>
-        <div class="detail-info-col">
-          <h1 class="detail-title" id="detailTitle">Nome do Filme</h1>
+
+        <div class="detail-genres-row" id="detailGenres"></div>
+
+        <div class="detail-actions-row">
+          <button class="btn-detail-play dpad-focusable" id="detailBtnPlay" onclick="playMediaFromDetail()" tabindex="0">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <span id="detailPlayLabel">Assistir Agora</span>
+          </button>
           
-          <div class="detail-meta-row">
-            <span class="detail-badge-rating" id="detailRating">⭐ 8.5</span>
-            <span class="detail-meta-item" id="detailYear">2024</span>
-            <span class="detail-meta-item" id="detailDuration">2h 15m</span>
-            <span class="detail-badge-res" id="detailRes">4K UHD</span>
-            <span class="detail-badge-audio" id="detailAudio">DTS-HD 5.1</span>
-            <span class="detail-badge-sub" id="detailSub" title="Legendas Disponíveis">CC</span>
-          </div>
+          <button class="btn-detail-resume dpad-focusable" id="detailBtnResume" onclick="resumeMediaFromDetail()" style="display: none;" tabindex="0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span id="detailResumeLabel">Continuar</span>
+          </button>
 
-          <div class="detail-genres-row" id="detailGenres"></div>
+          <button class="btn-detail-secondary dpad-focusable" id="detailBtnFav" onclick="toggleFavoriteFromDetail()" tabindex="0">
+            <span id="detailFavIcon">☆</span>
+            <span id="detailFavLabel">Minha Lista</span>
+          </button>
 
-          <div class="detail-actions-row">
-            <button class="btn-detail-play dpad-focusable" id="detailBtnPlay" onclick="playMediaFromDetail()" tabindex="0">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-              </svg>
-              <span id="detailPlayLabel">Assistir Agora</span>
-            </button>
-            
-            <button class="btn-detail-resume dpad-focusable" id="detailBtnResume" onclick="resumeMediaFromDetail()" style="display: none;" tabindex="0">
-              <span id="detailResumeLabel">⏱️ Continuar de 00:00</span>
-            </button>
+          <button class="btn-detail-secondary dpad-focusable" id="detailBtnWatched" onclick="toggleWatchedFromDetail()" tabindex="0">
+            <span id="detailWatchedLabel">✓ Assistido</span>
+          </button>
 
-            <button class="btn-detail-secondary dpad-focusable" id="detailBtnFav" onclick="toggleFavoriteFromDetail()" tabindex="0">
-              <span id="detailFavIcon">☆</span>
-              <span id="detailFavLabel">Minha Lista</span>
-            </button>
+          <button class="btn-detail-secondary btn-detail-vlc dpad-focusable" id="detailBtnVlc" onclick="playMediaInVlcFromDetail()" style="display: none;" tabindex="0">
+            <span>🎬 Abrir no VLC</span>
+          </button>
+        </div>
 
-            <button class="btn-detail-secondary dpad-focusable" id="detailBtnWatched" onclick="toggleWatchedFromDetail()" tabindex="0">
-              <span id="detailWatchedLabel">✓ Marcar como Assistido</span>
-            </button>
-          </div>
+        <p class="detail-overview" id="detailOverview">Sinopse da obra...</p>
+      </div>
+    </div>
 
-          <p class="detail-overview" id="detailOverview">Sinopse da obra...</p>
-
+    <!-- CORPO INFERIOR: FICHA TÉCNICA, ELENCO & CONTEÚDO ADICIONAL -->
+    <div class="detail-body-container">
+      <div class="detail-meta-grid">
+        <div class="detail-info-card">
+          <h3 class="detail-section-title">Elenco & Criadores</h3>
           <div class="detail-credits">
             <div id="detailDirector" class="detail-credit-item"></div>
             <div id="detailCast" class="detail-credit-item"></div>
+          </div>
+        </div>
+
+        <div class="detail-info-card">
+          <h3 class="detail-section-title">Especificações do Arquivo</h3>
+          <div class="detail-specs-grid" id="detailSpecsGrid">
+            <!-- Specs dinâmicas do arquivo -->
           </div>
         </div>
       </div>
@@ -5673,76 +6652,220 @@
     <div id="seriesGrid" class="grid-layout">
       <!-- Grid de Séries -->
     </div>
-  <!-- VIEW 4: CONFIGURAÇÕES & CENTRAL DE GERENCIAMENTO -->
-  <main id="settingsView" class="view-container" style="display: none; padding: 40px 60px 80px;">
-    <div class="settings-header">
-      <h1 class="settings-title">⚙️ Configurações & Central do CineLocal</h1>
-      <p class="settings-sub">Gerencie suas pastas de mídia, conexões de rede, perfis e recursos avançados de streaming doméstico.</p>
+  </main>
+
+  <!-- VIEW DEDICADA: BUSCA INTELIGENTE (#searchView) -->
+  <main id="searchView" class="view-container search-view-container" style="display: none;">
+    <div class="search-header-wrap">
+      <div class="search-input-box">
+        <svg class="search-input-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="mainSearchInput" class="main-search-input dpad-focusable" placeholder="Buscar filmes, séries, atores, diretores ou gêneros..." autocomplete="off" oninput="handleMainSearch(this.value)">
+        <button class="search-clear-btn" id="mainSearchClear" onclick="clearMainSearch()" style="display: none;">✕</button>
+      </div>
+
+      <!-- CHIPS DE FILTRO RÁPIDO DE GÊNERO -->
+      <div class="search-chips-row" id="searchChipsRow">
+        <button class="search-chip active dpad-focusable" onclick="filterSearchByChip('all', this)">🔥 Todos</button>
+        <button class="search-chip dpad-focusable" onclick="filterSearchByChip('movie', this)">🎬 Filmes</button>
+        <button class="search-chip dpad-focusable" onclick="filterSearchByChip('series', this)">📺 Séries</button>
+        <button class="search-chip dpad-focusable" onclick="filterSearchByChip('4k', this)">✨ 4K UHD</button>
+        <button class="search-chip dpad-focusable" onclick="filterSearchByChip('marvel', this)">⚡ Marvel</button>
+        <button class="search-chip dpad-focusable" onclick="filterSearchByChip('Ação', this)">💥 Ação</button>
+        <button class="search-chip dpad-focusable" onclick="filterSearchByChip('Comédia', this)">😄 Comédia</button>
+        <button class="search-chip dpad-focusable" onclick="filterSearchByChip('Ficção', this)">🚀 Ficção</button>
+        <button class="search-chip dpad-focusable" onclick="filterSearchByChip('Drama', this)">🎭 Drama</button>
+        <button class="search-chip dpad-focusable" onclick="filterSearchByChip('Animação', this)">🎨 Animação</button>
+      </div>
+
+      <div class="search-status-bar" id="searchStatusBar">
+        <span id="searchResultCount" class="search-result-count">🔥 Títulos em Destaque no CineLocal</span>
+      </div>
     </div>
 
-    <div class="settings-grid">
-      <!-- Card 1: Pastas de Mídia -->
-      <div class="settings-card dpad-focusable" id="setCardFolders" tabindex="0" onclick="openMediaManagerModal()">
-        <div class="settings-card-icon">📁</div>
-        <div class="settings-card-title">Pastas de Mídia Local</div>
-        <div class="settings-card-desc">Gerencie os caminhos de <code>media/filmes</code> e <code>media/series</code> e reindexe seu catálogo.</div>
-        <span class="settings-card-btn">Abrir Gerenciador ↗</span>
+    <div id="searchResultsGrid" class="grid-layout search-results-grid">
+      <!-- Grid de Resultados de Busca -->
+    </div>
+  </main>
+
+  <!-- VIEW DEDICADA: CONFIGURAÇÕES & CENTRAL DO CINELOCAL (#settingsView) -->
+  <main id="settingsView" class="view-container settings-view-container" style="display: none;">
+    <div class="settings-header">
+      <h1 class="settings-title">⚙️ Painel de Configurações</h1>
+      <p class="settings-sub">Gerencie conexões de rede, pastas de catálogo, perfis e preferências de reprodução doméstica.</p>
+    </div>
+
+    <div class="settings-dashboard-grid">
+      <!-- Painel 1: Status da Rede & Smart TV -->
+      <div class="settings-panel">
+        <div>
+          <div class="settings-panel-title">📺 Rede & Smart TV</div>
+          <div class="settings-panel-desc">Conexão do servidor local e transmissão multithreaded HTTP 206 para a Smart TV.</div>
+          <div class="settings-field-row">
+            <span class="settings-field-label">IP Servidor Local:</span>
+            <span class="settings-field-value">192.168.18.5:8000</span>
+          </div>
+          <div class="settings-field-row">
+            <span class="settings-field-label">Smart TV Samsung:</span>
+            <span class="settings-field-value" style="color: #10b981;">192.168.18.204 (Ativa)</span>
+          </div>
+          <div class="settings-field-row">
+            <span class="settings-field-label">Streaming:</span>
+            <span class="settings-field-value">HTTP 206 Ativo</span>
+          </div>
+        </div>
+        <button class="settings-btn-primary dpad-focusable" onclick="openQrConnectModal('tv')">
+          <span>📱 Abrir QR Code do Controle Virtual ↗</span>
+        </button>
       </div>
 
-      <!-- Card 2: Smart TV e Celular -->
-      <div class="settings-card dpad-focusable" id="setCardTv" tabindex="0" onclick="openQrConnectModal('tv')">
-        <div class="settings-card-icon">📺</div>
-        <div class="settings-card-title">Conectar Smart TV & Celular</div>
-        <div class="settings-card-desc">Veja o IP local do servidor (192.168.18.5) e QR Code para controle remoto virtual.</div>
-        <span class="settings-card-btn">Ver Conexão ↗</span>
+      <!-- Painel 2: Pastas & Catálogo -->
+      <div class="settings-panel">
+        <div>
+          <div class="settings-panel-title">📁 Pastas do Catálogo</div>
+          <div class="settings-panel-desc">Diretórios locais de mídia indexados automaticamente no CineLocal.</div>
+          <div class="settings-field-row">
+            <span class="settings-field-label">Filmes:</span>
+            <span class="settings-field-value">media/filmes</span>
+          </div>
+          <div class="settings-field-row">
+            <span class="settings-field-label">Séries:</span>
+            <span class="settings-field-value">media/series</span>
+          </div>
+          <div class="settings-field-row">
+            <span class="settings-field-label">Metadados:</span>
+            <span class="settings-field-value">TMDb Oficial</span>
+          </div>
+        </div>
+        <button class="settings-btn-primary dpad-focusable" onclick="openMediaManagerModal()">
+          <span>🔄 Reindexar Mídias Locais ↗</span>
+        </button>
       </div>
 
-      <!-- Card 3: Perfis de Usuário -->
-      <div class="settings-card dpad-focusable" id="setCardProfiles" tabindex="0" onclick="openManageProfilesModal()">
-        <div class="settings-card-icon">👤</div>
-        <div class="settings-card-title">Perfis de Usuário</div>
-        <div class="settings-card-desc">Personalize o perfil do Miguel, adicione fotos, avatares e gerencie múltiplos usuários.</div>
-        <span class="settings-card-btn">Gerenciar Perfis ↗</span>
+      <!-- Painel 3: Preferências de Reprodução -->
+      <div class="settings-panel">
+        <div>
+          <div class="settings-panel-title">🔊 Áudio & Legendas</div>
+          <div class="settings-panel-desc">Configure o idioma e formato padrão de áudio e tamanho das legendas.</div>
+          <div class="settings-field-row">
+            <span class="settings-field-label">Áudio Preferido:</span>
+            <select class="settings-select dpad-focusable" id="prefAudioLang" onchange="showToast('Preferência salva!')">
+              <option value="pt" selected>Dublado (Português)</option>
+              <option value="orig">Áudio Original</option>
+            </select>
+          </div>
+          <div class="settings-field-row">
+            <span class="settings-field-label">Legendas:</span>
+            <select class="settings-select dpad-focusable" id="prefAutoSub" onchange="showToast('Preferência salva!')">
+              <option value="auto" selected>Automático (.srt)</option>
+              <option value="off">Desativadas</option>
+            </select>
+          </div>
+          <div class="settings-field-row">
+            <span class="settings-field-label">Tamanho da Fonte:</span>
+            <select class="settings-select dpad-focusable" id="prefSubSize" onchange="showToast('Tamanho ajustado!')">
+              <option value="md" selected>Média (Padrão)</option>
+              <option value="lg">Grande (Ideal p/ TV)</option>
+            </select>
+          </div>
+        </div>
+        <button class="settings-btn-primary dpad-focusable" onclick="openToolsModal()">
+          <span>⚡ Diagnóstico de Áudio & Codecs ↗</span>
+        </button>
       </div>
 
-      <!-- Card 4: Torrents & Streaming -->
-      <div class="settings-card dpad-focusable" id="setCardTorrents" tabindex="0" onclick="openTorrentModal()">
-        <div class="settings-card-icon">🧲</div>
-        <div class="settings-card-title">Motor de Torrents</div>
-        <div class="settings-card-desc">Streaming direto via magnet links, busca integrada e controle de espaço em disco.</div>
-        <span class="settings-card-btn">Abrir Torrents ↗</span>
+      <!-- Painel 4: Perfis de Usuário -->
+      <div class="settings-panel">
+        <div>
+          <div class="settings-panel-title">👤 Perfis & Usuários</div>
+          <div class="settings-panel-desc">Alterne entre o perfil Miguel, personalize fotos de avatar ou gerencie contas.</div>
+          <div class="settings-field-row">
+            <span class="settings-field-label">Perfil Ativo:</span>
+            <span class="settings-field-value" id="settingsActiveProfileLabel">Miguel 👑</span>
+          </div>
+          <div class="settings-field-row">
+            <span class="settings-field-label">Perfis Disponíveis:</span>
+            <span class="settings-field-value">Miguel, Miguelito, Infantil</span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="settings-btn-primary dpad-focusable" onclick="openProfileSwitchModal()" style="flex: 1;">
+            <span>Trocar Perfil</span>
+          </button>
+          <button class="settings-btn-primary dpad-focusable" onclick="openManageProfilesModal()" style="flex: 1;">
+            <span>Editar Foto</span>
+          </button>
+        </div>
       </div>
 
-      <!-- Card 5: Meu Cinema em Números -->
-      <div class="settings-card dpad-focusable" id="setCardStats" tabindex="0" onclick="openStatsModal()">
-        <div class="settings-card-icon">📊</div>
-        <div class="settings-card-title">Estatísticas & Números</div>
-        <div class="settings-card-desc">Veja horas assistidas, filmes 4K/1080p, diretores favoritos e volume da coleção.</div>
-        <span class="settings-card-btn">Ver Estatísticas ↗</span>
+      <!-- Painel 5: Torrents & P2P -->
+      <div class="settings-panel">
+        <div>
+          <div class="settings-panel-title">🧲 Motor de Torrents</div>
+          <div class="settings-panel-desc">Streaming direto ponto a ponto via links Magnéticos com download sequencial.</div>
+          <div class="settings-field-row">
+            <span class="settings-field-label">Motor:</span>
+            <span class="settings-field-value">WebTorrent / Python</span>
+          </div>
+          <div class="settings-field-row">
+            <span class="settings-field-label">Streaming Online:</span>
+            <span class="settings-field-value" style="color: #10b981;">Disponível</span>
+          </div>
+        </div>
+        <button class="settings-btn-primary dpad-focusable" onclick="openTorrentModal()">
+          <span>🧲 Abrir Gerenciador de Torrents ↗</span>
+        </button>
       </div>
 
-      <!-- Card 6: Backup & Restauração -->
-      <div class="settings-card dpad-focusable" id="setCardBackup" tabindex="0" onclick="openBackupModal()">
-        <div class="settings-card-icon">💾</div>
-        <div class="settings-card-title">Backup & Restauração</div>
-        <div class="settings-card-desc">Exporte ou importe seu histórico de reprodução ("Continuar Assistindo") e favoritos.</div>
-        <span class="settings-card-btn">Gerenciar Backup ↗</span>
+      <!-- Painel 6: Estatísticas & Biblioteca -->
+      <div class="settings-panel">
+        <div>
+          <div class="settings-panel-title">📊 Estatísticas & Números</div>
+          <div class="settings-panel-desc">Total de filmes, séries, qualidade 4K UHD e espaço em disco consumido.</div>
+          <div class="settings-field-row">
+            <span class="settings-field-label">Filmes & Séries:</span>
+            <span class="settings-field-value">Catálogo Completo</span>
+          </div>
+          <div class="settings-field-row">
+            <span class="settings-field-label">Vídeo 4K UHD:</span>
+            <span class="settings-field-value" style="color: #38bdf8;">Ultra HD</span>
+          </div>
+        </div>
+        <button class="settings-btn-primary dpad-focusable" onclick="openStatsModal()">
+          <span>📊 Ver Relatório Completo ↗</span>
+        </button>
       </div>
 
-      <!-- Card 7: Ferramentas & Diagnóstico -->
-      <div class="settings-card dpad-focusable" id="setCardTools" tabindex="0" onclick="openToolsModal()">
-        <div class="settings-card-icon">⚡</div>
-        <div class="settings-card-title">Diagnóstico do Servidor</div>
-        <div class="settings-card-desc">Status do VLC, motor FFmpeg, streaming HTTP 206 e varredura de integridade.</div>
-        <span class="settings-card-btn">Abrir Painel ↗</span>
+      <!-- Painel 7: Backup & Restauração -->
+      <div class="settings-panel">
+        <div>
+          <div class="settings-panel-title">💾 Backup & Histórico</div>
+          <div class="settings-panel-desc">Exporte ou restaure seu progresso ("Continuar Assistindo") e lista de favoritos.</div>
+          <div class="settings-field-row">
+            <span class="settings-field-label">Progresso:</span>
+            <span class="settings-field-value">Sincronizado Local</span>
+          </div>
+        </div>
+        <button class="settings-btn-primary dpad-focusable" onclick="openBackupModal()">
+          <span>💾 Exportar / Importar Backup ↗</span>
+        </button>
       </div>
 
-      <!-- Card 8: Cronologia MCU -->
-      <div class="settings-card dpad-focusable" id="setCardMcu" tabindex="0" onclick="openMcuTrackerModal()">
-        <div class="settings-card-icon">⚡</div>
-        <div class="settings-card-title">Rastreador Marvel MCU</div>
-        <div class="settings-card-desc">Linha do tempo oficial dos 67 lançamentos do Universo Cinematográfico Marvel.</div>
-        <span class="settings-card-btn">Ver Cronologia ↗</span>
+      <!-- Painel 8: Rastreador MCU (Marvel) -->
+      <div class="settings-panel">
+        <div>
+          <div class="settings-panel-title">⚡ Universo Marvel (MCU)</div>
+          <div class="settings-panel-desc">Acompanhe a cronologia canônica completa com todas as 67 produções até 2026.</div>
+          <div class="settings-field-row">
+            <span class="settings-field-label">Cronologia:</span>
+            <span class="settings-field-value">67 Produções Oficiais</span>
+          </div>
+        </div>
+        <button class="settings-btn-primary dpad-focusable" onclick="openMcuTrackerModal()">
+          <span>⚡ Abrir Rastreador MCU ↗</span>
+        </button>
       </div>
     </div>
   </main>
@@ -6674,7 +7797,46 @@
 </div>
 
 
-<!-- MODAL DE GERENCIAMENTO DE PERFIS (NETFLIX STYLE) -->
+<!-- MODAL DE TROCA DE PERFIL / SAIR (ESTILO STREAMING) -->
+  <div id="profileSwitchModal" class="profile-switch-modal" onclick="closeProfileSwitchModalOnOut(event)">
+    <div class="profile-switch-box">
+      <div class="profile-switch-header">
+        <div class="current-profile-badge">
+          <div class="current-profile-avatar-wrap" id="modalActiveProfileAvatar">👑</div>
+          <div class="current-profile-info">
+            <span class="current-profile-label">Perfil Ativo Agora</span>
+            <span class="current-profile-name" id="modalActiveProfileName">Miguel</span>
+          </div>
+        </div>
+        <button class="profile-switch-close" onclick="closeProfileSwitchModal()">&times;</button>
+      </div>
+
+      <h2 class="profile-switch-title">Quem está assistindo?</h2>
+      <p class="profile-switch-sub">Escolha seu perfil para carregar seus favoritos e histórico, ou gerencie suas preferências.</p>
+
+      <div class="profile-switch-grid" id="profileSwitchGrid">
+        <!-- Cards de perfil renderizados aqui dinamicamente -->
+      </div>
+
+      <div class="profile-switch-actions">
+        <button class="btn-profile-action dpad-focusable" onclick="logoutProfile()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="21" x2="9" y2="12"></line></svg>
+          <span>Sair / Desconectar</span>
+        </button>
+
+        <button class="btn-profile-action dpad-focusable" onclick="closeProfileSwitchModal(); openManageProfilesModal();">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span>Gerenciar Fotos & Nome</span>
+        </button>
+
+        <button class="btn-profile-action dpad-focusable" onclick="closeProfileSwitchModal()">
+          <span>✕ Fechar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE GERENCIAMENTO DE PERFIS (NETFLIX STYLE) -->
 <div id="manageProfilesModal" class="series-modal" onclick="closeManageProfilesModalOnOut(event)">
   <div class="series-modal-box" style="max-width: 560px; padding: 28px;">
     <button class="series-modal-close" onclick="closeManageProfilesModal()">&times;</button>
@@ -7212,7 +8374,7 @@ function escapeHtml(str) {
       }
     }
 
-    /* CONTROLE DE VIEWS (Início, Filmes, Séries) */
+    /* CONTROLE DE VIEWS (Início, Busca, Filmes, Séries, Configurações) */
     function switchView(viewName) {
       state.activeView = viewName;
       if (document.getElementById('navHome')) document.getElementById('navHome').classList.toggle('active', viewName === 'home');
@@ -7222,6 +8384,7 @@ function escapeHtml(str) {
       // Atualiza estado ativo na sidebar Netflix
       const sideBtns = {
         'home': document.getElementById('sideBtnHome'),
+        'search': document.getElementById('sideBtnSearch'),
         'movies': document.getElementById('sideBtnMovies'),
         'series': document.getElementById('sideBtnSeries'),
         'settings': document.getElementById('sideBtnSettings')
@@ -7231,12 +8394,14 @@ function escapeHtml(str) {
       });
 
       const homeView = document.getElementById('homeView');
+      const searchView = document.getElementById('searchView');
       const moviesView = document.getElementById('moviesView');
       const seriesView = document.getElementById('seriesView');
       const settingsView = document.getElementById('settingsView');
       const detailView = document.getElementById('mediaDetailView');
 
       if (homeView) homeView.style.display = viewName === 'home' ? 'block' : 'none';
+      if (searchView) searchView.style.display = viewName === 'search' ? 'block' : 'none';
       if (moviesView) moviesView.style.display = viewName === 'movies' ? 'block' : 'none';
       if (seriesView) seriesView.style.display = viewName === 'series' ? 'block' : 'none';
       if (settingsView) settingsView.style.display = viewName === 'settings' ? 'block' : 'none';
@@ -7244,20 +8409,21 @@ function escapeHtml(str) {
 
       collapseSidebar();
 
-      const mHome = document.getElementById('mNavHome');
-      const mMovies = document.getElementById('mNavMovies');
-      const mSeries = document.getElementById('mNavSeries');
-      const mFavs = document.getElementById('mNavFavorites');
-      if (mHome) mHome.classList.toggle('active', viewName === 'home');
-      if (mMovies) mMovies.classList.toggle('active', viewName === 'movies');
-      if (mSeries) mSeries.classList.toggle('active', viewName === 'series');
-      if (mFavs) mFavs.classList.remove('active');
-
-      document.getElementById('homeView').style.display = viewName === 'home' ? 'block' : 'none';
-      document.getElementById('moviesView').style.display = viewName === 'movies' ? 'block' : 'none';
-      document.getElementById('seriesView').style.display = viewName === 'series' ? 'block' : 'none';
-
-      if (viewName === 'movies' && !state.moviesGridRendered) {
+      if (viewName === 'search') {
+        renderSearchResults();
+        setTimeout(() => {
+          const input = document.getElementById('mainSearchInput');
+          if (input) {
+            input.focus();
+            if (typeof setTvFocus === 'function') setTvFocus(input);
+          }
+        }, 80);
+      } else if (viewName === 'settings') {
+        setTimeout(() => {
+          const firstBtn = document.querySelector('#settingsView .dpad-focusable');
+          if (firstBtn && typeof setTvFocus === 'function') setTvFocus(firstBtn);
+        }, 80);
+      } else if (viewName === 'movies' && !state.moviesGridRendered) {
         renderMoviesGrid();
       } else if (viewName === 'series' && !state.seriesGridRendered) {
         renderSeriesGrid();
@@ -7268,7 +8434,231 @@ function escapeHtml(str) {
     }
 
     /* ========================================================================= */
-    /* 🎬 CONTROLE DA PÁGINA COMPLETA DE DETALHES (SPA VIEW TRANSITION)           */
+    /* 🔍 MOTOR DE BUSCA INTELIGENTE EM TEMPO REAL (#searchView) */
+    /* ========================================================================= */
+    let currentSearchQuery = '';
+    let currentSearchChip = 'all';
+
+    function handleMainSearch(query) {
+      currentSearchQuery = (query || '').trim();
+      const clearBtn = document.getElementById('mainSearchClear');
+      if (clearBtn) clearBtn.style.display = currentSearchQuery.length > 0 ? 'flex' : 'none';
+      renderSearchResults();
+    }
+
+    function clearMainSearch() {
+      const input = document.getElementById('mainSearchInput');
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+      handleMainSearch('');
+    }
+
+    function filterSearchByChip(chip, btn) {
+      currentSearchChip = chip;
+      const chips = document.querySelectorAll('.search-chip');
+      chips.forEach(c => c.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderSearchResults();
+    }
+
+    function findMediaById(id, type) {
+      if (type === 'series') {
+        return (state.series || []).find(s => s.id === id);
+      }
+      return (state.movies || []).find(m => m.id === id);
+    }
+
+    function renderSearchResults() {
+      const container = document.getElementById('searchResultsGrid');
+      const countLabel = document.getElementById('searchResultCount');
+      if (!container) return;
+
+      const q = currentSearchQuery.toLowerCase();
+      const chip = currentSearchChip;
+
+      const allItems = [
+        ...(state.movies || []).map(m => ({ ...m, type: 'movie' })),
+        ...(state.series || []).map(s => ({ ...s, type: 'series' }))
+      ];
+
+      let filtered = allItems;
+
+      // Filtro por Chip
+      if (chip === 'movie') {
+        filtered = filtered.filter(item => item.type === 'movie');
+      } else if (chip === 'series') {
+        filtered = filtered.filter(item => item.type === 'series');
+      } else if (chip === '4k') {
+        filtered = filtered.filter(item => item.resolution && item.resolution.includes('4K'));
+      } else if (chip === 'marvel') {
+        filtered = filtered.filter(item => item.franchise === 'Marvel' || (item.title && item.title.includes('Marvel')));
+      } else if (chip !== 'all') {
+        filtered = filtered.filter(item => (item.genres && item.genres.some(g => g.toLowerCase().includes(chip.toLowerCase()))));
+      }
+
+      // Filtro por Texto digitado
+      if (q.length > 0) {
+        filtered = filtered.filter(item => {
+          const matchTitle = item.title && item.title.toLowerCase().includes(q);
+          const matchDirector = (item.director || item.creator || '').toLowerCase().includes(q);
+          const matchCast = item.cast && item.cast.some(actor => actor.toLowerCase().includes(q));
+          const matchGenre = item.genres && item.genres.some(genre => genre.toLowerCase().includes(q));
+          return matchTitle || matchDirector || matchCast || matchGenre;
+        });
+
+        if (countLabel) countLabel.textContent = `Resultados para "${currentSearchQuery}" (${filtered.length} títulos)`;
+      } else {
+        if (countLabel) countLabel.textContent = `🔥 Títulos em Destaque no CineLocal (${filtered.length} disponíveis)`;
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="search-empty-state">
+            <div style="font-size: 3rem; margin-bottom: 12px;">🔍</div>
+            <h3 style="font-size: 22px; font-weight: 800; color: #fff;">Nenhum título encontrado</h3>
+            <p style="color: #94a3b8; font-size: 15px; margin-top: 6px;">Tente buscar por outro termo, ator, diretor ou limpe os filtros.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(item => {
+        const isSeries = item.type === 'series';
+        const poster = item.posterPath ? encodeURI(item.posterPath) : '';
+        const rating = item.rating ? `⭐ ${item.rating}` : '⭐ 8.0';
+        const tag = isSeries ? 'SÉRIE' : (item.resolution || '1080p');
+
+        return `
+          <div class="movie-card dpad-focusable" tabindex="0" onclick="openMediaDetailPage(findMediaById('${item.id}', '${item.type}'))" onmouseenter="if (typeof setTvFocus === 'function') setTvFocus(this)">
+            <div class="movie-card-thumb">
+              <img class="movie-card-img" src="${poster}" alt="${escapeHtml(item.title)}" loading="lazy">
+              <span class="badge-card-res ${isSeries ? 'badge-series' : ''}">${tag}</span>
+              <span class="badge-card-rating">${rating}</span>
+            </div>
+            <div class="movie-card-info">
+              <div class="movie-card-title">${escapeHtml(item.title)}</div>
+              <div class="movie-card-meta">${item.year || ''} • ${isSeries ? `${item.totalSeasons || 1} Temp.` : (item.format || 'MKV')}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* ========================================================================= */
+    /* 🎬 ENRIQUECEDOR ASSÍNCRONO DE BACKDROP OFICIAL TMDB */
+    /* ========================================================================= */
+    async function fetchAndApplyTmdbBackdrop(item) {
+      if (!item) return;
+      const backdropEl = document.getElementById('detailBackdrop');
+      if (!backdropEl) return;
+
+      const cacheKey = `cinelocal_backdrop_${item.id}`;
+      const cachedUrl = localStorage.getItem(cacheKey);
+      if (cachedUrl) {
+        backdropEl.style.backgroundImage = `url('${cachedUrl}')`;
+        return;
+      }
+
+      if (item.tmdbUrl) {
+        const match = item.tmdbUrl.match(/(movie|tv)\/(\d+)/);
+        if (match) {
+          const type = match[1];
+          const tmdbId = match[2];
+          try {
+            const apiKey = '1cf50e6248dc270629e802686245c2c8';
+            const res = await fetch(`https://api.themoviedb.org/3/${type}/${tmdbId}?api_key=${apiKey}&language=pt-BR`);
+            if (res.ok) {
+              const data = await res.json();
+              if (data.backdrop_path) {
+                const backdropUrl = `https://image.tmdb.org/t/p/w1280${data.backdrop_path}`;
+                localStorage.setItem(cacheKey, backdropUrl);
+                backdropEl.style.backgroundImage = `url('${backdropUrl}')`;
+              }
+            }
+          } catch (err) {
+            console.warn('TMDb backdrop fetch failed, fallback to poster:', err);
+          }
+        }
+      }
+    }
+
+    /* ========================================================================= */
+    /* 👤 HUB DE TROCA DE PERFIL / SAIR (#profileSwitchModal) */
+    /* ========================================================================= */
+    function openProfileSwitchModal() {
+      const modal = document.getElementById('profileSwitchModal');
+      if (!modal) return;
+      modal.classList.add('active');
+      renderProfileSwitchContent();
+
+      setTimeout(() => {
+        const firstBtn = modal.querySelector('.profile-card-item:not(.active), .btn-profile-action');
+        if (firstBtn && typeof setTvFocus === 'function') setTvFocus(firstBtn);
+      }, 100);
+    }
+
+    function closeProfileSwitchModal() {
+      const modal = document.getElementById('profileSwitchModal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    function closeProfileSwitchModalOnOut(e) {
+      if (e.target.id === 'profileSwitchModal') closeProfileSwitchModal();
+    }
+
+    function renderProfileSwitchContent() {
+      const profiles = getStoredProfiles();
+      const activeProfile = getActiveProfile();
+
+      const activeAvatarEl = document.getElementById('modalActiveProfileAvatar');
+      const activeNameEl = document.getElementById('modalActiveProfileName');
+      if (activeAvatarEl) {
+        if (activeProfile.photoUrl) {
+          activeAvatarEl.innerHTML = `<img src="${encodeURI(activeProfile.photoUrl)}" alt="${escapeHtml(activeProfile.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.src='';this.innerText='${activeProfile.avatar || '👑'}';">`;
+        } else {
+          activeAvatarEl.innerText = activeProfile.avatar || '👑';
+        }
+      }
+      if (activeNameEl) activeNameEl.textContent = activeProfile.name;
+
+      const grid = document.getElementById('profileSwitchGrid');
+      if (!grid) return;
+
+      grid.innerHTML = profiles.map(p => {
+        const isActive = p.id === activeProfile.id;
+        const avatarContent = p.photoUrl 
+          ? `<img src="${encodeURI(p.photoUrl)}" alt="${escapeHtml(p.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.src='';this.innerText='${p.avatar || '👤'}';">`
+          : `<span style="font-size: 2.2rem;">${p.avatar || '👤'}</span>`;
+
+        return `
+          <div class="profile-card-item dpad-focusable ${isActive ? 'active' : ''}" tabindex="0" onclick="selectProfileAndGoHome('${p.id}')">
+            <div class="profile-card-avatar" style="background: ${p.color || '#1e293b'};">
+              ${avatarContent}
+              ${isActive ? '<span class="profile-active-indicator">✓ Ativo</span>' : ''}
+            </div>
+            <div class="profile-card-name">${escapeHtml(p.name)}</div>
+            <div class="profile-card-role">${isActive ? 'Em uso' : 'Clique para alternar'}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectProfileAndGoHome(profileId) {
+      switchProfile(profileId);
+      closeProfileSwitchModal();
+      switchView('home');
+      showToast(`👋 Olá, ${getActiveProfile().name}! Aproveite o catálogo.`);
+    }
+
+    function logoutProfile() {
+      closeProfileSwitchModal();
+      switchView('home');
+      showToast('🚪 Sessão encerrada. Selecione um perfil para começar.');
+      setTimeout(() => openProfileSwitchModal(), 300);
+    }
+
     /* ========================================================================= */
     let currentDetailMedia = null;
     let lastViewBeforeDetail = 'home';
@@ -7282,14 +8672,18 @@ function escapeHtml(str) {
 
       const isSeries = item.type === 'series';
 
-      // 1. Preenche Pôster & Backdrop
-      const posterImg = document.getElementById('detailPoster');
+      // 1. Preenche Pôster & Backdrop com Sangria Total
       const backdrop = document.getElementById('detailBackdrop');
       const posterSrc = item.posterPath ? encodeURI(item.posterPath) : '';
-      if (posterImg) posterImg.src = posterSrc;
-      if (backdrop) backdrop.style.backgroundImage = `url('${posterSrc}')`;
+      if (backdrop) {
+        backdrop.style.backgroundImage = `url('${posterSrc}')`;
+        fetchAndApplyTmdbBackdrop(item);
+      }
 
       // 2. Preenche Título & Badges
+      const typeBadge = document.getElementById('detailTypeBadge');
+      if (typeBadge) typeBadge.innerText = isSeries ? 'SÉRIE ORIGINAL' : (item.franchise ? `${item.franchise.toUpperCase()} • CINEMA` : 'FILME');
+
       const titleEl = document.getElementById('detailTitle');
       if (titleEl) titleEl.innerText = item.title;
 
@@ -7358,11 +8752,34 @@ function escapeHtml(str) {
       const dirEl = document.getElementById('detailDirector');
       if (dirEl) {
         const dirName = isSeries ? item.creator : item.director;
-        dirEl.innerHTML = dirName ? `<strong>${isSeries ? 'Criação' : 'Direção'}:</strong> ${dirName}` : '';
+        dirEl.innerHTML = dirName ? `<strong>${isSeries ? 'Criação' : 'Direção'}:</strong> ${dirName}` : '<strong>Direção:</strong> Produção Oficial';
       }
       const castEl = document.getElementById('detailCast');
       if (castEl) {
-        castEl.innerHTML = (item.cast && item.cast.length > 0) ? `<strong>Elenco:</strong> ${item.cast.join(', ')}` : '';
+        castEl.innerHTML = (item.cast && item.cast.length > 0) ? `<strong>Elenco:</strong> ${item.cast.join(', ')}` : '<strong>Elenco:</strong> Informações TMDb';
+      }
+
+      // Ficha Técnica do Arquivo
+      const specsGrid = document.getElementById('detailSpecsGrid');
+      if (specsGrid) {
+        specsGrid.innerHTML = `
+          <div class="spec-item-box">
+            <div class="spec-item-label">Resolução</div>
+            <div class="spec-item-val">${item.resolution || '1080p'}</div>
+          </div>
+          <div class="spec-item-box">
+            <div class="spec-item-label">Formato</div>
+            <div class="spec-item-val">${item.format || 'MKV'}</div>
+          </div>
+          <div class="spec-item-box">
+            <div class="spec-item-label">Áudio</div>
+            <div class="spec-item-val">${item.audioLabel || 'Estéreo AAC'}</div>
+          </div>
+          <div class="spec-item-box">
+            <div class="spec-item-label">Tamanho</div>
+            <div class="spec-item-val">${item.sizeFormatted || '1.8 GB'}</div>
+          </div>
+        `;
       }
 
       // 3. Botões de Ação
@@ -7370,6 +8787,9 @@ function escapeHtml(str) {
       const resumeBtn = document.getElementById('detailBtnResume');
       const favBtn = document.getElementById('detailBtnFav');
       const watchedBtn = document.getElementById('detailBtnWatched');
+      const vlcBtn = document.getElementById('detailBtnVlc');
+
+      if (vlcBtn) vlcBtn.style.display = state.vlcAvailable ? 'inline-flex' : 'none';
 
       // Progresso
       const prog = getWatchProgress(item.id);
@@ -7409,15 +8829,16 @@ function escapeHtml(str) {
 
       // 5. Transição de View SPA
       const doTransition = () => {
-        document.getElementById('homeView').style.display = 'none';
-        document.getElementById('moviesView').style.display = 'none';
-        document.getElementById('seriesView').style.display = 'none';
+        if (document.getElementById('homeView')) document.getElementById('homeView').style.display = 'none';
+        if (document.getElementById('searchView')) document.getElementById('searchView').style.display = 'none';
+        if (document.getElementById('moviesView')) document.getElementById('moviesView').style.display = 'none';
+        if (document.getElementById('seriesView')) document.getElementById('seriesView').style.display = 'none';
+        if (document.getElementById('settingsView')) document.getElementById('settingsView').style.display = 'none';
         const detailView = document.getElementById('mediaDetailView');
         if (detailView) detailView.style.display = 'block';
 
         window.scrollTo({ top: 0, behavior: 'auto' });
 
-        // Foco Automático acessível
         setTimeout(() => {
           if (resumeBtn && window.getComputedStyle(resumeBtn).display !== 'none') {
             setTvFocus(resumeBtn);
@@ -11973,6 +13394,9 @@ function escapeHtml(str) {
           closeMediaManagerModal();
             }
             break;
+          case 'reload':
+            window.location.reload();
+            break;
         }
       }
 
@@ -12180,9 +13604,9 @@ function escapeHtml(str) {
       }
 
       // 1. SE HOUVER MODAL ABERTO: NAVEGAÇÃO RESTRITA AOS BOTÕES DO MODAL
-      const activeModal = document.querySelector('.series-modal.active, .trailer-modal.active, #qrModal.active, #statsModal.active, #surpriseModal.active, #cinemaModal.active');
+      const activeModal = document.querySelector('.series-modal.active, .trailer-modal.active, #qrModal.active, #statsModal.active, #surpriseModal.active, #cinemaModal.active, #profileSwitchModal.active');
       if (activeModal) {
-        const focusables = Array.from(activeModal.querySelectorAll('button:not([style*="display: none"]), a:not([style*="display: none"]), input:not([style*="display: none"])'))
+        const focusables = Array.from(activeModal.querySelectorAll('button:not([style*="display: none"]), a:not([style*="display: none"]), input:not([style*="display: none"]), .profile-card-item:not([style*="display: none"])'))
           .filter(el => {
             const r = el.getBoundingClientRect();
             return r.width > 0 && r.height > 0 && window.getComputedStyle(el).display !== 'none' && window.getComputedStyle(el).visibility !== 'hidden';
@@ -12235,22 +13659,92 @@ function escapeHtml(str) {
         return;
       }
 
+      // 1.55 SE ESTIVER NA TELA DE BUSCA (#searchView)
+      const searchView = document.getElementById('searchView');
+      if (searchView && window.getComputedStyle(searchView).display !== 'none') {
+        const input = document.getElementById('mainSearchInput');
+        const chips = Array.from(searchView.querySelectorAll('.search-chip'));
+        const resultCards = Array.from(searchView.querySelectorAll('#searchResultsGrid .movie-card'));
+
+        if (currentFocused === input) {
+          if (key === 'ArrowDown') {
+            if (chips.length > 0) setTvFocus(chips[0]);
+            else if (resultCards.length > 0) setTvFocus(resultCards[0]);
+            return;
+          } else if (key === 'ArrowLeft') {
+            expandSidebar();
+            const sideSearch = document.getElementById('sideBtnSearch');
+            if (sideSearch) setTvFocus(sideSearch);
+            return;
+          }
+          return;
+        }
+
+        const chipIdx = chips.indexOf(currentFocused);
+        if (chipIdx !== -1) {
+          if (key === 'ArrowRight' && chipIdx < chips.length - 1) setTvFocus(chips[chipIdx + 1]);
+          else if (key === 'ArrowLeft') {
+            if (chipIdx === 0) {
+              expandSidebar();
+              const sideSearch = document.getElementById('sideBtnSearch');
+              if (sideSearch) setTvFocus(sideSearch);
+            } else {
+              setTvFocus(chips[chipIdx - 1]);
+            }
+          } else if (key === 'ArrowUp') {
+            setTvFocus(input);
+          } else if (key === 'ArrowDown') {
+            if (resultCards.length > 0) setTvFocus(resultCards[0]);
+          }
+          return;
+        }
+
+        const rIdx = resultCards.indexOf(currentFocused);
+        if (rIdx !== -1) {
+          const cols = 6;
+          if (key === 'ArrowRight' && rIdx < resultCards.length - 1) setTvFocus(resultCards[rIdx + 1]);
+          else if (key === 'ArrowLeft') {
+            if (rIdx % cols === 0) {
+              expandSidebar();
+              const sideSearch = document.getElementById('sideBtnSearch');
+              if (sideSearch) setTvFocus(sideSearch);
+            } else {
+              setTvFocus(resultCards[rIdx - 1]);
+            }
+          } else if (key === 'ArrowDown' && rIdx + cols < resultCards.length) setTvFocus(resultCards[rIdx + cols]);
+          else if (key === 'ArrowUp') {
+            if (rIdx - cols >= 0) setTvFocus(resultCards[rIdx - cols]);
+            else if (chips.length > 0) setTvFocus(chips[0]);
+            else setTvFocus(input);
+          }
+          return;
+        }
+      }
+
       // 1.6 SE ESTIVER NA TELA DE CONFIGURAÇÕES (#settingsView)
       const settingsView = document.getElementById('settingsView');
       if (settingsView && window.getComputedStyle(settingsView).display !== 'none') {
-        const setCards = Array.from(settingsView.querySelectorAll('.settings-card'));
-        const cIdx = setCards.indexOf(currentFocused);
+        const setFocusables = Array.from(settingsView.querySelectorAll('.settings-btn-primary, .settings-select, .dpad-focusable'))
+          .filter(el => {
+            const r = el.getBoundingClientRect();
+            return r.width > 0 && r.height > 0 && window.getComputedStyle(el).display !== 'none';
+          });
+        const cIdx = setFocusables.indexOf(currentFocused);
         if (cIdx !== -1) {
-          if (key === 'ArrowRight' && cIdx < setCards.length - 1) setTvFocus(setCards[cIdx + 1]);
+          if (key === 'ArrowRight' && cIdx < setFocusables.length - 1) setTvFocus(setFocusables[cIdx + 1]);
           else if (key === 'ArrowLeft') {
-            if (cIdx % 2 === 0 || cIdx === 0) {
-              const homeSide = document.getElementById('sideBtnSettings') || document.getElementById('sideBtnHome');
-              if (homeSide) setTvFocus(homeSide);
+            if (cIdx === 0 || cIdx % 2 === 0) {
+              expandSidebar();
+              const sideSettings = document.getElementById('sideBtnSettings');
+              if (sideSettings) setTvFocus(sideSettings);
             } else {
-              setTvFocus(setCards[cIdx - 1]);
+              setTvFocus(setFocusables[cIdx - 1]);
             }
-          } else if (key === 'ArrowDown' && cIdx + 2 < setCards.length) setTvFocus(setCards[cIdx + 2]);
-          else if (key === 'ArrowUp' && cIdx - 2 >= 0) setTvFocus(setCards[cIdx - 2]);
+          } else if (key === 'ArrowDown' && cIdx + 2 < setFocusables.length) setTvFocus(setFocusables[cIdx + 2]);
+          else if (key === 'ArrowUp' && cIdx - 2 >= 0) setTvFocus(setFocusables[cIdx - 2]);
+          return;
+        } else if (setFocusables.length > 0) {
+          setTvFocus(setFocusables[0]);
           return;
         }
       }
@@ -12448,7 +13942,26 @@ function escapeHtml(str) {
     /* ATALHOS DE TECLADO E CONTROLE REMOTO SMART TV */
     function setupKeyboardShortcuts() {
       window.addEventListener('keydown', e => {
-        if (e.target.tagName === 'INPUT') return;
+        if (e.target.tagName === 'INPUT') {
+          const normKey = normalizeTvKey(e);
+          if (normKey === 'Escape') {
+            e.target.blur();
+            switchView('home');
+            return;
+          } else if (normKey === 'ArrowDown') {
+            e.target.blur();
+            const firstChip = document.querySelector('.search-chip') || document.querySelector('#searchResultsGrid .movie-card');
+            if (firstChip && typeof setTvFocus === 'function') setTvFocus(firstChip);
+            return;
+          } else if (normKey === 'ArrowLeft') {
+            e.target.blur();
+            expandSidebar();
+            const sideSearch = document.getElementById('sideBtnSearch');
+            if (sideSearch && typeof setTvFocus === 'function') setTvFocus(sideSearch);
+            return;
+          }
+          return;
+        }
 
         const isPlayerOpen = document.getElementById('playerModal') && document.getElementById('playerModal').classList.contains('active');
         const normKey = normalizeTvKey(e);
@@ -12460,6 +13973,7 @@ function escapeHtml(str) {
             return;
           }
           if (isPlayerOpen) closePlayer();
+          closeProfileSwitchModal();
           closeSeriesModal();
           closeMovieModal();
           closeCinemaModal();
