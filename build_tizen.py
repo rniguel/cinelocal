@@ -75,6 +75,22 @@ def package_wgt(profile=PROFILE_NAME):
 
     clean_build_artifacts()
 
+    # Injeta o IP atual do computador no HTML do Tizen
+    pc_ip = get_local_pc_ip()
+    index_html_path = os.path.join(TIZEN_SRC, "index.html")
+    if os.path.exists(index_html_path):
+        import re
+        with open(index_html_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        new_content = re.sub(
+            r'const HARDCODED_PC_IP = "[^"]*";',
+            f'const HARDCODED_PC_IP = "{pc_ip}";',
+            content
+        )
+        with open(index_html_path, "w", encoding="utf-8") as f:
+            f.write(new_content)
+        print(f"📡 IP do computador ({pc_ip}) injetado no index.html do Tizen")
+
     if os.path.exists(TZ_BIN):
         print(f"🔐 Empacotando e assinando com o perfil Samsung '{profile}' via tz.exe...")
         cmd = [TZ_BIN, "pack", "-w", TIZEN_SRC, "-t", "wgt", "-s", profile, "-o", OUTPUT_WGT]

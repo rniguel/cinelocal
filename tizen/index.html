@@ -8,11 +8,13 @@
   <style>
     :root {
       --bg: #0b0e14;
+      --card: #151a24;
+      --card-border: rgba(255, 255, 255, 0.12);
       --primary: #e50914;
+      --primary-hover: #ff1f2d;
       --text: #f8fafc;
       --text-muted: #94a3b8;
-      --card-bg: rgba(20, 25, 35, 0.85);
-      --border: rgba(255, 255, 255, 0.12);
+      --accent: #38bdf8;
     }
     * {
       box-sizing: border-box;
@@ -21,7 +23,7 @@
       user-select: none;
     }
     body {
-      background: radial-gradient(circle at 50% 30%, #1a2234 0%, var(--bg) 85%);
+      background: radial-gradient(circle at 50% 25%, #1c2638 0%, var(--bg) 85%);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
       min-height: 100vh;
@@ -29,96 +31,147 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 30px;
+      padding: 40px;
+      overflow: hidden;
     }
     .launcher-box {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 40px;
-      max-width: 600px;
+      background: var(--card);
+      border: 2px solid var(--card-border);
+      border-radius: 24px;
+      padding: 48px;
+      max-width: 640px;
       width: 100%;
       text-align: center;
-      box-shadow: 0 16px 40px rgba(0,0,0,0.7);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+      position: relative;
     }
     .logo {
-      font-size: 2.2rem;
+      font-size: 2.8rem;
       font-weight: 800;
-      margin-bottom: 8px;
+      letter-spacing: -1px;
+      margin-bottom: 6px;
     }
     .logo span {
       color: var(--primary);
     }
     .badge {
       display: inline-block;
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       font-weight: 700;
-      padding: 4px 12px;
-      border-radius: 20px;
-      background: rgba(229, 9, 20, 0.2);
+      padding: 6px 16px;
+      border-radius: 999px;
+      background: rgba(229, 9, 20, 0.18);
       border: 1px solid var(--primary);
       color: #ff6b6b;
-      margin-bottom: 20px;
-      letter-spacing: 0.5px;
-    }
-    p {
-      color: var(--text-muted);
-      font-size: 0.95rem;
       margin-bottom: 24px;
-      line-height: 1.5;
+      letter-spacing: 0.8px;
+    }
+    .status-card {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .radar-spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid rgba(229, 9, 20, 0.2);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .status-text {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .status-sub {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    /* Elementos focaveis com o controle remoto */
+    .tv-focusable {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid var(--card-border);
+      border-radius: 14px;
+      padding: 16px 22px;
+      font-size: 1.15rem;
+      color: #fff;
+      outline: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
     }
     .ip-input {
-      width: 100%;
-      background: rgba(0,0,0,0.5);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 18px;
-      font-size: 1.25rem;
-      color: #fff;
       font-family: monospace;
+      font-weight: 700;
       text-align: center;
-      outline: none;
-      margin-bottom: 18px;
-      transition: border-color 0.2s ease;
-    }
-    .ip-input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 16px rgba(229, 9, 20, 0.4);
+      letter-spacing: 1px;
     }
     .btn-connect {
       background: var(--primary);
-      border: none;
-      border-radius: 12px;
-      color: #fff;
-      font-size: 1.05rem;
+      border-color: var(--primary);
       font-weight: 700;
-      padding: 14px 28px;
-      cursor: pointer;
-      width: 100%;
-      transition: transform 0.15s ease, background 0.15s ease;
+      font-size: 1.2rem;
     }
-    .btn-connect:focus, .btn-connect:hover {
-      background: #f40612;
-      transform: scale(1.02);
-      box-shadow: 0 8px 24px rgba(229, 9, 20, 0.5);
-      outline: none;
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      padding: 12px 18px;
     }
-    .status-msg {
-      margin-top: 16px;
-      font-size: 0.88rem;
-      color: #fbbf24;
-      min-height: 24px;
+    /* Estilo de Foco do Controle Remoto Samsung */
+    .tv-focusable:focus,
+    .tv-focusable.tv-focused {
+      transform: scale(1.04);
+      border-color: #fff !important;
+      outline: 4px solid var(--primary) !important;
+      outline-offset: 2px;
+      box-shadow: 0 0 30px rgba(229, 9, 20, 0.7) !important;
     }
-    .hint {
+    .ip-input:focus,
+    .ip-input.tv-focused {
+      background: rgba(0, 0, 0, 0.75);
+    }
+    .btn-connect:focus,
+    .btn-connect.tv-focused {
+      background: var(--primary-hover);
+    }
+    .btn-secondary:focus,
+    .btn-secondary.tv-focused {
+      color: #fff;
+      border-color: #fff;
+    }
+    .remote-hints {
       margin-top: 24px;
-      font-size: 0.78rem;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      font-size: 0.8rem;
       color: var(--text-muted);
     }
-    .hint kbd {
-      background: rgba(255,255,255,0.1);
-      padding: 2px 6px;
-      border-radius: 4px;
-      color: #cbd5e1;
+    .remote-hints kbd {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 3px 8px;
+      border-radius: 6px;
+      color: #f1f5f9;
+      font-weight: 700;
     }
   </style>
 </head>
@@ -127,107 +180,225 @@
   <div class="launcher-box">
     <div class="logo">🍿 Cine<span>Local</span></div>
     <div class="badge">SAMSUNG SMART TV • TIZEN OS</div>
-    
-    <p>
-      Conecte este aplicativo ao servidor CineLocal rodando no seu computador na mesma rede Wi-Fi:
-    </p>
 
-    <input 
-      type="text" 
-      id="serverIpInput" 
-      class="ip-input" 
-      placeholder="Ex: 192.168.0.15" 
-      autofocus
-    />
+    <div class="status-card">
+      <div id="radarSpinner" class="radar-spinner"></div>
+      <div id="statusText" class="status-text">Buscando servidor CineLocal na rede...</div>
+      <div id="statusSub" class="status-sub">Inicie o servidor no computador (<kbd>python app/servidor.py</kbd>)</div>
+    </div>
 
-    <button id="btnConnect" class="btn-connect" onclick="handleConnect()">
-      🚀 Conectar ao Servidor
-    </button>
+    <div class="form-group">
+      <input 
+        type="text" 
+        id="serverIpInput" 
+        class="tv-focusable ip-input" 
+        placeholder="IP do Computador (ex: 192.168.18.5)"
+        tabindex="1"
+      />
 
-    <div id="statusMsg" class="status-msg"></div>
+      <button 
+        id="btnConnect" 
+        class="tv-focusable btn-connect" 
+        tabindex="2"
+        onclick="manualConnect()"
+      >
+        🚀 Conectar ao CineLocal
+      </button>
 
-    <div class="hint">
-      Dica: Você pode reconfigurar o IP a qualquer momento pressionando o botão <kbd>Vermelho</kbd> do controle.
+      <button 
+        id="btnAutoScan" 
+        class="tv-focusable btn-secondary" 
+        tabindex="3"
+        onclick="startAutoScan()"
+      >
+        🔄 Procurar Automaticamente na Rede
+      </button>
+    </div>
+
+    <div class="remote-hints">
+      <div><kbd>▲ ▼</kbd> Navegar</div>
+      <div><kbd>OK / Enter</kbd> Selecionar</div>
+      <div><kbd>Vermelho</kbd> Redefinir IP</div>
     </div>
   </div>
 
   <script>
-    // Registro de Teclas do Controle Remoto Samsung
+    // IP padrão do computador injetado durante o build
+    const HARDCODED_PC_IP = "192.168.18.5";
+
+    // Elementos navegáveis pelo controle
+    const focusableIds = ['serverIpInput', 'btnConnect', 'btnAutoScan'];
+    let currentFocusIndex = 1; // Inicia focado no botão "Conectar" por padrão!
+
+    const input = document.getElementById('serverIpInput');
+    const statusText = document.getElementById('statusText');
+    const statusSub = document.getElementById('statusSub');
+    const spinner = document.getElementById('radarSpinner');
+
+    // 1. Registro de teclas da Smart TV Samsung
     try {
       if (window.tizen && window.tizen.tvinputdevice) {
-        const keysToRegister = [
-          'MediaPlay', 'MediaPause', 'MediaPlayPause', 
-          'MediaFastForward', 'MediaRewind', 
-          '10009', 'Return', 'ColorF0Red'
-        ];
-        keysToRegister.forEach(k => {
+        const keys = ['MediaPlay', 'MediaPause', 'MediaPlayPause', '10009', 'Return', 'ColorF0Red'];
+        keys.forEach(k => {
           try { tizen.tvinputdevice.registerKey(k); } catch(e){}
         });
       }
     } catch(e) {}
 
-    // Tratamento de Teclas Físicas
+    // 2. Gerenciador de Foco D-Pad do Controle Remoto
+    function updateFocus(newIndex) {
+      if (newIndex < 0) newIndex = 0;
+      if (newIndex >= focusableIds.length) newIndex = focusableIds.length - 1;
+      currentFocusIndex = newIndex;
+
+      focusableIds.forEach((id, idx) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (idx === currentFocusIndex) {
+          el.classList.add('tv-focused');
+          el.focus();
+        } else {
+          el.classList.remove('tv-focused');
+          el.blur();
+        }
+      });
+    }
+
     document.addEventListener('keydown', (e) => {
       const code = e.keyCode || e.which;
-      // Botão Vermelho do Controle (ColorF0Red = 403) ou Tecla R
-      if (code === 403 || e.key === 'ColorF0Red' || e.key === 'r') {
-        localStorage.removeItem('cinelocal_server_ip');
-        document.getElementById('statusMsg').textContent = 'Configurações de IP redefinidas.';
-        document.getElementById('serverIpInput').value = '';
-        document.getElementById('serverIpInput').focus();
+      const key = e.key;
+
+      // Seta para Baixo (40)
+      if (code === 40 || key === 'ArrowDown') {
+        e.preventDefault();
+        updateFocus(currentFocusIndex + 1);
+        return;
       }
-      // Enter no controle
-      if (code === 13 || e.key === 'Enter') {
-        handleConnect();
+
+      // Seta para Cima (38)
+      if (code === 38 || key === 'ArrowUp') {
+        e.preventDefault();
+        updateFocus(currentFocusIndex - 1);
+        return;
+      }
+
+      // Enter / OK (13)
+      if (code === 13 || key === 'Enter') {
+        const active = document.getElementById(focusableIds[currentFocusIndex]);
+        if (active && active.id === 'serverIpInput') {
+          // Se pressionou Enter dentro do input, tenta conectar direto
+          manualConnect();
+        }
+        // Se for botão, o click nativo dispara
+        return;
+      }
+
+      // Botão Vermelho (403) ou Tecla R -> Limpa IP salvo
+      if (code === 403 || key === 'ColorF0Red' || key === 'r' || key === 'R') {
+        localStorage.removeItem('cinelocal_server_ip');
+        input.value = HARDCODED_PC_IP;
+        statusText.textContent = 'IP redefinido para padrão.';
+        statusSub.textContent = `Pressione OK para conectar em ${HARDCODED_PC_IP}:8000`;
+        updateFocus(1); // Foca no botão conectar
       }
     });
 
-    const input = document.getElementById('serverIpInput');
-    const statusMsg = document.getElementById('statusMsg');
+    // 3. Inicialização de IP
+    const savedIp = localStorage.getItem('cinelocal_server_ip') || HARDCODED_PC_IP;
+    input.value = savedIp;
+    updateFocus(1); // Deixa o foco no botão "Conectar"
 
-    // Recupera IP prévio se houver
-    const savedIp = localStorage.getItem('cinelocal_server_ip');
-    if (savedIp) {
-      input.value = savedIp;
-      attemptAutoConnect(savedIp);
-    } else {
-      // Tenta hostname mDNS padrão
-      input.value = 'cinelocal.local';
-    }
+    // 4. Teste de conexão com o servidor
+    let isConnecting = false;
 
-    async function attemptAutoConnect(ip) {
-      statusMsg.textContent = `Conectando a ${ip}:8000...`;
+    async function testServer(ip, timeoutMs = 2500) {
+      const cleanHost = ip.replace(/^http:\/\//, '').replace(/:8000\/?$/, '').trim();
+      const testUrl = `http://${cleanHost}:8000/api/capabilities`;
+      
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
-        const cleanHost = ip.replace(/^http:\/\//, '').replace(/:8000\/?$/, '').trim();
-        const testUrl = `http://${cleanHost}:8000/api/capabilities`;
-        
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 3500);
-        
         const res = await fetch(testUrl, { signal: controller.signal });
         clearTimeout(timer);
-        
         if (res.ok) {
-          statusMsg.textContent = '✅ Conectado com sucesso! Abrindo CineLocal...';
-          localStorage.setItem('cinelocal_server_ip', cleanHost);
-          setTimeout(() => {
-            window.location.replace(`http://${cleanHost}:8000/app/index.html?tizen=1&host=${encodeURIComponent(cleanHost)}`);
-          }, 600);
-          return;
+          const data = await res.json().catch(() => ({}));
+          return { success: true, host: cleanHost, data };
         }
       } catch (err) {
-        statusMsg.textContent = 'Servidor não respondeu. Verifique se o CineLocal está aberto no PC.';
+        clearTimeout(timer);
       }
+      return { success: false, host: cleanHost };
     }
 
-    async function handleConnect() {
-      const val = (input.value || '').trim();
-      if (!val) {
-        statusMsg.textContent = 'Por favor, digite o endereço IP do seu PC.';
-        return;
-      }
-      await attemptAutoConnect(val);
+    function redirectToCineLocal(host) {
+      statusText.textContent = '✅ Conectado com sucesso!';
+      statusSub.textContent = `Carregando interface do CineLocal em ${host}...`;
+      spinner.style.borderTopColor = '#22c55e';
+      localStorage.setItem('cinelocal_server_ip', host);
+      setTimeout(() => {
+        window.location.replace(`http://${host}:8000/app/index.html?tizen=1&host=${encodeURIComponent(host)}`);
+      }, 500);
     }
+
+    async function attemptConnect(ip, isAuto = false) {
+      if (isConnecting) return;
+      isConnecting = true;
+      spinner.style.display = 'block';
+
+      statusText.textContent = `Tentando conectar a ${ip}:8000...`;
+      statusSub.textContent = 'Verificando se o servidor CineLocal está ativo no PC...';
+
+      const res = await testServer(ip, 3000);
+      isConnecting = false;
+
+      if (res.success) {
+        redirectToCineLocal(res.host);
+      } else {
+        if (!isAuto) {
+          statusText.textContent = `Servidor em ${ip}:8000 não respondeu.`;
+          statusSub.textContent = 'Verifique se executou "python app/servidor.py" no PC e se ambos estão no mesmo Wi-Fi.';
+        }
+      }
+      return res.success;
+    }
+
+    function manualConnect() {
+      const val = (input.value || '').trim() || HARDCODED_PC_IP;
+      attemptConnect(val, false);
+    }
+
+    // 5. Varredura Automática Contínua
+    let scanInterval = null;
+
+    async function runAutoConnectLoop() {
+      // Primeiro tenta o IP configurado / salvo
+      const targetIp = (input.value || '').trim() || HARDCODED_PC_IP;
+      const ok = await attemptConnect(targetIp, true);
+      if (ok) return;
+
+      // Se falhou, continua tentando a cada 2.5 segundos em background
+      statusText.textContent = `Aguardando CineLocal em ${targetIp}:8000...`;
+      statusSub.textContent = 'Inicie o servidor no computador. A TV conectará automaticamente assim que ele abrir.';
+
+      if (scanInterval) clearInterval(scanInterval);
+      scanInterval = setInterval(async () => {
+        if (isConnecting) return;
+        const currentTarget = (input.value || '').trim() || HARDCODED_PC_IP;
+        const success = await attemptConnect(currentTarget, true);
+        if (success) {
+          clearInterval(scanInterval);
+        }
+      }, 2500);
+    }
+
+    function startAutoScan() {
+      runAutoConnectLoop();
+    }
+
+    // Inicia a tentativa automática imediatamente ao abrir
+    window.addEventListener('load', () => {
+      runAutoConnectLoop();
+    });
   </script>
 </body>
 </html>
