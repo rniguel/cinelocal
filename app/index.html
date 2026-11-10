@@ -8306,6 +8306,16 @@
           </button>
         </div>
 
+        <div style="background: rgba(255,255,255,0.03); border: 1px dashed rgba(59,130,246,0.3); border-radius: 12px; padding: 14px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 14px; font-weight: 700; color: #60a5fa;">⚡ Grade Saimo TV (400+ Canais & Fallbacks)</div>
+            <div style="font-size: 12px; color: #94a3b8;">Sincronize com o catálogo dinâmico de esportes, TV aberta e canais a cabo do Saimo TV.</div>
+          </div>
+          <button class="btn-profile-action" onclick="importSaimoTvChannels()" style="background: #2563eb; border-color: #2563eb; color: #fff; padding: 8px 18px; font-size: 13px;">
+            <span>📥 Sincronizar Saimo TV</span>
+          </button>
+        </div>
+
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">
           <button class="btn-profile-action" onclick="saveCustomIptvChannel()" style="background: var(--primary); border-color: var(--primary); color: #fff; padding: 12px 24px;">
             <span>➕ Adicionar Canal</span>
@@ -9754,6 +9764,15 @@ function escapeHtml(str) {
         });
         hls.on(Hls.Events.ERROR, function(event, data) {
           if (data.fatal) {
+            if (channel.fallbackUrls && channel.fallbackUrls.length > 0 && (!channel._fallbackAttempt || channel._fallbackAttempt < channel.fallbackUrls.length)) {
+              channel._fallbackAttempt = (channel._fallbackAttempt || 0);
+              const nextSource = channel.fallbackUrls[channel._fallbackAttempt++];
+              console.log(`[CineLocal LiveTV] Alternando para sinal secundário #${channel._fallbackAttempt}: ${nextSource}`);
+              showToast(`🔄 Alternando sinal para ${channel.name}...`);
+              hls.loadSource(nextSource);
+              hls.attachMedia(video);
+              return;
+            }
             console.warn('Erro Hls fatal:', data);
             showToast('⚠️ Stream instável. Tente pelo VLC com o botão ao lado.');
           }
@@ -9902,6 +9921,115 @@ function escapeHtml(str) {
           console.error(err);
           showToast('⚠️ Erro ao baixar lista online. Tente novamente mais tarde.');
         });
+    }
+
+    async function importSaimoTvChannels() {
+      showToast('⏳ Sincronizando com catálogo do Saimo TV...');
+      try {
+        const res = await fetch('https://canais-saimo.pages.dev/catalogo.txt');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const text = await res.text();
+        const lines = text.split('\n');
+        
+        const imported = [];
+        let current = {};
+        for (let line of lines) {
+          line = line.trim();
+          if (!line || line.startsWith('#')) continue;
+          if (line.startsWith('canal:')) {
+            if (current.name && current.streamUrl) imported.push(current);
+            current = { name: line.split('canal:')[1].trim(), fallbackUrls: [] };
+          } else if (line.startsWith('logo:')) {
+            current.logo = line.split('logo:')[1].trim();
+          } else if (line.startsWith('categoria:')) {
+            const rawCat = line.split('categoria:')[1].trim().toLowerCase();
+            if (rawCat.includes('infantil') || rawCat.includes('desenho')) {
+              current.category = 'infantil'; current.categoryLabel = '🧸 Desenhos & Animes';
+            } else if (rawCat.includes('esporte') || rawCat.includes('futebol')) {
+              current.category = 'esportes'; current.categoryLabel = '⚽ Esportes & Aventura';
+            } else if (rawCat.includes('filme') || rawCat.includes('série')) {
+              current.category = 'filmes'; current.categoryLabel = '🎬 Filmes & Séries';
+            } else if (rawCat.includes('aberta') || rawCat.includes('notícia')) {
+              current.category = 'abertos'; current.categoryLabel = '📺 TV Aberta & Notícias';
+            } else {
+              current.category = 'variedades'; current.categoryLabel = '✨ Entretenimento & Shows';
+            }
+          } else if (line.startsWith('fonte:')) {
+            const f = line.split('fonte:')[1].trim();
+            if (!current.streamUrl) current.streamUrl = f;
+            else current.fallbackUrls.push(f);
+          }
+        }
+        if (current.name && current.streamUrl) imported.push(current);
+
+        let existing = [];
+        try {
+          const raw = localStorage.getItem('cinelocal_iptv_custom_channels');
+          if (raw) existing = JSON.parse(raw);
+        } catch (e) {}
+
+        const existingUrls = new Set(existing.map(c => c.streamUrl));
+        let added = 0;
+        imported.forEach(ch => {
+          if (!existingUrls.has(ch.streamUrl)) {
+            ch.id = 'saimo_' + Math.random().toString(36).substring(2, 9);
+            ch.resolution = 'HD';
+            ch.description = `Canal ${ch.name} via Saimo TV.`;
+            existing.push(ch);
+            existingUrls.add(ch.streamUrl);
+            added++;
+          }
+        });
+
+        localStorage.setItem('cinelocal_iptv_custom_channels', JSON.stringify(existing));
+        renderLiveTvChannels();
+        showToast(`🎉 ${added} canais sincronizados do Saimo TV!`);
+      } catch (err) {
+        console.error('Erro ao importar Saimo TV:', err);
+        showToast('⚠️ Falha ao conectar ao servidor do Saimo TV.');
+      }
+    }
+
+    // THEINTRODB: Detecção de Abertura Inteligente (Pular Abertura Netflix)
+    async function fetchEpisodeIntroTimestamps(series, episode) {
+      state.currentIntro = null;
+      state.introSkipped = false;
+      try {
+        let tmdbId = series.tmdbId;
+        if (!tmdbId && series.tmdbUrl) {
+          const m = series.tmdbUrl.match(/tv\/(\d+)/);
+          if (m) tmdbId = m[1];
+        }
+        if (!tmdbId && window.SERIES_METADATA && window.SERIES_METADATA[series.title]) {
+          const meta = window.SERIES_METADATA[series.title];
+          if (meta.tmdbUrl) {
+            const m = meta.tmdbUrl.match(/tv\/(\d+)/);
+            if (m) tmdbId = m[1];
+          }
+        }
+        if (!tmdbId) return;
+
+        const sIdx = (state.currentEpisodeSeries && state.currentEpisodeSeries.seasonIdx !== undefined)
+          ? state.currentEpisodeSeries.seasonIdx + 1
+          : 1;
+        const epNum = (episode && episode.episodeNumber) ? episode.episodeNumber : 1;
+
+        const url = `https://api.theintrodb.org/v3/media?tmdb_id=${tmdbId}&season=${sIdx}&episode=${epNum}`;
+        const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.intro && data.intro.length > 0) {
+            const intro = data.intro[0];
+            state.currentIntro = {
+              start: intro.start_ms / 1000,
+              end: intro.end_ms / 1000
+            };
+            console.log(`[TheIntroDB] Abertura detectada: ${state.currentIntro.start}s até ${state.currentIntro.end}s`);
+          }
+        }
+      } catch (e) {
+        console.warn('[TheIntroDB] Sem timestamps de abertura:', e);
+      }
     }
 
     function saveCustomIptvChannel() {
@@ -10483,6 +10611,7 @@ function escapeHtml(str) {
       };
 
       openPlayer(ep, true, startTime);
+      fetchEpisodeIntroTimestamps(series, ep);
     }
 
     function renderDetailSeriesEpisodes(series, seasonIdx) {
@@ -13093,6 +13222,18 @@ function escapeHtml(str) {
         }
 
         renderSubtitles(curr);
+
+        // THEINTRODB: Exibir botão Pular Abertura no tempo exato da série
+        if (state.currentIntro && !state.introSkipped) {
+          const skipToast = document.getElementById('skipIntroToast');
+          if (curr >= state.currentIntro.start && curr < state.currentIntro.end) {
+            if (skipToast && skipToast.style.display !== 'block') {
+              skipToast.style.display = 'block';
+            }
+          } else if (skipToast && skipToast.style.display === 'block') {
+            skipToast.style.display = 'none';
+          }
+        }
 
         // Salvar progresso a cada 4 segundos
         const now = Date.now();
