@@ -9659,7 +9659,7 @@ function escapeHtml(str) {
             window.VERIFIED_LIVETV_CHANNELS = data;
             const badge = document.getElementById('liveTvOnlineBadgeText');
             if (badge) badge.innerText = `${data.length} Canais Testados e 100% Online`;
-            if (state.currentView === 'liveTv') {
+            if (state.activeView === 'liveTv') {
               renderLiveTvChannels();
             }
           }
@@ -9675,12 +9675,16 @@ function escapeHtml(str) {
     }
 
     function getLiveTvChannels() {
+      const baseChannels = (window.VERIFIED_LIVETV_CHANNELS && window.VERIFIED_LIVETV_CHANNELS.length > 0)
+        ? window.VERIFIED_LIVETV_CHANNELS
+        : DEFAULT_LIVETV_CHANNELS;
+
       let customChannels = [];
       try {
         const raw = localStorage.getItem('cinelocal_iptv_custom_channels');
         if (raw) customChannels = JSON.parse(raw);
       } catch (e) {}
-      return [...DEFAULT_LIVETV_CHANNELS, ...customChannels];
+      return [...baseChannels, ...customChannels];
     }
 
     function renderLiveTvChannels() {
@@ -9697,6 +9701,14 @@ function escapeHtml(str) {
 
       if (typeof isKidsModeActive === 'function' && isKidsModeActive()) {
         filtered = filtered.filter(c => c.category === 'infantil');
+      }
+
+      if (currentLiveTvSearch && currentLiveTvSearch.length > 0) {
+        filtered = filtered.filter(c => 
+          (c.name && c.name.toLowerCase().includes(currentLiveTvSearch)) ||
+          (c.categoryLabel && c.categoryLabel.toLowerCase().includes(currentLiveTvSearch)) ||
+          (c.description && c.description.toLowerCase().includes(currentLiveTvSearch))
+        );
       }
 
       if (countLabel) {
