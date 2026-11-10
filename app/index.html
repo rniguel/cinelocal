@@ -1852,7 +1852,7 @@
     /* ========================================================================= */
     .livetv-card {
       position: relative;
-      background: rgba(15, 21, 35, 0.8);
+      background: rgba(14, 20, 32, 0.82);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1.5px solid rgba(255, 255, 255, 0.08);
@@ -1863,34 +1863,35 @@
       cursor: pointer;
       outline: none;
       transition: all 0.22s cubic-bezier(0.2, 0, 0, 1);
+      min-height: 235px;
     }
 
     .livetv-card:hover,
     .livetv-card.tv-focused {
-      background: rgba(28, 38, 58, 0.95);
+      background: rgba(22, 32, 52, 0.96);
       border-color: #ffffff;
-      transform: translateY(-4px) scale(1.02);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7), 0 0 20px rgba(229, 9, 20, 0.45);
+      transform: translateY(-6px) scale(1.025);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.75), 0 0 24px rgba(229, 9, 20, 0.5);
     }
 
     .livetv-thumb-wrap {
       position: relative;
       width: 100%;
-      height: 150px;
-      background: #090d16;
+      height: 155px;
+      background: radial-gradient(circle at center, #172238 0%, #080c14 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 16px;
       box-sizing: border-box;
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     .livetv-logo {
-      max-width: 80%;
-      max-height: 90px;
+      max-width: 78%;
+      max-height: 85px;
       object-fit: contain;
-      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.65));
       transition: transform 0.24s ease;
     }
 
@@ -1901,11 +1902,11 @@
 
     .livetv-badge-live {
       position: absolute;
-      top: 12px;
-      left: 12px;
+      top: 10px;
+      left: 10px;
       background: #e50914;
       color: #fff;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 800;
       padding: 3px 8px;
       border-radius: 6px;
@@ -1915,6 +1916,7 @@
       letter-spacing: 0.5px;
       box-shadow: 0 0 10px rgba(229, 9, 20, 0.6);
       animation: pulseLiveBadge 1.8s infinite;
+      z-index: 4;
     }
 
     @keyframes pulseLiveBadge {
@@ -1924,49 +1926,338 @@
 
     .livetv-badge-res {
       position: absolute;
-      top: 12px;
-      right: 12px;
-      background: rgba(255, 255, 255, 0.12);
-      color: #fff;
-      font-size: 11px;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #38bdf8;
+      font-size: 10.5px;
       font-weight: 800;
-      padding: 3px 8px;
+      padding: 2px 7px;
       border-radius: 6px;
+      z-index: 4;
     }
 
     .livetv-info {
-      padding: 16px 18px 20px;
+      padding: 14px 16px 16px;
       display: flex;
       flex-direction: column;
+      justify-content: center;
       flex: 1;
-      justify-content: space-between;
+      gap: 4px;
     }
 
     .livetv-title {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 800;
       color: #ffffff;
-      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
     }
 
     .livetv-cat {
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 700;
       color: #38bdf8;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 8px;
     }
 
     .livetv-desc {
-      font-size: 13.5px;
+      font-size: 12.5px;
       color: #94a3b8;
-      line-height: 1.45;
-      margin-bottom: 16px;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
+      line-height: 1.4;
+      white-space: nowrap;
       overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .livetv-play-hint {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-top: 4px;
+      opacity: 0.8;
+      transition: opacity 0.2s ease, color 0.2s ease;
+    }
+
+    .livetv-card:hover .livetv-play-hint,
+    .livetv-card.tv-focused .livetv-play-hint {
+      opacity: 1;
+      color: #ffffff;
+    }
+
+    /* SUBFILTROS AFUNILADOS HORIZONTAIS */
+    .livetv-subfilter-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 0 16px;
+      margin-bottom: 12px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+    }
+
+    .livetv-subfilter-row::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .livetv-subfilter-row::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+
+    .livetv-subfilter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #cbd5e1;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.16s ease;
+      outline: none;
+    }
+
+    .livetv-subfilter-chip:hover,
+    .livetv-subfilter-chip.tv-focused {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: #38bdf8;
+      color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    .livetv-subfilter-chip.active {
+      background: #ffffff;
+      color: #000000;
+      border-color: #ffffff;
+      box-shadow: 0 0 14px rgba(255, 255, 255, 0.4);
+    }
+
+    .livetv-subfilter-chip.active.tv-focused {
+      box-shadow: 0 0 18px rgba(255, 255, 255, 0.7), 0 0 0 2px #38bdf8;
+    }
+
+    /* OSD BANNER FLUTUANTE DE PROGRAMAÇÃO NO PLAYER */
+    .livetv-program-osd {
+      position: absolute;
+      top: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 15, 26, 0.94);
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      z-index: 1000;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      pointer-events: none;
+      animation: osdSlideDown 0.35s cubic-bezier(0.2, 0, 0, 1);
+      max-width: 90%;
+    }
+
+    @keyframes osdSlideDown {
+      from { opacity: 0; transform: translate(-50%, -20px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    .livetv-osd-logo {
+      max-height: 50px;
+      max-width: 80px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+    }
+
+    .livetv-osd-body {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .livetv-osd-channel-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .livetv-osd-channel-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .livetv-osd-program-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+
+    .livetv-osd-program-next {
+      font-size: 12.5px;
+      color: #94a3b8;
+    }
+
+    /* BARRA DE EPG NA PARTE INFERIOR DO PLAYER DE TV */
+    .player-live-epg-box {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 6px 14px;
+      min-width: 260px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .player-live-epg-box:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: #38bdf8;
+    }
+
+    .player-live-epg-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .player-live-epg-now-badge {
+      font-size: 10px;
+      font-weight: 800;
+      background: #e50914;
+      color: #fff;
+      padding: 1px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .player-live-epg-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+
+    .player-live-epg-slot {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .player-live-epg-progress-bg {
+      width: 100%;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .player-live-epg-progress-fill {
+      height: 100%;
+      background: #38bdf8;
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+
+    .player-live-epg-next {
+      font-size: 11px;
+      color: #94a3b8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* CARROSSEL DE TV AO VIVO NA HOME */
+    .livetv-home-card {
+      min-width: 210px !important;
+      max-width: 210px !important;
+      height: 275px !important;
+      display: flex;
+      flex-direction: column;
+      background: rgba(14, 20, 32, 0.85);
+      border: 1.5px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .livetv-home-thumb {
+      height: 185px;
+      position: relative;
+      background: radial-gradient(circle at center, #182239 0%, #080c14 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      box-sizing: border-box;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .livetv-home-logo {
+      max-width: 78%;
+      max-height: 85px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.65));
+      transition: transform 0.2s ease;
+    }
+
+    .livetv-home-card:hover .livetv-home-logo,
+    .livetv-home-card.tv-focused .livetv-home-logo {
+      transform: scale(1.1);
+    }
+
+    .livetv-home-meta {
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .livetv-home-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .livetv-home-cat {
+      font-size: 11px;
+      font-weight: 700;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* FOCO REFORÇADO PARA OS BOTÕES DE CONTROLE NO PLAYER DA TV */
+    .btn-ctrl.tv-focused,
+    .btn-channel-switch.tv-focused {
+      background: var(--primary) !important;
+      color: #ffffff !important;
+      border-color: #ffffff !important;
+      transform: scale(1.15) !important;
+      box-shadow: 0 0 18px rgba(229, 9, 20, 0.75), 0 0 0 2px #ffffff !important;
+      z-index: 10;
     }
 
     .livetv-actions {
@@ -7331,6 +7622,11 @@
           </div>
         </div>
 
+        <!-- SUBFILTROS AFUNILADOS (Ex: HBO, Telecine, ESPN, Globo, etc.) -->
+        <div class="livetv-subfilter-row" id="liveTvSubfilterRow">
+          <!-- Injetado dinamicamente -->
+        </div>
+
         <!-- GRID DE CARDS DE CANAIS -->
         <div class="grid-layout livetv-grid" id="liveTvChannelsGrid">
           <!-- Injetado dinamicamente -->
@@ -8014,6 +8310,20 @@
         </div>
       </div>
 
+      <!-- OSD BANNER FLUTUANTE DE PROGRAMAÇÃO DA TV AO VIVO -->
+      <div id="liveTvProgramOsd" class="livetv-program-osd" style="display: none;">
+        <img id="liveTvOsdLogo" class="livetv-osd-logo" src="" alt="" onerror="this.style.display='none'">
+        <div class="livetv-osd-body">
+          <div class="livetv-osd-channel-line">
+            <span class="live-badge-glow">🔴 AO VIVO</span>
+            <span id="liveTvOsdChannelName" class="livetv-osd-channel-name">Nome do Canal</span>
+            <span id="liveTvOsdBadgeRes" class="player-live-res-pill">1080p</span>
+          </div>
+          <div id="liveTvOsdProgramTitle" class="livetv-osd-program-title">Programa Atual</div>
+          <div id="liveTvOsdProgramNext" class="livetv-osd-program-next">A Seguir: Próximo Programa</div>
+        </div>
+      </div>
+
       <div class="player-bottom-controls" onclick="event.stopPropagation()">
         <!-- BARRA DEDICADA DE CONTROLES SMART TV AO VIVO (IPTV) -->
         <div class="player-live-bar" id="playerLiveBar">
@@ -8032,14 +8342,27 @@
               <span>Canal Anterior</span>
             </button>
 
-            <button class="btn-channel-switch dpad-focusable" onclick="toggleLiveChannelGuide()" title="Guia Rápido de Canais (▲ / ▼ / C)">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-              <span>Guia de Canais</span>
-            </button>
+            <!-- PROGRAMAÇÃO / EPG DINÂMICO AO VIVO -->
+            <div class="player-live-epg-box" onclick="toggleLiveChannelGuide()" title="Clique para abrir o Guia de Canais">
+              <div class="player-live-epg-header">
+                <span class="player-live-epg-now-badge">NO AR</span>
+                <span id="playerLiveProgramTitle" class="player-live-epg-title">Transmissão Ao Vivo</span>
+                <span id="playerLiveProgramSlot" class="player-live-epg-slot">11:00 - 12:00</span>
+              </div>
+              <div class="player-live-epg-progress-bg">
+                <div id="playerLiveProgramProgress" class="player-live-epg-progress-fill" style="width: 50%;"></div>
+              </div>
+              <div id="playerLiveProgramNext" class="player-live-epg-next">A seguir: Grade de Programação</div>
+            </div>
 
             <button class="btn-channel-switch dpad-focusable" onclick="nextLiveChannel()" title="Próximo Canal (→)">
               <span>Próximo Canal</span>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2.5"></line></svg>
+            </button>
+
+            <button class="btn-channel-switch dpad-focusable" onclick="toggleLiveChannelGuide()" title="Guia Rápido de Canais (▲ / ▼ / C)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+              <span>Guia</span>
             </button>
           </div>
 
@@ -8069,7 +8392,7 @@
 
         <div class="controls-row">
           <div class="controls-left">
-            <button class="btn-ctrl" onclick="togglePlayPause()" title="Play / Pause (Espaço / K)">
+            <button class="btn-ctrl dpad-focusable" id="btnPlayPause" onclick="togglePlayPause()" title="Play / Pause (Espaço / K)" tabindex="0">
               <svg id="playIcon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
               </svg>
@@ -8083,13 +8406,13 @@
               -1m
             </button>
 
-            <button class="btn-ctrl" onclick="skipTime(-10)" title="Voltar 10s (← / J)">
+            <button class="btn-ctrl dpad-focusable" onclick="skipTime(-10)" title="Voltar 10s (← / J)" tabindex="0">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M1 4v6h6M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
               </svg>
             </button>
 
-            <button class="btn-ctrl" onclick="skipTime(10)" title="Avançar 10s (→ / L)">
+            <button class="btn-ctrl dpad-focusable" onclick="skipTime(10)" title="Avançar 10s (→ / L)" tabindex="0">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M23 4v6h-6M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
               </svg>
@@ -8099,7 +8422,7 @@
               +1m
             </button>
 
-            <button id="btnNextEpisode" class="btn-ctrl" onclick="playNextEpisode()" title="Próximo Episódio (N)" style="display: none;">
+            <button id="btnNextEpisode" class="btn-ctrl dpad-focusable" onclick="playNextEpisode()" title="Próximo Episódio (N)" style="display: none;" tabindex="0">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <polygon points="5 4 15 12 5 20 5 4"></polygon>
                 <line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2.5"></line>
@@ -8108,7 +8431,7 @@
 
             <!-- CONTROLE DE VOLUME & SUPER BOOSTER -->
             <div class="volume-container">
-              <button class="btn-ctrl" id="btnMute" onclick="toggleMute()" title="Mudo / Desmutar (M)">
+              <button class="btn-ctrl dpad-focusable" id="btnMute" onclick="toggleMute()" title="Mudo / Desmutar (M)" tabindex="0">
                 <svg id="volIconHigh" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                   <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
@@ -8134,19 +8457,19 @@
 
           <div class="controls-right">
             <!-- VLC -->
-            <button class="btn-ctrl" onclick="launchCurrentInVlc()" title="Abrir no VLC Portable (V)">
+            <button class="btn-ctrl dpad-focusable" onclick="launchCurrentInVlc()" title="Abrir no VLC Portable (V)" tabindex="0">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="#ff8800">
                 <path d="M12 2L4 18h16L12 2zm0 4.5l4.5 9h-9L12 6.5zM7 20h10v2H7v-2z"/>
               </svg>
             </button>
 
             <!-- VELOCIDADE DE REPRODUÇÃO -->
-            <button class="btn-ctrl" id="btnSpeed" onclick="cyclePlaybackSpeed()" title="Velocidade de Reprodução ([ / ])">
+            <button class="btn-ctrl dpad-focusable" id="btnSpeed" onclick="cyclePlaybackSpeed()" title="Velocidade de Reprodução ([ / ])" tabindex="0">
               <span id="speedLabel" style="font-size: 12px; font-weight: 800; min-width: 22px;">1x</span>
             </button>
 
             <!-- PICTURE IN PICTURE -->
-            <button class="btn-ctrl" id="btnPiP" onclick="togglePictureInPicture()" title="Janela Flutuante / PiP (P)">
+            <button class="btn-ctrl dpad-focusable" id="btnPiP" onclick="togglePictureInPicture()" title="Janela Flutuante / PiP (P)" tabindex="0">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="2" y="3" width="20" height="14" rx="2"></rect>
                 <rect x="12" y="9" width="8" height="6" rx="1" fill="currentColor"></rect>
@@ -8155,7 +8478,7 @@
 
             <!-- AUDIO TRACKS MENU -->
             <div class="dropdown">
-              <button class="btn-ctrl" onclick="toggleDropdown('audioMenu')" title="Faixas de Áudio">
+              <button class="btn-ctrl dpad-focusable" id="btnAudioMenu" onclick="toggleDropdown('audioMenu')" title="Faixas de Áudio" tabindex="0">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
                   <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
@@ -8169,7 +8492,7 @@
 
             <!-- SUBTITLES MENU -->
             <div class="dropdown">
-              <button class="btn-ctrl" onclick="toggleDropdown('subtitlesMenu')" title="Legendas (C)">
+              <button class="btn-ctrl dpad-focusable" id="btnSubMenu" onclick="toggleDropdown('subtitlesMenu')" title="Legendas (C)" tabindex="0">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                 </svg>
@@ -8212,14 +8535,14 @@
             </div>
 
             <!-- BOTÃO DIRETO DO SINCRONIZADOR DE LEGENDAS -->
-            <button class="btn-ctrl" onclick="openSubSyncModal()" title="Sincronizador Inteligente / Alinhador de Fala (S)" style="color: #ff9922;">
+            <button class="btn-ctrl dpad-focusable" onclick="openSubSyncModal()" title="Sincronizador Inteligente / Alinhador de Fala (S)" style="color: #ff9922;" tabindex="0">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
               </svg>
             </button>
 
             <!-- FULLSCREEN -->
-            <button class="btn-ctrl" onclick="toggleFullscreen()" title="Tela Cheia (F)">
+            <button class="btn-ctrl dpad-focusable" id="btnFullscreen" onclick="toggleFullscreen()" title="Tela Cheia (F)" tabindex="0">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
               </svg>
@@ -9390,6 +9713,9 @@ function escapeHtml(str) {
         if (typeof renderLiveTvCategoriesRail === 'function') {
           renderLiveTvCategoriesRail();
         }
+        if (typeof renderLiveTvSubFilters === 'function') {
+          renderLiveTvSubFilters();
+        }
         if (typeof renderLiveTvChannels === 'function') {
           renderLiveTvChannels();
         }
@@ -10157,12 +10483,80 @@ function escapeHtml(str) {
     const LIVETV_CATEGORIES = [
       { id: 'favoritos', icon: '⭐', label: 'Meus Favoritos', title: '⭐ Meus Favoritos' },
       { id: 'all', icon: '🔥', label: 'Todos os Canais', title: '🔥 Todos os Canais' },
-      { id: 'abertos', icon: '📺', label: 'TV Aberta & Notícias', title: '📺 TV Aberta & Notícias' },
-      { id: 'filmes', icon: '🍿', label: 'Filmes & Séries', title: '🍿 Filmes & Séries' },
-      { id: 'esportes', icon: '⚽', label: 'Esportes & Ação', title: '⚽ Esportes & Ação' },
-      { id: 'infantil', icon: '🧸', label: 'Infantil & Kids', title: '🧸 Infantil & Kids' },
-      { id: 'variedades', icon: '🎭', label: 'Variedades & Cultura', title: '🎭 Variedades & Cultura' }
+      { id: 'abertos', icon: '📺', label: 'TV Aberta Nacional', title: '📺 TV Aberta Nacional' },
+      { id: 'hbo_premium', icon: '👑', label: 'HBO & Telecine', title: '👑 HBO & Telecine Premium' },
+      { id: 'filmes', icon: '🍿', label: 'Filmes & Séries', title: '🍿 Filmes & Séries 24h' },
+      { id: 'esportes', icon: '⚽', label: 'Esportes & Futebol', title: '⚽ Esportes & Ação' },
+      { id: 'noticias', icon: '📰', label: 'Notícias 24h', title: '📰 Notícias & Jornalismo 24h' },
+      { id: 'infantil', icon: '🧸', label: 'Infantil & Kids', title: '🧸 Infantil, Desenhos & Kids' },
+      { id: 'pluto', icon: '⚡', label: 'Pluto TV Especiais', title: '⚡ Pluto TV Canais Exclusivos' },
+      { id: 'variedades', icon: '🎭', label: 'Variedades & Cultura', title: '🎭 Variedades, Documentários & Cultura' }
     ];
+
+    const LIVETV_SUBFILTERS = {
+      all: [
+        { id: 'sub_all', label: '🔥 Todos' },
+        { id: 'sub_hbo', label: '👑 HBO' },
+        { id: 'sub_telecine', label: '🍿 Telecine' },
+        { id: 'sub_espn', label: '⚽ ESPN' },
+        { id: 'sub_sportv', label: '🏆 SporTV' },
+        { id: 'sub_globo', label: '📺 Globo' },
+        { id: 'sub_sbt', label: '💙 SBT' },
+        { id: 'sub_record', label: '🟢 Record' },
+        { id: 'sub_band', label: '🔴 Band' },
+        { id: 'sub_cultura', label: '🟡 Cultura' },
+        { id: 'sub_cnn', label: '📰 CNN' },
+        { id: 'sub_kids', label: '🧸 Kids' },
+        { id: 'sub_pluto', label: '⚡ Pluto TV' }
+      ],
+      hbo_premium: [
+        { id: 'sub_all', label: 'Todos Premium' },
+        { id: 'sub_hbo', label: '👑 Só HBO' },
+        { id: 'sub_telecine', label: '🍿 Só Telecine' }
+      ],
+      filmes: [
+        { id: 'sub_all', label: 'Todos os Filmes' },
+        { id: 'sub_hbo', label: '👑 HBO' },
+        { id: 'sub_telecine', label: '🍿 Telecine' },
+        { id: 'sub_pluto_cine', label: '🎬 Pluto Cine' },
+        { id: 'sub_action', label: '💥 Ação' },
+        { id: 'sub_comedy', label: '😂 Comédia' },
+        { id: 'sub_horror', label: '👻 Terror' }
+      ],
+      esportes: [
+        { id: 'sub_all', label: 'Todos os Esportes' },
+        { id: 'sub_espn', label: '⚽ ESPN' },
+        { id: 'sub_sportv', label: '🏆 SporTV' },
+        { id: 'sub_bandsports', label: '🔴 Band Sports' },
+        { id: 'sub_futebol', label: '⚽ Futebol' },
+        { id: 'sub_lutas', label: '🥊 Lutas & Combate' },
+        { id: 'sub_motors', label: '🏎️ Automobilismo' }
+      ],
+      abertos: [
+        { id: 'sub_all', label: 'Todos Abertos' },
+        { id: 'sub_globo', label: '📺 Globo' },
+        { id: 'sub_sbt', label: '💙 SBT' },
+        { id: 'sub_record', label: '🟢 Record' },
+        { id: 'sub_band', label: '🔴 Band' },
+        { id: 'sub_cultura', label: '🟡 Cultura' }
+      ],
+      noticias: [
+        { id: 'sub_all', label: 'Todas as Notícias' },
+        { id: 'sub_globonews', label: '📺 GloboNews' },
+        { id: 'sub_cnn', label: '🔴 CNN Brasil' },
+        { id: 'sub_recordnews', label: '⚡ Record News' },
+        { id: 'sub_sbtnews', label: '💙 SBT News' }
+      ],
+      infantil: [
+        { id: 'sub_all', label: 'Todos os Desenhos' },
+        { id: 'sub_nick', label: '🧸 Nickelodeon' },
+        { id: 'sub_disney', label: '🏰 Disney' },
+        { id: 'sub_cartoon', label: '🎨 Cartoonito' },
+        { id: 'sub_animes', label: '⚡ Animes 24h' }
+      ]
+    };
+
+    let currentLiveTvSubFilter = 'sub_all';
 
     function getLiveTvFavorites() {
       try {
@@ -10208,6 +10602,83 @@ function escapeHtml(str) {
       renderLiveTvChannels();
     }
 
+    function getLiveChannelSchedule(channel) {
+      const now = new Date();
+      const curHour = now.getHours();
+      const curMin = now.getMinutes();
+      const nextHour = (curHour + 1) % 24;
+      const afterHour = (curHour + 2) % 24;
+
+      const curSlot = `${String(curHour).padStart(2, '0')}:00 - ${String(nextHour).padStart(2, '0')}:00`;
+      const nextSlot = `${String(nextHour).padStart(2, '0')}:00 - ${String(afterHour).padStart(2, '0')}:00`;
+      const elapsedPct = Math.min(100, Math.round((curMin / 60) * 100));
+
+      const name = (channel.name || '').toLowerCase();
+      const cat = (channel.category || '').toLowerCase();
+
+      let curProg = 'Transmissão Contínua Ao Vivo';
+      let nextProg = 'Grade de Programação';
+
+      if (name.includes('globonews') || name.includes('cnn') || name.includes('record news') || name.includes('sbt news') || cat === 'noticias') {
+        const newsPrograms = [
+          'Jornal da Manhã & Giro de Manchetes',
+          'Edição das 10h: Política & Economia',
+          'Jornal do Meio-Dia & Cobertura Ao Vivo',
+          'Plantão Especial & Reportagens de Campo',
+          'Debate em Tempo Real & Análise dos Fatos',
+          'Edição da Noite & Panorama Mundial'
+        ];
+        curProg = newsPrograms[curHour % newsPrograms.length];
+        nextProg = newsPrograms[(curHour + 1) % newsPrograms.length];
+      } else if (cat === 'esportes' || name.includes('espn') || name.includes('sportv') || name.includes('band sports')) {
+        const sportsPrograms = [
+          'Giro dos Campeonatos & Destaques da Rodada',
+          'Ao Vivo: Melhores Momentos & Análise Tática',
+          'Mesa Redonda: Debate dos Gigantes',
+          'Transmissão Especial & Competições Internacionais',
+          'Show de Gols & Cobertura Esportiva 24h',
+          'Especial Compacto dos Campeões'
+        ];
+        curProg = sportsPrograms[curHour % sportsPrograms.length];
+        nextProg = sportsPrograms[(curHour + 1) % sportsPrograms.length];
+      } else if (cat === 'filmes' || name.includes('hbo') || name.includes('telecine') || name.includes('cine')) {
+        const moviePrograms = [
+          'Sessão Cinema Premium: Grandes Sucessos',
+          'Cine Ação & Suspense Sem Intervalos',
+          'Especial Blockbuster de Sucesso',
+          'Cine Comédia & Aventura',
+          'Sessão Noturna: Mestres da Sétima Arte',
+          'Cine Cult & Clássicos Imortais'
+        ];
+        curProg = moviePrograms[curHour % moviePrograms.length];
+        nextProg = moviePrograms[(curHour + 1) % moviePrograms.length];
+      } else if (cat === 'infantil' || name.includes('cartoon') || name.includes('disney') || name.includes('nick')) {
+        const kidsPrograms = [
+          'Hora dos Desenhos & Animações Clássicas',
+          'Aventuras Animadas 24h',
+          'Maratona Kids & Personagens Favoritos',
+          'Clube da Diversão & Histórias Incríveis',
+          'Cine Toon Especial',
+          'Noite dos Desenhos Animados'
+        ];
+        curProg = kidsPrograms[curHour % kidsPrograms.length];
+        nextProg = kidsPrograms[(curHour + 1) % kidsPrograms.length];
+      } else if (name.includes('globo') || name.includes('sbt') || name.includes('record') || name.includes('band') || name.includes('cultura')) {
+        const nationalPrograms = [
+          'Bom Dia & Revista Matinal',
+          'Programa de Variedades & Atualidades',
+          'Telejornal Nacional & Notícias Locais',
+          'Sessão da Tarde / Entretenimento da Família',
+          'Show de Auditório & Grandes Atrações',
+          'Horário Nobre: Especial da Grade Nacional'
+        ];
+        curProg = nationalPrograms[curHour % nationalPrograms.length];
+        nextProg = nationalPrograms[(curHour + 1) % nationalPrograms.length];
+      }
+
+      return { curSlot, nextSlot, curProg, nextProg, elapsedPct };
+    }
+
     async function loadVerifiedIptvChannels(forceRefresh = false) {
       try {
         const url = forceRefresh ? `/app/iptv_verified.json?t=${Date.now()}` : '/app/iptv_verified.json';
@@ -10223,6 +10694,7 @@ function escapeHtml(str) {
             }
             if (state.activeView === 'liveTv') {
               renderLiveTvCategoriesRail();
+              renderLiveTvSubFilters();
               renderLiveTvChannels();
             }
           }
@@ -10263,6 +10735,36 @@ function escapeHtml(str) {
       return [...baseChannels, ...customChannels];
     }
 
+    function renderLiveTvSubFilters() {
+      const container = document.getElementById('liveTvSubfilterRow');
+      if (!container) return;
+
+      const subList = LIVETV_SUBFILTERS[currentLiveTvFilter] || LIVETV_SUBFILTERS['all'];
+      if (!subList || subList.length === 0) {
+        container.style.display = 'none';
+        return;
+      }
+      container.style.display = 'flex';
+
+      container.innerHTML = subList.map(s => {
+        const isActive = currentLiveTvSubFilter === s.id;
+        return `
+          <button class="livetv-subfilter-chip ${isActive ? 'active' : ''} dpad-focusable" data-subfilter="${s.id}" onclick="selectLiveTvSubFilter('${s.id}', this)" tabindex="0">
+            <span>${s.label}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectLiveTvSubFilter(subId, btn) {
+      currentLiveTvSubFilter = subId;
+      document.querySelectorAll('#liveTvSubfilterRow .livetv-subfilter-chip').forEach(b => {
+        b.classList.remove('active');
+        if (b.getAttribute('data-subfilter') === subId) b.classList.add('active');
+      });
+      renderLiveTvChannels();
+    }
+
     function renderLiveTvCategoriesRail() {
       const nav = document.getElementById('liveTvCategoryNav');
       if (!nav) return;
@@ -10274,22 +10776,38 @@ function escapeHtml(str) {
         favoritos: 0,
         all: channels.length,
         abertos: 0,
+        hbo_premium: 0,
         filmes: 0,
         esportes: 0,
+        noticias: 0,
         infantil: 0,
+        pluto: 0,
         variedades: 0
       };
 
       channels.forEach(ch => {
-        if (favs.includes(String(ch.id)) || (ch.streamUrl && favs.includes(String(ch.streamUrl)))) {
+        const n = (ch.name || '').toLowerCase();
+        const cat = (ch.category || '').toLowerCase();
+        const idStr = String(ch.id);
+        const urlStr = String(ch.streamUrl || '');
+
+        if (favs.includes(idStr) || favs.includes(urlStr)) {
           counts.favoritos++;
         }
-        const cat = (ch.category || '').toLowerCase();
-        if (counts[cat] !== undefined) {
-          counts[cat]++;
-        } else {
-          counts.variedades++;
+        if (n.includes('hbo') || n.includes('telecine')) {
+          counts.hbo_premium++;
         }
+        if (n.includes('news') || n.includes('globonews') || n.includes('cnn') || n.includes('notícia') || n.includes('noticia') || n.includes('euronews')) {
+          counts.noticias++;
+        }
+        if (n.includes('pluto tv') || (ch.source && ch.source.toLowerCase().includes('pluto'))) {
+          counts.pluto++;
+        }
+        if (cat === 'abertos') counts.abertos++;
+        else if (cat === 'filmes') counts.filmes++;
+        else if (cat === 'esportes') counts.esportes++;
+        else if (cat === 'infantil') counts.infantil++;
+        else counts.variedades++;
       });
 
       nav.innerHTML = LIVETV_CATEGORIES.map(cat => {
@@ -10309,10 +10827,12 @@ function escapeHtml(str) {
 
     function selectLiveTvCategory(catId, btn) {
       currentLiveTvFilter = catId;
+      currentLiveTvSubFilter = 'sub_all';
       document.querySelectorAll('#liveTvCategoryNav .livetv-rail-item').forEach(b => {
         b.classList.remove('active');
         if (b.getAttribute('data-cat') === catId) b.classList.add('active');
       });
+      renderLiveTvSubFilters();
       renderLiveTvChannels();
     }
 
@@ -10330,8 +10850,24 @@ function escapeHtml(str) {
       const favs = getLiveTvFavorites();
       let filtered = channels;
 
+      // 1. FILTRO DE CATEGORIA PRINCIPAL
       if (currentLiveTvFilter === 'favoritos') {
         filtered = channels.filter(c => favs.includes(String(c.id)) || (c.streamUrl && favs.includes(String(c.streamUrl))));
+      } else if (currentLiveTvFilter === 'hbo_premium') {
+        filtered = channels.filter(c => {
+          const n = (c.name || '').toLowerCase();
+          return n.includes('hbo') || n.includes('telecine');
+        });
+      } else if (currentLiveTvFilter === 'noticias') {
+        filtered = channels.filter(c => {
+          const n = (c.name || '').toLowerCase();
+          return n.includes('news') || n.includes('globonews') || n.includes('cnn') || n.includes('notícia') || n.includes('noticia') || n.includes('euronews');
+        });
+      } else if (currentLiveTvFilter === 'pluto') {
+        filtered = channels.filter(c => {
+          const n = (c.name || '').toLowerCase();
+          return n.includes('pluto tv') || (c.source && c.source.toLowerCase().includes('pluto'));
+        });
       } else if (currentLiveTvFilter !== 'all') {
         if (currentLiveTvFilter === 'variedades') {
           const knownCats = ['abertos', 'filmes', 'esportes', 'infantil'];
@@ -10341,10 +10877,46 @@ function escapeHtml(str) {
         }
       }
 
+      // 2. SUBFILTROS AFUNILADOS (HBO, Telecine, ESPN, Globo, etc.)
+      if (currentLiveTvSubFilter && currentLiveTvSubFilter !== 'sub_all') {
+        const sub = currentLiveTvSubFilter.replace('sub_', '');
+        filtered = filtered.filter(c => {
+          const n = (c.name || '').toLowerCase();
+          const desc = (c.description || '').toLowerCase();
+          const combined = n + ' ' + desc;
+          if (sub === 'hbo') return combined.includes('hbo');
+          if (sub === 'telecine') return combined.includes('telecine');
+          if (sub === 'espn') return combined.includes('espn');
+          if (sub === 'sportv') return combined.includes('sportv');
+          if (sub === 'bandsports') return combined.includes('band sports') || combined.includes('bandsports');
+          if (sub === 'globo' || sub === 'globonews') return combined.includes('globo');
+          if (sub === 'sbt' || sub === 'sbtnews') return combined.includes('sbt');
+          if (sub === 'record' || sub === 'recordnews') return combined.includes('record');
+          if (sub === 'band') return combined.includes('band');
+          if (sub === 'cultura') return combined.includes('cultura');
+          if (sub === 'cnn') return combined.includes('cnn');
+          if (sub === 'pluto' || sub === 'pluto_cine') return combined.includes('pluto');
+          if (sub === 'action') return combined.includes('ação') || combined.includes('acao') || combined.includes('action');
+          if (sub === 'comedy') return combined.includes('comédia') || combined.includes('comedia') || combined.includes('comedy');
+          if (sub === 'horror') return combined.includes('terror') || combined.includes('horror') || combined.includes('suspense');
+          if (sub === 'futebol') return combined.includes('futebol') || combined.includes('football') || combined.includes('soccer') || combined.includes('premiere');
+          if (sub === 'lutas') return combined.includes('luta') || combined.includes('combate') || combined.includes('ufc') || combined.includes('mma');
+          if (sub === 'motors') return combined.includes('motor') || combined.includes('auto') || combined.includes('f1') || combined.includes('corrida');
+          if (sub === 'nick') return combined.includes('nick') || combined.includes('icarly');
+          if (sub === 'disney') return combined.includes('disney');
+          if (sub === 'cartoon') return combined.includes('cartoon');
+          if (sub === 'animes') return combined.includes('anime') || combined.includes('naruto') || combined.includes('death note');
+          if (sub === 'kids') return c.category === 'infantil' || combined.includes('cartoon') || combined.includes('disney') || combined.includes('nick');
+          return combined.includes(sub);
+        });
+      }
+
+      // 3. MODO KIDS
       if (typeof isKidsModeActive === 'function' && isKidsModeActive()) {
         filtered = filtered.filter(c => c.category === 'infantil');
       }
 
+      // 4. BUSCA EM TEMPO REAL
       if (currentLiveTvSearch && currentLiveTvSearch.length > 0) {
         filtered = filtered.filter(c => 
           (c.name && c.name.toLowerCase().includes(currentLiveTvSearch)) ||
@@ -10390,10 +10962,10 @@ function escapeHtml(str) {
           grid.innerHTML = `
             <div class="livetv-empty-box">
               <div class="livetv-empty-icon">📡</div>
-              <h3>Nenhum canal disponível nesta categoria</h3>
-              <p>Tente selecionar outra categoria no menu lateral ou atualizar a lista de canais.</p>
-              <button class="livetv-empty-btn dpad-focusable" onclick="selectLiveTvCategory('all')">
-                <span>Ver Todos os Canais</span>
+              <h3>Nenhum canal disponível neste filtro</h3>
+              <p>Tente selecionar outro filtro ou ver todos os canais da categoria.</p>
+              <button class="livetv-empty-btn dpad-focusable" onclick="selectLiveTvSubFilter('sub_all')">
+                <span>Ver Todos da Categoria</span>
               </button>
             </div>
           `;
@@ -10401,10 +10973,13 @@ function escapeHtml(str) {
         return;
       }
 
+      // CARDS LIMPOS, ESPAÇOSOS E CINEMATOGRÁFICOS (SEM BOTÕES APERTADOS)
       grid.innerHTML = filtered.map((ch, idx) => {
         const chJson = JSON.stringify(ch).replace(/"/g, '&quot;');
         const chId = String(ch.id || ch.streamUrl);
         const isFav = favs.includes(chId);
+        const schedule = getLiveChannelSchedule(ch);
+
         return `
           <div class="livetv-card dpad-focusable" tabindex="0" data-channel-id="${escapeHtml(chId)}" onclick="playLiveChannel(${chJson})">
             <div class="livetv-thumb-wrap">
@@ -10416,24 +10991,14 @@ function escapeHtml(str) {
               <img class="livetv-logo" src="${ch.logo}" alt="${escapeHtml(ch.name)}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'80\' height=\'80\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23fff\' stroke-width=\'2\'><rect x=\'2\' y=\'7\' width=\'20\' height=\'15\' rx=\'2\' ry=\'2\'/><polyline points=\'17 2 12 7 7 2\'/></svg>'">
             </div>
             <div class="livetv-info">
-              <div>
-                <div class="livetv-title">${escapeHtml(ch.name)}</div>
-                <div class="livetv-cat">${escapeHtml(ch.categoryLabel || 'Canal')}</div>
-                <div class="livetv-desc">${escapeHtml(ch.description || 'Transmissão contínua em tempo real.')}</div>
-              </div>
-              <div class="livetv-actions">
-                <button class="btn-livetv-play dpad-focusable" onclick="event.stopPropagation(); playLiveChannel(${chJson})" tabindex="0">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                  </svg>
-                  <span>Assistir</span>
-                </button>
-                <button class="btn-livetv-fav-inline ${isFav ? 'starred' : ''}" onclick="event.stopPropagation(); toggleLiveChannelFavorite('${escapeHtml(chId)}', event)" title="${isFav ? 'Remover dos Favoritos' : 'Favoritar canal'}">
-                  <span>${isFav ? '⭐ Salvo' : '☆ Salvar'}</span>
-                </button>
-                <button class="btn-livetv-vlc dpad-focusable" onclick="event.stopPropagation(); openLiveChannelInVlc(${chJson})" title="Assistir no VLC Media Player" tabindex="0">
-                  <span>VLC</span>
-                </button>
+              <div class="livetv-title">${escapeHtml(ch.name)}</div>
+              <div class="livetv-cat">${escapeHtml(ch.categoryLabel || 'Canal')}</div>
+              <div class="livetv-desc">🔴 ${escapeHtml(schedule.curProg || ch.description || 'Transmissão Ao Vivo')}</div>
+              <div class="livetv-play-hint">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <span>Assistir ao Vivo</span>
               </div>
             </div>
           </div>
@@ -10474,6 +11039,43 @@ function escapeHtml(str) {
       const barRes = document.getElementById('playerLiveBadgeRes');
       if (barTitle) barTitle.innerText = channel.name;
       if (barRes) barRes.innerText = channel.resolution || '1080p';
+
+      // ATUALIZA PROGRAMAÇÃO / EPG DINÂMICO
+      const schedule = getLiveChannelSchedule(channel);
+      const progTitle = document.getElementById('playerLiveProgramTitle');
+      const progSlot = document.getElementById('playerLiveProgramSlot');
+      const progFill = document.getElementById('playerLiveProgramProgress');
+      const progNext = document.getElementById('playerLiveProgramNext');
+
+      if (progTitle) progTitle.innerText = schedule.curProg;
+      if (progSlot) progSlot.innerText = schedule.curSlot;
+      if (progFill) progFill.style.width = `${schedule.elapsedPct}%`;
+      if (progNext) progNext.innerText = `A seguir: ${schedule.nextProg} (${schedule.nextSlot.split(' - ')[0]})`;
+
+      // EXIBE OSD BANNER FLUTUANTE DE PROGRAMAÇÃO POR 5 SEGUNDOS
+      const osd = document.getElementById('liveTvProgramOsd');
+      if (osd) {
+        const osdLogo = document.getElementById('liveTvOsdLogo');
+        const osdChName = document.getElementById('liveTvOsdChannelName');
+        const osdRes = document.getElementById('liveTvOsdBadgeRes');
+        const osdTitle = document.getElementById('liveTvOsdProgramTitle');
+        const osdNext = document.getElementById('liveTvOsdProgramNext');
+
+        if (osdLogo) {
+          osdLogo.src = channel.logo || '';
+          osdLogo.style.display = channel.logo ? 'block' : 'none';
+        }
+        if (osdChName) osdChName.innerText = channel.name;
+        if (osdRes) osdRes.innerText = channel.resolution || '1080p';
+        if (osdTitle) osdTitle.innerText = `🔴 NO AR: ${schedule.curProg} (${schedule.curSlot})`;
+        if (osdNext) osdNext.innerText = `A SEGUIR: ${schedule.nextProg} (${schedule.nextSlot})`;
+
+        osd.style.display = 'flex';
+        if (window._liveOsdTimeout) clearTimeout(window._liveOsdTimeout);
+        window._liveOsdTimeout = setTimeout(() => {
+          osd.style.display = 'none';
+        }, 5000);
+      }
 
       state.currentPlaying = { ...channel, isLive: true };
 
@@ -12004,6 +12606,9 @@ function escapeHtml(str) {
         addCarousel(container, '📺 Séries & Temporadas', state.series);
       }
 
+      // 2.5 TV AO VIVO EM DESTAQUE NA HOME
+      renderLiveTvHomeCarousel(container);
+
       // LOTE SECUNDÁRIO PROGRESSIVO (Hidratação suave sem travar CPU na TV)
       const renderSecondaryCarousels = () => {
         // 0.08 FILMES EM CARTAZ NOS CINEMAS
@@ -12204,6 +12809,91 @@ function escapeHtml(str) {
                       </svg>
                       <span>Ver Novamente</span>
                     </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+          <button class="carousel-btn right" onclick="scrollTrack('${sectionId}', 600)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      `;
+
+      container.appendChild(section);
+    }
+
+    function renderLiveTvHomeCarousel(container) {
+      const channels = getLiveTvChannels();
+      if (!channels || channels.length === 0) return;
+
+      const featuredKeywords = ['globo', 'sbt', 'record news', 'band', 'cultura', 'espn', 'hbo', 'telecine', 'cnn', 'studio universal', 'cartoon', 'pluto tv cine'];
+      const seen = new Set();
+      const curated = [];
+
+      for (const kw of featuredKeywords) {
+        const found = channels.find(c => c.name && c.name.toLowerCase().includes(kw) && !seen.has(c.id || c.streamUrl));
+        if (found) {
+          seen.add(found.id || found.streamUrl);
+          curated.push(found);
+        }
+      }
+
+      for (const ch of channels) {
+        if (curated.length >= 16) break;
+        const id = ch.id || ch.streamUrl;
+        if (!seen.has(id)) {
+          seen.add(id);
+          curated.push(ch);
+        }
+      }
+
+      const sectionId = 'carousel_livetv_home';
+      const section = document.createElement('section');
+      section.className = 'carousel-section livetv-home-carousel';
+
+      section.innerHTML = `
+        <div class="carousel-header">
+          <div class="carousel-title-box">
+            <h3 class="carousel-title">📡 TV ao Vivo em Destaque</h3>
+            <span class="carousel-count">Transmissão contínua em tempo real</span>
+          </div>
+          <button class="btn-profile-action dpad-focusable" onclick="switchView('liveTv')" style="padding: 6px 16px; font-size: 12.5px; border-radius: 999px;">
+            <span>Ver Todos os Canais (750+) ➔</span>
+          </button>
+        </div>
+        <div class="carousel-track-wrapper">
+          <button class="carousel-btn left" onclick="scrollTrack('${sectionId}', -600)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <div id="${sectionId}" class="carousel-track">
+            ${curated.map(ch => {
+              const chJson = JSON.stringify(ch).replace(/"/g, '&quot;');
+              const schedule = getLiveChannelSchedule(ch);
+              return `
+                <div class="movie-card livetv-home-card dpad-focusable" tabindex="0" onclick="playLiveChannel(${chJson})" onmouseenter="setTvFocus(this, false)">
+                  <div class="livetv-home-thumb">
+                    <span class="card-badge" style="background: #e50914; color: #fff; top: 8px; left: 8px; font-weight: 800; animation: pulseLiveBadge 1.8s infinite;">🔴 AO VIVO</span>
+                    <span class="card-badge badge-1080p" style="top: 8px; right: 8px;">${ch.resolution || 'HD'}</span>
+                    <img class="livetv-home-logo" src="${ch.logo}" alt="${escapeHtml(ch.name)}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'60\' height=\'60\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23fff\' stroke-width=\'2\'><rect x=\'2\' y=\'7\' width=\'20\' height=\'15\' rx=\'2\' ry=\'2\'/><polyline points=\'17 2 12 7 7 2\'/></svg>'">
+                  </div>
+                  <div class="card-hover-overlay">
+                    <div class="card-title">${escapeHtml(ch.name)}</div>
+                    <div class="card-subinfo">🔴 ${escapeHtml(schedule.curProg || ch.categoryLabel || 'Ao Vivo')}</div>
+                    <div class="card-hover-hint">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                      </svg>
+                      <span>Sintonizar Agora</span>
+                    </div>
+                  </div>
+                  <div class="livetv-home-meta">
+                    <div class="livetv-home-title">${escapeHtml(ch.name)}</div>
+                    <div class="livetv-home-cat">${escapeHtml(ch.categoryLabel || 'Canal')}</div>
                   </div>
                 </div>
               `;
@@ -16346,6 +17036,7 @@ function escapeHtml(str) {
       if (liveTvView && window.getComputedStyle(liveTvView).display !== 'none') {
         const tvInput = document.getElementById('liveTvSearchInput');
         const railItems = Array.from(liveTvView.querySelectorAll('#liveTvCategoryNav .livetv-rail-item'));
+        const subChips = Array.from(liveTvView.querySelectorAll('#liveTvSubfilterRow .livetv-subfilter-chip'));
         const configBtn = liveTvView.querySelector('.livetv-rail-config-btn');
         const reloadBtn = liveTvView.querySelector('.livetv-reload-btn');
         const tvCards = Array.from(liveTvView.querySelectorAll('#liveTvChannelsGrid .livetv-card'));
@@ -16359,6 +17050,7 @@ function escapeHtml(str) {
             return;
           } else if (key === 'ArrowRight') {
             if (reloadBtn) setTvFocus(reloadBtn);
+            else if (subChips.length > 0) setTvFocus(subChips[0]);
             else if (tvCards.length > 0) setTvFocus(tvCards[0]);
             return;
           } else if (key === 'ArrowLeft') {
@@ -16376,6 +17068,7 @@ function escapeHtml(str) {
           if (key === 'ArrowDown') {
             if (railIdx < railItems.length - 1) {
               setTvFocus(railItems[railIdx + 1]);
+              railItems[railIdx + 1].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
             } else if (configBtn) {
               setTvFocus(configBtn);
             }
@@ -16383,6 +17076,7 @@ function escapeHtml(str) {
           } else if (key === 'ArrowUp') {
             if (railIdx > 0) {
               setTvFocus(railItems[railIdx - 1]);
+              railItems[railIdx - 1].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
             } else if (tvInput) {
               setTvFocus(tvInput);
             }
@@ -16392,7 +17086,9 @@ function escapeHtml(str) {
             if (catId && catId !== currentLiveTvFilter) {
               selectLiveTvCategory(catId, currentFocused);
             }
-            if (tvCards.length > 0) {
+            if (subChips.length > 0) {
+              setTvFocus(subChips[0]);
+            } else if (tvCards.length > 0) {
               setTvFocus(tvCards[0]);
             }
             return;
@@ -16400,6 +17096,33 @@ function escapeHtml(str) {
             expandSidebar();
             const sideTv = document.getElementById('sideBtnLiveTv');
             if (sideTv) setTvFocus(sideTv);
+            return;
+          }
+          return;
+        }
+
+        // Subfiltros afunilados horizontais (HBO, Telecine, ESPN, etc.)
+        const sIdx = subChips.indexOf(currentFocused);
+        if (sIdx !== -1) {
+          if (key === 'ArrowRight' && sIdx < subChips.length - 1) {
+            setTvFocus(subChips[sIdx + 1]);
+            subChips[sIdx + 1].scrollIntoView({ inline: 'nearest', behavior: 'smooth' });
+            return;
+          } else if (key === 'ArrowLeft') {
+            if (sIdx > 0) {
+              setTvFocus(subChips[sIdx - 1]);
+              subChips[sIdx - 1].scrollIntoView({ inline: 'nearest', behavior: 'smooth' });
+            } else {
+              const activeRailItem = liveTvView.querySelector('#liveTvCategoryNav .livetv-rail-item.active') || railItems[0];
+              if (activeRailItem) setTvFocus(activeRailItem);
+            }
+            return;
+          } else if (key === 'ArrowDown') {
+            if (tvCards.length > 0) setTvFocus(tvCards[0]);
+            return;
+          } else if (key === 'ArrowUp') {
+            if (reloadBtn) setTvFocus(reloadBtn);
+            else if (tvInput) setTvFocus(tvInput);
             return;
           }
           return;
@@ -16425,7 +17148,8 @@ function escapeHtml(str) {
         // Botão Atualizar Canais
         if (currentFocused === reloadBtn) {
           if (key === 'ArrowDown') {
-            if (tvCards.length > 0) setTvFocus(tvCards[0]);
+            if (subChips.length > 0) setTvFocus(subChips[0]);
+            else if (tvCards.length > 0) setTvFocus(tvCards[0]);
             return;
           } else if (key === 'ArrowLeft') {
             const activeRailItem = liveTvView.querySelector('#liveTvCategoryNav .livetv-rail-item.active') || railItems[0];
@@ -16463,7 +17187,8 @@ function escapeHtml(str) {
             if (cIdx - cols >= 0) {
               setTvFocus(tvCards[cIdx - cols]);
             } else {
-              if (reloadBtn) setTvFocus(reloadBtn);
+              if (subChips.length > 0) setTvFocus(subChips[0]);
+              else if (reloadBtn) setTvFocus(reloadBtn);
               else {
                 const activeRailItem = liveTvView.querySelector('#liveTvCategoryNav .livetv-rail-item.active') || railItems[0];
                 if (activeRailItem) setTvFocus(activeRailItem);
@@ -16865,73 +17590,138 @@ function escapeHtml(str) {
             }
           }
 
-          const rail = document.getElementById('tvPlayerQuickRail');
-          const isRailOpen = rail && window.getComputedStyle(rail).display !== 'none';
+          const playerContainer = document.getElementById('playerContainer');
+          const isControlsHidden = playerContainer && playerContainer.classList.contains('controls-hidden');
+          const activeDropdown = document.querySelector('.dropdown-menu.active');
 
-          // 1. ENTER / OK / ESPAÇO / PLAY_PAUSE
-          if (normKey === 'Enter' || normKey === ' ' || normKey === 'MediaPlayPause' || (typeof normKey === 'string' && normKey.toLowerCase() === 'k')) {
-            e.preventDefault();
-            if (isRailOpen) {
-              const cur = document.querySelector('#tvPlayerQuickRail .tv-focused') || (document.activeElement && rail.contains(document.activeElement) ? document.activeElement : null);
-              if (cur && typeof cur.click === 'function') {
-                cur.click();
-              } else {
-                togglePlayPause();
+          // Controles nativos visíveis no rodapé do player
+          const playerControls = Array.from(document.querySelectorAll('.player-bottom-controls .btn-ctrl.dpad-focusable, .player-bottom-controls .btn-ctrl'))
+            .filter(el => {
+              const r = el.getBoundingClientRect();
+              return r.width > 0 && r.height > 0 && window.getComputedStyle(el).display !== 'none' && window.getComputedStyle(el).visibility !== 'hidden';
+            });
+
+          const currentCtrl = document.querySelector('.player-bottom-controls .tv-focused') || (document.activeElement && playerControls.includes(document.activeElement) ? document.activeElement : null);
+
+          // 1. SE HOUVER MENU DROPDOWN ABERTO (ÁUDIO / LEGENDAS)
+          if (activeDropdown) {
+            const dropItems = Array.from(activeDropdown.querySelectorAll('.track-item, button, div[onclick]'))
+              .filter(el => {
+                const r = el.getBoundingClientRect();
+                return r.width > 0 && r.height > 0;
+              });
+            const curDropFocused = activeDropdown.querySelector('.tv-focused') || (document.activeElement && dropItems.includes(document.activeElement) ? document.activeElement : null);
+            const dropIdx = dropItems.indexOf(curDropFocused);
+
+            if (normKey === 'ArrowDown') {
+              e.preventDefault();
+              if (dropIdx < dropItems.length - 1) setTvFocus(dropItems[dropIdx + 1]);
+              else if (dropIdx === -1 && dropItems.length > 0) setTvFocus(dropItems[0]);
+              return;
+            } else if (normKey === 'ArrowUp') {
+              e.preventDefault();
+              if (dropIdx > 0) setTvFocus(dropItems[dropIdx - 1]);
+              return;
+            } else if (normKey === 'Enter') {
+              e.preventDefault();
+              if (curDropFocused && typeof curDropFocused.click === 'function') {
+                curDropFocused.click();
               }
+              activeDropdown.classList.remove('active');
+              return;
+            } else if (normKey === 'Escape' || normKey === 'ArrowLeft' || normKey === 'Back') {
+              e.preventDefault();
+              activeDropdown.classList.remove('active');
+              return;
+            }
+          }
+
+          // 2. SE OS CONTROLES ESTIVEREM OCULTOS (MODO CINEMA)
+          if (isControlsHidden) {
+            if (normKey === 'ArrowLeft' || normKey === 'MediaRewind' || (typeof normKey === 'string' && normKey.toLowerCase() === 'j')) {
+              e.preventDefault();
+              skipTime(-10);
+              resetControlsTimer();
+              return;
+            } else if (normKey === 'ArrowRight' || normKey === 'MediaFastForward' || (typeof normKey === 'string' && normKey.toLowerCase() === 'l')) {
+              e.preventDefault();
+              skipTime(10);
+              resetControlsTimer();
+              return;
+            } else if (normKey === 'ArrowUp' || normKey === 'Enter' || normKey === ' ' || normKey === 'MediaPlayPause') {
+              e.preventDefault();
+              resetControlsTimer();
+              const playBtn = document.getElementById('btnPlayPause') || playerControls[0];
+              if (playBtn) setTvFocus(playBtn);
+              return;
+            } else if (normKey === 'ArrowDown') {
+              e.preventDefault();
+              setPlayerVolume(playerVolume - 5, true);
+              return;
+            }
+          }
+
+          // 3. SE OS CONTROLES ESTIVEREM VISÍVEIS
+          resetControlsTimer();
+
+          // ENTER / OK: Ativa o botão selecionado ou Play/Pause
+          if (normKey === 'Enter' || normKey === ' ' || normKey === 'MediaPlayPause') {
+            e.preventDefault();
+            if (currentCtrl && typeof currentCtrl.click === 'function') {
+              currentCtrl.click();
             } else {
               togglePlayPause();
             }
             return;
           }
 
-          // 2. CIMA (▲): ABRE OU RENOVA O QUICK ACTION RAIL SMART TV
+          // CIMA (▲): Move para a barra de tempo (seek) ou aumenta volume
           if (normKey === 'ArrowUp') {
             e.preventDefault();
-            if (!isRailOpen) {
-              openTvQuickRail();
+            const seekBar = document.getElementById('seekBarContainer');
+            if (seekBar && currentCtrl) {
+              setTvFocus(seekBar);
             } else {
-              resetTvQuickRailTimer();
+              setPlayerVolume(playerVolume + 5, true);
             }
             return;
           }
 
-          // 3. BAIXO (▼): FECHA O QUICK ACTION RAIL OU DIMINUI VOLUME
+          // BAIXO (▼): Oculta a barra de controles e volta para o filme
           if (normKey === 'ArrowDown') {
             e.preventDefault();
-            if (isRailOpen) {
-              closeTvQuickRail();
-            } else {
-              setPlayerVolume(playerVolume - 5, true);
+            if (playerContainer) {
+              playerContainer.classList.add('controls-hidden');
             }
             return;
           }
 
-          // 4. ESQUERDA (◀): NAVEGA NOS BOTÕES OU AVANÇA -10s
-          if (normKey === 'ArrowLeft' || normKey === 'MediaRewind' || (typeof normKey === 'string' && normKey.toLowerCase() === 'j')) {
+          // ESQUERDA (◀): Navega pelos botões para a esquerda
+          if (normKey === 'ArrowLeft') {
             e.preventDefault();
-            if (isRailOpen) {
-              resetTvQuickRailTimer();
-              const btns = Array.from(rail.querySelectorAll('.tv-quick-btn'));
-              const cur = document.querySelector('#tvPlayerQuickRail .tv-focused') || document.activeElement;
-              const idx = btns.indexOf(cur);
-              if (idx > 0) setTvFocus(btns[idx - 1]);
-              else if (idx === -1 && btns.length > 0) setTvFocus(btns[0]);
+            if (playerControls.length > 0) {
+              const idx = playerControls.indexOf(currentCtrl);
+              if (idx > 0) {
+                setTvFocus(playerControls[idx - 1]);
+              } else if (idx === -1) {
+                setTvFocus(playerControls[0]);
+              }
             } else {
               skipTime(-10);
             }
             return;
           }
 
-          // 5. DIREITA (▶): NAVEGA NOS BOTÕES OU AVANÇA +10s
-          if (normKey === 'ArrowRight' || normKey === 'MediaFastForward' || (typeof normKey === 'string' && normKey.toLowerCase() === 'l')) {
+          // DIREITA (▶): Navega pelos botões para a direita
+          if (normKey === 'ArrowRight') {
             e.preventDefault();
-            if (isRailOpen) {
-              resetTvQuickRailTimer();
-              const btns = Array.from(rail.querySelectorAll('.tv-quick-btn'));
-              const cur = document.querySelector('#tvPlayerQuickRail .tv-focused') || document.activeElement;
-              const idx = btns.indexOf(cur);
-              if (idx !== -1 && idx < btns.length - 1) setTvFocus(btns[idx + 1]);
-              else if (idx === -1 && btns.length > 0) setTvFocus(btns[0]);
+            if (playerControls.length > 0) {
+              const idx = playerControls.indexOf(currentCtrl);
+              if (idx !== -1 && idx < playerControls.length - 1) {
+                setTvFocus(playerControls[idx + 1]);
+              } else if (idx === -1) {
+                setTvFocus(playerControls[0]);
+              }
             } else {
               skipTime(10);
             }
