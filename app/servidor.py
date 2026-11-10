@@ -1029,7 +1029,9 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
             self.send_header('Pragma', 'no-cache')
             self.send_header('Expires', '0')
-        self.send_header('Access-Control-Allow-Origin', '*')
+        has_cors = any(b'access-control-allow-origin' in h.lower() for h in getattr(self, '_headers_buffer', []))
+        if not has_cors:
+            self.send_header('Access-Control-Allow-Origin', '*')
         super().end_headers()
 
     def proxy_torrent_api(self, method, body=None):
