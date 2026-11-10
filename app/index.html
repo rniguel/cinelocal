@@ -8658,7 +8658,11 @@ function escapeHtml(str) {
 
     document.addEventListener('DOMContentLoaded', async () => {
       detectProtocol();
-      loadVerifiedIptvChannels();
+      try {
+        loadVerifiedIptvChannels();
+      } catch (e) {
+        console.warn('[IPTV Loader] Aviso:', e);
+      }
       setupKeyboardShortcuts();
       setupSeekDrag();
       setupSeekHoverPreview();
@@ -9652,6 +9656,33 @@ function escapeHtml(str) {
             "verified": true
       }
 ];
+
+    window.VERIFIED_LIVETV_CHANNELS = null;
+    let currentLiveTvSearch = '';
+
+    async function loadVerifiedIptvChannels() {
+      try {
+        const res = await fetch('/app/iptv_verified.json');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            window.VERIFIED_LIVETV_CHANNELS = data;
+            const badge = document.getElementById('liveTvOnlineBadgeText');
+            if (badge) badge.innerText = `${data.length} Canais Testados e 100% Online`;
+            if (state.currentView === 'liveTv') {
+              renderLiveTvChannels();
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('[CineLocal IPTV] Usando canais padrão embutidos:', err);
+      }
+    }
+
+    function onLiveTvSearchChange(query) {
+      currentLiveTvSearch = (query || '').trim().toLowerCase();
+      renderLiveTvChannels();
+    }
 
     function getLiveTvChannels() {
       let customChannels = [];

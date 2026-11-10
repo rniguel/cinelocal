@@ -1518,6 +1518,34 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
         client_ip = self.client_address[0]
         parsed = urllib.parse.urlparse(self.path)
 
+        # Alias para catalogo.js na raiz
+        if parsed.path in ('/catalogo.js', '/catalogo.js/'):
+            cat_file = os.path.join(APP_DIR, 'catalogo.js')
+            if os.path.exists(cat_file):
+                with open(cat_file, 'rb') as f:
+                    data = f.read()
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/javascript; charset=utf-8')
+                self.send_header('Content-Length', str(len(data)))
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(data)
+                return
+
+        # Alias para iptv_verified.json na raiz
+        if parsed.path in ('/iptv_verified.json', '/app/iptv_verified.json'):
+            iptv_file = os.path.join(APP_DIR, 'iptv_verified.json')
+            if os.path.exists(iptv_file):
+                with open(iptv_file, 'rb') as f:
+                    data = f.read()
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Content-Length', str(len(data)))
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(data)
+                return
+
         # Proxy HLS de TV ao Vivo (Elimina bloqueios de CORS e travamentos de buffer)
         if parsed.path == '/api/live_proxy':
             self.handle_live_proxy(parsed)
