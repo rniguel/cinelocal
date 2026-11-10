@@ -2024,6 +2024,465 @@
     }
 
     /* ========================================================================= */
+    /* 📡 ESTILOS PARA LAYOUT DE TV AO VIVO COM SUBMENU LATERAL (RAIL DE CATEGORIAS) */
+    /* ========================================================================= */
+    .livetv-view-wrapper {
+      padding: 24px 36px 60px 24px;
+      box-sizing: border-box;
+      min-height: 100vh;
+    }
+
+    .livetv-stage-layout {
+      display: flex;
+      gap: 28px;
+      align-items: flex-start;
+      position: relative;
+    }
+
+    /* SUBMENU LATERAL FIXO / STICKY */
+    .livetv-category-rail {
+      width: 290px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 20px;
+      max-height: calc(100vh - 40px);
+      display: flex;
+      flex-direction: column;
+      background: rgba(14, 20, 32, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 18px 14px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+      box-sizing: border-box;
+      z-index: 20;
+    }
+
+    body.is-tv .livetv-category-rail {
+      background: #0d131f !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    .livetv-rail-header {
+      margin-bottom: 12px;
+    }
+
+    .livetv-rail-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      letter-spacing: 0.3px;
+    }
+
+    .livetv-pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+      display: inline-block;
+      animation: pulseDotLive 1.5s infinite;
+    }
+
+    @keyframes pulseDotLive {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .livetv-rail-search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 0 12px;
+      transition: all 0.2s ease;
+    }
+
+    .livetv-rail-search-box:focus-within,
+    .livetv-rail-search-box.has-focus {
+      border-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.08);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
+    }
+
+    .livetv-search-icon {
+      color: #94a3b8;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
+    .livetv-search-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #ffffff;
+      font-size: 13.5px;
+      padding: 10px 0;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    .livetv-search-input::placeholder {
+      color: #64748b;
+    }
+
+    .livetv-search-clear {
+      background: rgba(255, 255, 255, 0.12);
+      border: none;
+      color: #cbd5e1;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 6px;
+      transition: background 0.15s ease;
+    }
+
+    .livetv-search-clear:hover {
+      background: rgba(255, 255, 255, 0.25);
+      color: #fff;
+    }
+
+    /* NAVEGAÇÃO DE CATEGORIAS (SUBMENU) */
+    .livetv-category-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow-y: auto;
+      flex: 1;
+      padding-right: 2px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    }
+
+    .livetv-category-nav::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .livetv-category-nav::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+
+    .livetv-rail-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 13px;
+      border-radius: 12px;
+      background: transparent;
+      border: 1.5px solid transparent;
+      color: #cbd5e1;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s cubic-bezier(0.2, 0, 0, 1);
+      outline: none;
+      width: 100%;
+      box-sizing: border-box;
+      text-align: left;
+    }
+
+    .livetv-rail-item-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .livetv-rail-item-icon {
+      font-size: 17px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      flex-shrink: 0;
+    }
+
+    .livetv-rail-count-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #94a3b8;
+      flex-shrink: 0;
+      margin-left: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .livetv-rail-item:hover,
+    .livetv-rail-item.tv-focused {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      transform: translateX(4px);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .livetv-rail-item.active {
+      background: linear-gradient(90deg, rgba(229, 9, 20, 0.9), rgba(185, 28, 28, 0.9));
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(229, 9, 20, 0.4);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .livetv-rail-item.active .livetv-rail-count-badge {
+      background: rgba(0, 0, 0, 0.35);
+      color: #ffffff;
+    }
+
+    .livetv-rail-item.active.tv-focused {
+      border-color: #ffffff !important;
+      transform: translateX(6px) scale(1.02);
+      box-shadow: 0 0 22px rgba(229, 9, 20, 0.7), 0 0 0 2px #ffffff;
+    }
+
+    .livetv-rail-footer {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .livetv-rail-config-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #94a3b8;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      outline: none;
+    }
+
+    .livetv-rail-config-btn:hover,
+    .livetv-rail-config-btn.tv-focused {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+      border-color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    /* ÁREA PRINCIPAL DOS CANAIS */
+    .livetv-main-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .livetv-content-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .livetv-header-title-box h2 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0 0 6px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .livetv-header-title-box p {
+      font-size: 13.5px;
+      color: #94a3b8;
+      margin: 0;
+    }
+
+    .livetv-reload-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #e2e8f0;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      outline: none;
+    }
+
+    .livetv-reload-btn:hover,
+    .livetv-reload-btn.tv-focused {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: #ffffff;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+    }
+
+    /* GRID RESPONSIVO DE CANAIS */
+    .livetv-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    /* BOTÃO DE FAVORITO NO CARD */
+    .livetv-fav-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 6;
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      outline: none;
+      padding: 0;
+    }
+
+    .livetv-fav-btn:hover,
+    .livetv-fav-btn.tv-focused {
+      transform: scale(1.15);
+      background: rgba(0, 0, 0, 0.85);
+      border-color: #facc15;
+    }
+
+    .livetv-fav-star {
+      font-size: 17px;
+      line-height: 1;
+      color: rgba(255, 255, 255, 0.5);
+      transition: all 0.18s ease;
+    }
+
+    .livetv-fav-star.starred {
+      color: #facc15;
+      text-shadow: 0 0 8px rgba(250, 204, 21, 0.8);
+    }
+
+    .btn-livetv-fav-inline {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      outline: none;
+    }
+
+    .btn-livetv-fav-inline.starred {
+      background: rgba(250, 204, 21, 0.15);
+      border-color: #facc15;
+      color: #facc15;
+    }
+
+    .btn-livetv-fav-inline:hover,
+    .btn-livetv-fav-inline.tv-focused {
+      background: rgba(250, 204, 21, 0.25);
+      border-color: #facc15;
+      color: #facc15;
+    }
+
+    /* EMPTY STATE */
+    .livetv-empty-box {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      background: rgba(15, 21, 35, 0.5);
+      border: 1.5px dashed rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      margin: 20px 0;
+    }
+
+    .livetv-empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .livetv-empty-box h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+
+    .livetv-empty-box p {
+      color: #94a3b8;
+      font-size: 14px;
+      max-width: 480px;
+      margin: 0 auto 20px;
+    }
+
+    .livetv-empty-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .livetv-empty-btn:hover,
+    .livetv-empty-btn.tv-focused {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
+    }
+
+    @media (max-width: 900px) {
+      .livetv-stage-layout {
+        flex-direction: column;
+      }
+      .livetv-category-rail {
+        width: 100%;
+        position: static;
+        max-height: none;
+      }
+    }
+
+    /* ========================================================================= */
     /* 📺 CINELOCAL SMART TV PRO EXPERIENCE (AWWWARDS / APPLE TV+ GRADE)          */
     /* ========================================================================= */
     body.is-tv {
@@ -6817,33 +7276,66 @@
     </div>
   </main>
 
-  <!-- VIEW DEDICADA: TV AO VIVO & IPTV (#liveTvView) -->
-  <main id="liveTvView" class="view-container" style="display: none;">
-    <div class="view-header">
-      <div class="view-title-group">
-        <h2>📡 TV ao Vivo & Canais IPTV</h2>
-        <p id="liveTvCountLabel">Canais abertos, notícias, esportes e entretenimento 24h via streaming IP</p>
-      </div>
+  <!-- VIEW DEDICADA: TV AO VIVO & IPTV (#liveTvView) COM SUBMENU LATERAL -->
+  <main id="liveTvView" class="view-container livetv-view-wrapper" style="display: none;">
+    <div class="livetv-stage-layout">
+      <!-- SUBMENU LATERAL FIXO (CATEGORY & FILTER RAIL) -->
+      <aside class="livetv-category-rail" id="liveTvCategoryRail">
+        <div class="livetv-rail-header">
+          <div class="livetv-rail-badge" id="liveTvOnlineBadgeText">
+            <span class="livetv-pulse-dot"></span> 750+ Canais Online
+          </div>
+          <!-- CAMPO DE BUSCA RÁPIDA -->
+          <div class="livetv-rail-search-box">
+            <svg class="livetv-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="liveTvSearchInput" class="livetv-search-input dpad-focusable" placeholder="Buscar canal..." oninput="onLiveTvSearchChange(this.value)">
+            <button id="liveTvSearchClearBtn" class="livetv-search-clear" onclick="clearLiveTvSearch()" style="display: none;">✕</button>
+          </div>
+        </div>
 
-      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-        <button class="btn-profile-action dpad-focusable" onclick="openIptvModal()" style="padding: 9px 20px; font-size: 13.5px;">
-          <span>⚙️ Configurar Lista IPTV / M3U</span>
-        </button>
-      </div>
-    </div>
+        <!-- LISTA DE CATEGORIAS / SUBMENU -->
+        <nav class="livetv-category-nav" id="liveTvCategoryNav">
+          <!-- Injetado dinamicamente por renderLiveTvCategoriesRail() -->
+        </nav>
 
-    <!-- CHIPS DE CATEGORIAS DE CANAIS -->
-    <div class="search-chips-row" id="liveTvChipsRow" style="margin-bottom: 24px;">
-      <button class="search-chip active dpad-focusable" onclick="filterLiveTv('all', this)">🔥 Todos os Canais</button>
-      <button class="search-chip dpad-focusable" onclick="filterLiveTv('abertos', this)">📺 Abertos & Notícias</button>
-      <button class="search-chip dpad-focusable" onclick="filterLiveTv('esportes', this)">⚽ Esportes</button>
-      <button class="search-chip dpad-focusable" onclick="filterLiveTv('filmes', this)">🍿 Filmes & Séries</button>
-      <button class="search-chip dpad-focusable" onclick="filterLiveTv('infantil', this)">🧸 Infantil & Kids</button>
-    </div>
+        <!-- RODAPÉ DO SUBMENU -->
+        <div class="livetv-rail-footer">
+          <button class="livetv-rail-config-btn dpad-focusable" onclick="openIptvModal()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <span>Configurar Lista M3U</span>
+          </button>
+        </div>
+      </aside>
 
-    <!-- GRID DE CANAIS DE TV -->
-    <div class="grid-layout" id="liveTvChannelsGrid" style="grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));">
-      <!-- Injetado dinamicamente -->
+      <!-- ÁREA PRINCIPAL DOS CANAIS -->
+      <section class="livetv-main-content">
+        <div class="livetv-content-header">
+          <div class="livetv-header-title-box">
+            <h2 id="liveTvCategoryTitle">🔥 Todos os Canais</h2>
+            <p id="liveTvCountLabel">Carregando transmissões...</p>
+          </div>
+          <div class="livetv-header-actions">
+            <button class="livetv-reload-btn dpad-focusable" onclick="loadVerifiedIptvChannels(true)" title="Recarregar canais">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              <span>Atualizar Canais</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- GRID DE CARDS DE CANAIS -->
+        <div class="grid-layout livetv-grid" id="liveTvChannelsGrid">
+          <!-- Injetado dinamicamente -->
+        </div>
+      </section>
     </div>
   </main>
 
@@ -8894,8 +9386,19 @@ function escapeHtml(str) {
       if (settingsView) settingsView.style.display = viewName === 'settings' ? 'block' : 'none';
       if (detailView && viewName !== 'detail') detailView.style.display = 'none';
 
-      if (viewName === 'liveTv' && typeof renderLiveTvChannels === 'function') {
-        renderLiveTvChannels();
+      if (viewName === 'liveTv') {
+        if (typeof renderLiveTvCategoriesRail === 'function') {
+          renderLiveTvCategoriesRail();
+        }
+        if (typeof renderLiveTvChannels === 'function') {
+          renderLiveTvChannels();
+        }
+        setTimeout(() => {
+          const activeRailItem = document.querySelector('#liveTvCategoryNav .livetv-rail-item.active') || document.querySelector('#liveTvCategoryNav .livetv-rail-item');
+          if (activeRailItem && typeof setTvFocus === 'function') {
+            setTvFocus(activeRailItem);
+          }
+        }, 80);
       }
 
       collapseSidebar();
@@ -9649,17 +10152,77 @@ function escapeHtml(str) {
 
     window.VERIFIED_LIVETV_CHANNELS = null;
     let currentLiveTvSearch = '';
+    const LIVETV_FAVORITES_KEY = 'cinelocal_iptv_favorites';
 
-    async function loadVerifiedIptvChannels() {
+    const LIVETV_CATEGORIES = [
+      { id: 'favoritos', icon: '⭐', label: 'Meus Favoritos', title: '⭐ Meus Favoritos' },
+      { id: 'all', icon: '🔥', label: 'Todos os Canais', title: '🔥 Todos os Canais' },
+      { id: 'abertos', icon: '📺', label: 'TV Aberta & Notícias', title: '📺 TV Aberta & Notícias' },
+      { id: 'filmes', icon: '🍿', label: 'Filmes & Séries', title: '🍿 Filmes & Séries' },
+      { id: 'esportes', icon: '⚽', label: 'Esportes & Ação', title: '⚽ Esportes & Ação' },
+      { id: 'infantil', icon: '🧸', label: 'Infantil & Kids', title: '🧸 Infantil & Kids' },
+      { id: 'variedades', icon: '🎭', label: 'Variedades & Cultura', title: '🎭 Variedades & Cultura' }
+    ];
+
+    function getLiveTvFavorites() {
       try {
-        const res = await fetch('/app/iptv_verified.json');
+        const raw = localStorage.getItem(LIVETV_FAVORITES_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function isLiveChannelFavorite(channelId) {
+      if (!channelId) return false;
+      const favs = getLiveTvFavorites();
+      return favs.includes(String(channelId));
+    }
+
+    function toggleLiveChannelFavorite(channelId, ev) {
+      if (ev) {
+        ev.stopPropagation();
+        ev.preventDefault();
+      }
+      if (!channelId) return;
+      let favs = getLiveTvFavorites();
+      const idStr = String(channelId);
+      const idx = favs.indexOf(idStr);
+      let isNowFav = false;
+      if (idx !== -1) {
+        favs.splice(idx, 1);
+        isNowFav = false;
+      } else {
+        favs.push(idStr);
+        isNowFav = true;
+      }
+      try {
+        localStorage.setItem(LIVETV_FAVORITES_KEY, JSON.stringify(favs));
+      } catch (e) {}
+
+      if (typeof showToast === 'function') {
+        showToast(isNowFav ? '⭐ Canal adicionado aos Favoritos!' : 'Canal removido dos Favoritos');
+      }
+
+      renderLiveTvCategoriesRail();
+      renderLiveTvChannels();
+    }
+
+    async function loadVerifiedIptvChannels(forceRefresh = false) {
+      try {
+        const url = forceRefresh ? `/app/iptv_verified.json?t=${Date.now()}` : '/app/iptv_verified.json';
+        const res = await fetch(url);
         if (res.ok) {
           const data = await res.json();
           if (Array.isArray(data) && data.length > 0) {
             window.VERIFIED_LIVETV_CHANNELS = data;
             const badge = document.getElementById('liveTvOnlineBadgeText');
-            if (badge) badge.innerText = `${data.length} Canais Testados e 100% Online`;
+            if (badge) badge.innerHTML = `<span class="livetv-pulse-dot"></span> ${data.length} Canais Online`;
+            if (forceRefresh && typeof showToast === 'function') {
+              showToast(`🔄 Lista atualizada com ${data.length} canais!`);
+            }
             if (state.activeView === 'liveTv') {
+              renderLiveTvCategoriesRail();
               renderLiveTvChannels();
             }
           }
@@ -9671,7 +10234,20 @@ function escapeHtml(str) {
 
     function onLiveTvSearchChange(query) {
       currentLiveTvSearch = (query || '').trim().toLowerCase();
+      const clearBtn = document.getElementById('liveTvSearchClearBtn');
+      if (clearBtn) {
+        clearBtn.style.display = currentLiveTvSearch.length > 0 ? 'flex' : 'none';
+      }
       renderLiveTvChannels();
+    }
+
+    function clearLiveTvSearch() {
+      const input = document.getElementById('liveTvSearchInput');
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+      onLiveTvSearchChange('');
     }
 
     function getLiveTvChannels() {
@@ -9687,16 +10263,82 @@ function escapeHtml(str) {
       return [...baseChannels, ...customChannels];
     }
 
+    function renderLiveTvCategoriesRail() {
+      const nav = document.getElementById('liveTvCategoryNav');
+      if (!nav) return;
+
+      const channels = getLiveTvChannels();
+      const favs = getLiveTvFavorites();
+
+      const counts = {
+        favoritos: 0,
+        all: channels.length,
+        abertos: 0,
+        filmes: 0,
+        esportes: 0,
+        infantil: 0,
+        variedades: 0
+      };
+
+      channels.forEach(ch => {
+        if (favs.includes(String(ch.id)) || (ch.streamUrl && favs.includes(String(ch.streamUrl)))) {
+          counts.favoritos++;
+        }
+        const cat = (ch.category || '').toLowerCase();
+        if (counts[cat] !== undefined) {
+          counts[cat]++;
+        } else {
+          counts.variedades++;
+        }
+      });
+
+      nav.innerHTML = LIVETV_CATEGORIES.map(cat => {
+        const isActive = currentLiveTvFilter === cat.id;
+        const count = counts[cat.id] !== undefined ? counts[cat.id] : 0;
+        return `
+          <button class="livetv-rail-item ${isActive ? 'active' : ''} dpad-focusable" data-cat="${cat.id}" onclick="selectLiveTvCategory('${cat.id}', this)" tabindex="0">
+            <span class="livetv-rail-item-label">
+              <span class="livetv-rail-item-icon">${cat.icon}</span>
+              <span>${cat.label}</span>
+            </span>
+            <span class="livetv-rail-count-badge">${count}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectLiveTvCategory(catId, btn) {
+      currentLiveTvFilter = catId;
+      document.querySelectorAll('#liveTvCategoryNav .livetv-rail-item').forEach(b => {
+        b.classList.remove('active');
+        if (b.getAttribute('data-cat') === catId) b.classList.add('active');
+      });
+      renderLiveTvChannels();
+    }
+
+    function filterLiveTv(category, btn) {
+      selectLiveTvCategory(category, btn);
+    }
+
     function renderLiveTvChannels() {
       const grid = document.getElementById('liveTvChannelsGrid');
       const countLabel = document.getElementById('liveTvCountLabel');
+      const titleEl = document.getElementById('liveTvCategoryTitle');
       if (!grid) return;
 
       const channels = getLiveTvChannels();
+      const favs = getLiveTvFavorites();
       let filtered = channels;
 
-      if (currentLiveTvFilter !== 'all') {
-        filtered = channels.filter(c => c.category === currentLiveTvFilter);
+      if (currentLiveTvFilter === 'favoritos') {
+        filtered = channels.filter(c => favs.includes(String(c.id)) || (c.streamUrl && favs.includes(String(c.streamUrl))));
+      } else if (currentLiveTvFilter !== 'all') {
+        if (currentLiveTvFilter === 'variedades') {
+          const knownCats = ['abertos', 'filmes', 'esportes', 'infantil'];
+          filtered = channels.filter(c => !knownCats.includes((c.category || '').toLowerCase()));
+        } else {
+          filtered = channels.filter(c => (c.category || '').toLowerCase() === currentLiveTvFilter);
+        }
       }
 
       if (typeof isKidsModeActive === 'function' && isKidsModeActive()) {
@@ -9707,20 +10349,69 @@ function escapeHtml(str) {
         filtered = filtered.filter(c => 
           (c.name && c.name.toLowerCase().includes(currentLiveTvSearch)) ||
           (c.categoryLabel && c.categoryLabel.toLowerCase().includes(currentLiveTvSearch)) ||
-          (c.description && c.description.toLowerCase().includes(currentLiveTvSearch))
+          (c.description && c.description.toLowerCase().includes(currentLiveTvSearch)) ||
+          (c.source && c.source.toLowerCase().includes(currentLiveTvSearch))
         );
       }
 
+      const activeCatDef = LIVETV_CATEGORIES.find(c => c.id === currentLiveTvFilter);
+      if (titleEl) {
+        titleEl.innerText = activeCatDef ? activeCatDef.title : '📺 Canais ao Vivo';
+      }
+
       if (countLabel) {
-        countLabel.innerText = `${filtered.length} canais ao vivo disponíveis em alta definição`;
+        countLabel.innerText = `${filtered.length} ${filtered.length === 1 ? 'canal disponível' : 'canais disponíveis'} em alta definição`;
+      }
+
+      if (filtered.length === 0) {
+        if (currentLiveTvFilter === 'favoritos') {
+          grid.innerHTML = `
+            <div class="livetv-empty-box">
+              <div class="livetv-empty-icon">⭐</div>
+              <h3>Nenhum canal favoritado ainda</h3>
+              <p>Clique no ícone de estrela dos canais que você mais assiste para criar a sua grade personalizada!</p>
+              <button class="livetv-empty-btn dpad-focusable" onclick="selectLiveTvCategory('all')">
+                <span>🔥 Explorar Todos os Canais</span>
+              </button>
+            </div>
+          `;
+        } else if (currentLiveTvSearch) {
+          grid.innerHTML = `
+            <div class="livetv-empty-box">
+              <div class="livetv-empty-icon">🔍</div>
+              <h3>Nenhum canal encontrado</h3>
+              <p>Não encontramos nenhum canal correspondente a "<strong>${escapeHtml(currentLiveTvSearch)}</strong>".</p>
+              <button class="livetv-empty-btn dpad-focusable" onclick="clearLiveTvSearch()">
+                <span>Limpar Busca</span>
+              </button>
+            </div>
+          `;
+        } else {
+          grid.innerHTML = `
+            <div class="livetv-empty-box">
+              <div class="livetv-empty-icon">📡</div>
+              <h3>Nenhum canal disponível nesta categoria</h3>
+              <p>Tente selecionar outra categoria no menu lateral ou atualizar a lista de canais.</p>
+              <button class="livetv-empty-btn dpad-focusable" onclick="selectLiveTvCategory('all')">
+                <span>Ver Todos os Canais</span>
+              </button>
+            </div>
+          `;
+        }
+        return;
       }
 
       grid.innerHTML = filtered.map((ch, idx) => {
         const chJson = JSON.stringify(ch).replace(/"/g, '&quot;');
+        const chId = String(ch.id || ch.streamUrl);
+        const isFav = favs.includes(chId);
         return `
-          <div class="livetv-card dpad-focusable" tabindex="0" onclick="playLiveChannel(${chJson})">
+          <div class="livetv-card dpad-focusable" tabindex="0" data-channel-id="${escapeHtml(chId)}" onclick="playLiveChannel(${chJson})">
             <div class="livetv-thumb-wrap">
               <span class="livetv-badge-live">🔴 AO VIVO</span>
+              <button class="livetv-fav-btn" onclick="toggleLiveChannelFavorite('${escapeHtml(chId)}', event)" title="${isFav ? 'Remover dos favoritos' : 'Favoritar canal'}" tabindex="0">
+                <span class="livetv-fav-star ${isFav ? 'starred' : ''}">${isFav ? '★' : '☆'}</span>
+              </button>
               <span class="livetv-badge-res">${ch.resolution || 'HD'}</span>
               <img class="livetv-logo" src="${ch.logo}" alt="${escapeHtml(ch.name)}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'80\' height=\'80\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23fff\' stroke-width=\'2\'><rect x=\'2\' y=\'7\' width=\'20\' height=\'15\' rx=\'2\' ry=\'2\'/><polyline points=\'17 2 12 7 7 2\'/></svg>'">
             </div>
@@ -9735,7 +10426,10 @@ function escapeHtml(str) {
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                     <polygon points="5 3 19 12 5 21 5 3"></polygon>
                   </svg>
-                  <span>Assistir ao Vivo</span>
+                  <span>Assistir</span>
+                </button>
+                <button class="btn-livetv-fav-inline ${isFav ? 'starred' : ''}" onclick="event.stopPropagation(); toggleLiveChannelFavorite('${escapeHtml(chId)}', event)" title="${isFav ? 'Remover dos Favoritos' : 'Favoritar canal'}">
+                  <span>${isFav ? '⭐ Salvo' : '☆ Salvar'}</span>
                 </button>
                 <button class="btn-livetv-vlc dpad-focusable" onclick="event.stopPropagation(); openLiveChannelInVlc(${chJson})" title="Assistir no VLC Media Player" tabindex="0">
                   <span>VLC</span>
@@ -9745,13 +10439,6 @@ function escapeHtml(str) {
           </div>
         `;
       }).join('');
-    }
-
-    function filterLiveTv(category, btn) {
-      currentLiveTvFilter = category;
-      document.querySelectorAll('#liveTvChipsRow .search-chip').forEach(c => c.classList.remove('active'));
-      if (btn) btn.classList.add('active');
-      renderLiveTvChannels();
     }
 
     function getLiveStreamUrl(rawUrl) {
@@ -15658,14 +16345,20 @@ function escapeHtml(str) {
       const liveTvView = document.getElementById('liveTvView');
       if (liveTvView && window.getComputedStyle(liveTvView).display !== 'none') {
         const tvInput = document.getElementById('liveTvSearchInput');
-        const tvChips = Array.from(liveTvView.querySelectorAll('#liveTvChipsRow .search-chip'));
+        const railItems = Array.from(liveTvView.querySelectorAll('#liveTvCategoryNav .livetv-rail-item'));
+        const configBtn = liveTvView.querySelector('.livetv-rail-config-btn');
+        const reloadBtn = liveTvView.querySelector('.livetv-reload-btn');
         const tvCards = Array.from(liveTvView.querySelectorAll('#liveTvChannelsGrid .livetv-card'));
 
         // Campo de busca de TV
         if (currentFocused === tvInput) {
           if (key === 'ArrowDown') {
-            const activeChip = liveTvView.querySelector('#liveTvChipsRow .search-chip.active') || tvChips[0];
-            if (activeChip) setTvFocus(activeChip);
+            const activeRailItem = liveTvView.querySelector('#liveTvCategoryNav .livetv-rail-item.active') || railItems[0];
+            if (activeRailItem) setTvFocus(activeRailItem);
+            else if (tvCards.length > 0) setTvFocus(tvCards[0]);
+            return;
+          } else if (key === 'ArrowRight') {
+            if (reloadBtn) setTvFocus(reloadBtn);
             else if (tvCards.length > 0) setTvFocus(tvCards[0]);
             return;
           } else if (key === 'ArrowLeft') {
@@ -15677,22 +16370,67 @@ function escapeHtml(str) {
           return;
         }
 
-        // Chips de categoria de TV
-        const chipIdx = tvChips.indexOf(currentFocused);
-        if (chipIdx !== -1) {
-          if (key === 'ArrowRight' && chipIdx < tvChips.length - 1) setTvFocus(tvChips[chipIdx + 1]);
-          else if (key === 'ArrowLeft') {
-            if (chipIdx === 0) {
-              expandSidebar();
-              const sideTv = document.getElementById('sideBtnLiveTv');
-              if (sideTv) setTvFocus(sideTv);
-            } else {
-              setTvFocus(tvChips[chipIdx - 1]);
+        // Submenu lateral de categorias
+        const railIdx = railItems.indexOf(currentFocused);
+        if (railIdx !== -1) {
+          if (key === 'ArrowDown') {
+            if (railIdx < railItems.length - 1) {
+              setTvFocus(railItems[railIdx + 1]);
+            } else if (configBtn) {
+              setTvFocus(configBtn);
             }
+            return;
           } else if (key === 'ArrowUp') {
-            if (tvInput) setTvFocus(tvInput);
-          } else if (key === 'ArrowDown') {
+            if (railIdx > 0) {
+              setTvFocus(railItems[railIdx - 1]);
+            } else if (tvInput) {
+              setTvFocus(tvInput);
+            }
+            return;
+          } else if (key === 'ArrowRight') {
+            const catId = currentFocused.getAttribute('data-cat');
+            if (catId && catId !== currentLiveTvFilter) {
+              selectLiveTvCategory(catId, currentFocused);
+            }
+            if (tvCards.length > 0) {
+              setTvFocus(tvCards[0]);
+            }
+            return;
+          } else if (key === 'ArrowLeft') {
+            expandSidebar();
+            const sideTv = document.getElementById('sideBtnLiveTv');
+            if (sideTv) setTvFocus(sideTv);
+            return;
+          }
+          return;
+        }
+
+        // Botão Configurar Lista M3U no rodapé do submenu
+        if (currentFocused === configBtn) {
+          if (key === 'ArrowUp') {
+            if (railItems.length > 0) setTvFocus(railItems[railItems.length - 1]);
+            return;
+          } else if (key === 'ArrowRight') {
             if (tvCards.length > 0) setTvFocus(tvCards[0]);
+            return;
+          } else if (key === 'ArrowLeft') {
+            expandSidebar();
+            const sideTv = document.getElementById('sideBtnLiveTv');
+            if (sideTv) setTvFocus(sideTv);
+            return;
+          }
+          return;
+        }
+
+        // Botão Atualizar Canais
+        if (currentFocused === reloadBtn) {
+          if (key === 'ArrowDown') {
+            if (tvCards.length > 0) setTvFocus(tvCards[0]);
+            return;
+          } else if (key === 'ArrowLeft') {
+            const activeRailItem = liveTvView.querySelector('#liveTvCategoryNav .livetv-rail-item.active') || railItems[0];
+            if (activeRailItem) setTvFocus(activeRailItem);
+            return;
           }
           return;
         }
@@ -15701,32 +16439,43 @@ function escapeHtml(str) {
         const cIdx = tvCards.indexOf(currentFocused);
         if (cIdx !== -1) {
           const cardWidth = currentFocused.offsetWidth || 280;
-          const gridWidth = document.getElementById('liveTvChannelsGrid')?.clientWidth || 1200;
+          const gridWidth = document.getElementById('liveTvChannelsGrid')?.clientWidth || 1000;
           const cols = Math.max(1, Math.floor(gridWidth / (cardWidth + 16)));
 
-          if (key === 'ArrowRight' && cIdx < tvCards.length - 1) setTvFocus(tvCards[cIdx + 1]);
-          else if (key === 'ArrowLeft') {
+          if (key === 'ArrowRight' && cIdx < tvCards.length - 1) {
+            setTvFocus(tvCards[cIdx + 1]);
+            return;
+          } else if (key === 'ArrowLeft') {
             if (cIdx % cols === 0) {
-              expandSidebar();
-              const sideTv = document.getElementById('sideBtnLiveTv');
-              if (sideTv) setTvFocus(sideTv);
+              const activeRailItem = liveTvView.querySelector('#liveTvCategoryNav .livetv-rail-item.active') || railItems[0];
+              if (activeRailItem) setTvFocus(activeRailItem);
+              else if (tvInput) setTvFocus(tvInput);
             } else {
               setTvFocus(tvCards[cIdx - 1]);
             }
-          } else if (key === 'ArrowDown' && cIdx + cols < tvCards.length) {
-            setTvFocus(tvCards[cIdx + cols]);
+            return;
+          } else if (key === 'ArrowDown') {
+            if (cIdx + cols < tvCards.length) {
+              setTvFocus(tvCards[cIdx + cols]);
+            }
+            return;
           } else if (key === 'ArrowUp') {
             if (cIdx - cols >= 0) {
               setTvFocus(tvCards[cIdx - cols]);
             } else {
-              const activeChip = liveTvView.querySelector('#liveTvChipsRow .search-chip.active') || tvChips[0];
-              if (activeChip) setTvFocus(activeChip);
-              else if (tvInput) setTvFocus(tvInput);
+              if (reloadBtn) setTvFocus(reloadBtn);
+              else {
+                const activeRailItem = liveTvView.querySelector('#liveTvCategoryNav .livetv-rail-item.active') || railItems[0];
+                if (activeRailItem) setTvFocus(activeRailItem);
+              }
             }
+            return;
           }
           return;
         } else if (tvCards.length > 0) {
-          setTvFocus(tvCards[0]);
+          const activeRailItem = liveTvView.querySelector('#liveTvCategoryNav .livetv-rail-item.active') || railItems[0];
+          if (activeRailItem) setTvFocus(activeRailItem);
+          else setTvFocus(tvCards[0]);
           return;
         }
       }
@@ -16036,17 +16785,41 @@ function escapeHtml(str) {
             e.target.blur();
             switchView('home');
             return;
-          } else if (normKey === 'ArrowDown') {
-            e.target.blur();
-            const firstChip = document.querySelector('.search-chip') || document.querySelector('#searchResultsGrid .movie-card');
-            if (firstChip && typeof setTvFocus === 'function') setTvFocus(firstChip);
-            return;
-          } else if (normKey === 'ArrowLeft') {
-            e.target.blur();
-            expandSidebar();
-            const sideSearch = document.getElementById('sideBtnSearch');
-            if (sideSearch && typeof setTvFocus === 'function') setTvFocus(sideSearch);
-            return;
+          }
+          if (e.target.id === 'liveTvSearchInput') {
+            if (normKey === 'ArrowDown') {
+              e.preventDefault();
+              e.target.blur();
+              const activeRailItem = document.querySelector('#liveTvCategoryNav .livetv-rail-item.active') || document.querySelector('#liveTvCategoryNav .livetv-rail-item');
+              if (activeRailItem && typeof setTvFocus === 'function') setTvFocus(activeRailItem);
+              return;
+            } else if (normKey === 'ArrowRight') {
+              e.preventDefault();
+              e.target.blur();
+              const firstCard = document.querySelector('#liveTvChannelsGrid .livetv-card');
+              if (firstCard && typeof setTvFocus === 'function') setTvFocus(firstCard);
+              return;
+            } else if (normKey === 'ArrowLeft') {
+              e.preventDefault();
+              e.target.blur();
+              expandSidebar();
+              const sideTv = document.getElementById('sideBtnLiveTv');
+              if (sideTv && typeof setTvFocus === 'function') setTvFocus(sideTv);
+              return;
+            }
+          } else {
+            if (normKey === 'ArrowDown') {
+              e.target.blur();
+              const firstChip = document.querySelector('.search-chip') || document.querySelector('#searchResultsGrid .movie-card');
+              if (firstChip && typeof setTvFocus === 'function') setTvFocus(firstChip);
+              return;
+            } else if (normKey === 'ArrowLeft') {
+              e.target.blur();
+              expandSidebar();
+              const sideSearch = document.getElementById('sideBtnSearch');
+              if (sideSearch && typeof setTvFocus === 'function') setTvFocus(sideSearch);
+              return;
+            }
           }
           return;
         }
@@ -16230,6 +17003,16 @@ function escapeHtml(str) {
             if (searchInput) {
               searchInput.focus();
               searchInput.select();
+            }
+          } else if ((normKey === 'f' || normKey === 'F' || e.keyCode === 405) && state.activeView === 'liveTv') {
+            const focusedCard = document.querySelector('#liveTvChannelsGrid .livetv-card.tv-focused') || (document.activeElement && document.activeElement.closest('.livetv-card'));
+            if (focusedCard) {
+              const chId = focusedCard.getAttribute('data-channel-id');
+              if (chId && typeof toggleLiveChannelFavorite === 'function') {
+                e.preventDefault();
+                toggleLiveChannelFavorite(chId);
+                return;
+              }
             }
           } else if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(normKey)) {
             e.preventDefault();
