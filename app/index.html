@@ -2042,102 +2042,40 @@
       scroll-behavior: auto !important;
     }
 
-    /* HEADER FLUTUANTE CLEAN PARA SMART TV */
-    body.is-tv header {
+    /* HEADER OCULTO NA SMART TV - A SIDEBAR NETFLIX É O MENU OFICIAL ÚNICO */
+    body.is-tv header,
+    body header {
+      display: none !important;
+    }
+
+    body.is-tv .netflix-sidebar {
       position: fixed !important;
       top: 0 !important;
+      bottom: 0 !important;
       left: 0 !important;
-      right: 0 !important;
-      height: 70px !important;
-      padding: 0 48px !important;
-      background: linear-gradient(180deg, rgba(6, 8, 13, 0.96) 0%, rgba(6, 8, 13, 0.6) 70%, transparent 100%) !important;
-      border-bottom: none !important;
-      z-index: 100 !important;
+      width: 88px !important;
+      z-index: 950 !important;
       display: flex !important;
-      align-items: center !important;
+      visibility: visible !important;
+      opacity: 1 !important;
     }
 
-    body.is-tv .header-content {
-      width: 100% !important;
-      max-width: 100% !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: space-between !important;
+    body.is-tv .netflix-sidebar.expanded,
+    body.is-tv .netflix-sidebar:hover,
+    body.is-tv .netflix-sidebar:focus-within {
+      width: 260px !important;
     }
 
-    body.is-tv .header-left {
-      display: flex !important;
-      align-items: center !important;
-      gap: 36px !important;
-    }
-
-    body.is-tv .brand-title {
-      font-size: 26px !important;
-      font-weight: 800 !important;
-      letter-spacing: -0.5px !important;
-    }
-
-    body.is-tv .brand-badge {
-      display: none !important;
-    }
-
-    body.is-tv .main-nav {
-      display: flex !important;
-      align-items: center !important;
-      gap: 12px !important;
-    }
-
-    body.is-tv .main-nav .nav-btn {
-      padding: 8px 20px !important;
-      font-size: 16px !important;
-      font-weight: 700 !important;
-      color: rgba(255, 255, 255, 0.65) !important;
-      border-radius: 999px !important;
-      border: 2px solid transparent !important;
-      background: transparent !important;
-      transition: all 0.12s ease-out !important;
-      cursor: pointer;
-    }
-
-    body.is-tv .main-nav .nav-btn.active {
-      color: #fff !important;
-      background: rgba(255, 255, 255, 0.12) !important;
-    }
-
-    body.is-tv .main-nav .nav-btn.tv-focused {
-      color: #fff !important;
-      background: var(--primary) !important;
-      border-color: #fff !important;
-      transform: scale(1.08) !important;
-      box-shadow: 0 0 24px rgba(229, 9, 20, 0.75) !important;
-      outline: none !important;
-    }
-
-    /* Oculta ferramentas e formulários desktop da TV */
-    body.is-tv .header-right .search-container,
-    body.is-tv .header-right .btn-header-action,
-    body.is-tv .header-right .dropdown,
-    body.is-tv .header-right .mobile-search-toggle-btn,
-    body.is-tv .header-right .mobile-hamburger-btn {
-      display: none !important;
-    }
-
-    body.is-tv .tv-header-info {
-      display: flex !important;
-      align-items: center !important;
-      gap: 12px !important;
-      font-size: 16px !important;
-      font-weight: 700 !important;
-      color: rgba(255, 255, 255, 0.85) !important;
-      font-family: monospace !important;
-    }
-
-    body.is-tv .tv-status-dot {
-      width: 9px !important;
-      height: 9px !important;
-      border-radius: 50% !important;
-      background: #22c55e !important;
-      box-shadow: 0 0 10px #22c55e !important;
+    body.is-tv #homeView,
+    body.is-tv #moviesView,
+    body.is-tv #seriesView,
+    body.is-tv #liveTvView,
+    body.is-tv #searchView,
+    body.is-tv #mediaDetailView,
+    body.is-tv #settingsView {
+      padding-left: 88px !important;
+      padding-top: 0 !important;
+      box-sizing: border-box !important;
     }
 
     /* HERO BANNER CINEMATOGRÁFICO NA TV */
