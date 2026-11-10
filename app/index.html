@@ -2,6 +2,9 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>CineLocal - Home Theater & Streaming</title>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
@@ -463,15 +466,15 @@
     .detail-backdrop-art {
       position: absolute;
       top: 0;
-      right: 0;
-      width: 88%;
+      left: 0;
+      width: 100%;
       height: 100%;
       background-size: cover;
-      background-position: center 15%;
+      background-position: center 20%;
       background-repeat: no-repeat;
       z-index: 2;
       pointer-events: none;
-      transform: scale(1.08);
+      transform: scale(1.04);
       transition: transform 12s cubic-bezier(0.1, 0, 0.2, 1), background-image 0.6s ease-in-out;
     }
 
@@ -1281,6 +1284,43 @@
       box-shadow: 0 0 25px rgba(229, 9, 20, 0.55);
     }
     
+    
+    /* AJUSTES DE GRID E BANNERS DA BUSCA & SMART TV */
+    body.is-tv .grid-layout .movie-card,
+    body.is-tv .search-results-grid .movie-card {
+      width: 100% !important;
+      flex: 1 1 auto !important;
+      max-width: 100% !important;
+    }
+
+    .search-results-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)) !important;
+      gap: 24px !important;
+      margin-top: 24px !important;
+    }
+
+    .movie-card.has-no-poster {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    .detail-ep-thumb-wrap.no-thumb {
+      background: linear-gradient(135deg, #1e293b 0%, #090d16 100%) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    .detail-ep-thumb-wrap.no-thumb::after {
+      content: '🎬 CineLocal';
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
     /* ========================================================================= */
     /* 🍿 SIDEBAR NETFLIX - DESIGN PREMIUM COM INDICADOR LATERAL & ÍCONE NÍTIDO  */
     /* ========================================================================= */
@@ -8684,7 +8724,15 @@ function escapeHtml(str) {
 
       // Registro de PWA Service Worker (Cache offline & Instalação)
       if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration skipped:', err));
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+          reg.update();
+        }).catch(err => console.log('SW registration skipped:', err));
+
+        navigator.serviceWorker.addEventListener('message', (event) => {
+          if (event.data && event.data.action === 'force-reload') {
+            window.location.reload();
+          }
+        });
       }
 
       window.addEventListener('beforeinstallprompt', (e) => {
@@ -10686,6 +10734,15 @@ function escapeHtml(str) {
       fetchEpisodeIntroTimestamps(series, ep);
     }
 
+        function playDetailEpisode(seasonIdx, epIdx) {
+      if (!currentDetailMedia || !currentDetailMedia.seasons) return;
+      const season = currentDetailMedia.seasons[seasonIdx];
+      if (!season || !season.episodes) return;
+      const ep = season.episodes[epIdx];
+      if (!ep) return;
+      openEpisodePlayer(currentDetailMedia, season, ep);
+    }
+
     function renderDetailSeriesEpisodes(series, seasonIdx) {
       const bottomSection = document.getElementById('detailBottomSection');
       if (!bottomSection || !series.seasons) return;
@@ -10710,19 +10767,18 @@ function escapeHtml(str) {
           </div>
 
           <div class="detail-episodes-grid">
-            ${episodes.map(ep => {
+            ${episodes.map((ep, epIdx) => {
               const epProg = getWatchProgress(ep.id);
               let epProgressHtml = '';
               if (epProg && epProg.pct >= 2 && epProg.pct < 92 && !epProg.completed) {
                 epProgressHtml = `<div class="card-progress-bar"><div class="card-progress-fill" style="width: ${epProg.pct}%"></div></div>`;
               }
-              const thumbSrc = ep.posterPath ? encodeURI(ep.posterPath) : seriesThumb;
-              const epJson = JSON.stringify(ep).replace(/"/g, '&quot;');
+              const thumbSrc = ep.posterPath ? encodeURI(ep.posterPath) : (series.backdropPath ? encodeURI(series.backdropPath) : seriesThumb);
 
               return `
-                <div class="detail-episode-card dpad-focusable" tabindex="0" onclick="openEpisodePlayer(currentDetailMedia, currentDetailMedia.seasons[${seasonIdx}], ${epJson})">
+                <div class="detail-episode-card dpad-focusable" tabindex="0" onclick="playDetailEpisode(${seasonIdx}, ${epIdx})">
                   <div class="detail-ep-thumb-wrap">
-                    <img class="detail-ep-thumb-img" src="${thumbSrc}" alt="Episódio ${ep.episodeNumber}" loading="lazy">
+                    <img class="detail-ep-thumb-img" src="${thumbSrc}" alt="Episódio ${ep.episodeNumber}" loading="lazy" onerror="this.onerror=null; this.parentElement.classList.add('no-thumb'); this.style.display='none';">
                     <div class="detail-ep-play-overlay">
                       <div class="detail-ep-play-icon">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
@@ -15345,6 +15401,8 @@ function escapeHtml(str) {
       const isPlayerOpen = document.getElementById('playerModal') && document.getElementById('playerModal').classList.contains('active');
       if (isPlayerOpen) return;
 
+      const currentFocused = document.querySelector('.tv-focused') || (document.activeElement && document.activeElement !== document.body ? document.activeElement : null);
+
       // 0. SE ESTIVER NA PÁGINA COMPLETA DE DETALHES (MEDIA DETAIL VIEW)
       const detailView = document.getElementById('mediaDetailView');
       if (detailView && window.getComputedStyle(detailView).display !== 'none') {
@@ -15355,7 +15413,6 @@ function escapeHtml(str) {
           });
         if (detailFocusables.length === 0) return;
 
-        const currentFocused = document.querySelector('.tv-focused') || (detailFocusables.includes(document.activeElement) ? document.activeElement : null);
         if (!currentFocused || !detailFocusables.includes(currentFocused)) {
           const defaultAction = document.getElementById('detailBtnResume') || document.getElementById('detailBtnPlay') || detailFocusables[0];
           setTvFocus(defaultAction);
@@ -15382,8 +15439,13 @@ function escapeHtml(str) {
           if (key === 'ArrowRight' && aIdx < actionBtns.length - 1) {
             setTvFocus(actionBtns[aIdx + 1]);
             return;
-          } else if (key === 'ArrowLeft' && aIdx > 0) {
-            setTvFocus(actionBtns[aIdx - 1]);
+          } else if (key === 'ArrowLeft') {
+            if (aIdx > 0) {
+              setTvFocus(actionBtns[aIdx - 1]);
+            } else {
+              const backBtn = document.getElementById('btnDetailBack');
+              if (backBtn) setTvFocus(backBtn);
+            }
             return;
           } else if (key === 'ArrowUp') {
             const backBtn = document.getElementById('btnDetailBack');
@@ -15396,18 +15458,61 @@ function escapeHtml(str) {
           }
         }
 
-        // Se estiver na seção inferior (episódios, temporadas ou filmes semelhantes)
-        if (key === 'ArrowUp') {
-          const playAction = document.getElementById('detailBtnResume') || document.getElementById('detailBtnPlay');
-          if (playAction && window.getComputedStyle(playAction).display !== 'none') setTvFocus(playAction);
-          return;
-        } else if (key === 'ArrowRight') {
-          if (idx < detailFocusables.length - 1) setTvFocus(detailFocusables[idx + 1]);
-          return;
-        } else if (key === 'ArrowLeft') {
-          if (idx > 0) setTvFocus(detailFocusables[idx - 1]);
-          return;
+        // Se estiver nos chips de temporada
+        const seasonChip = currentFocused.closest('.season-chip-btn');
+        if (seasonChip) {
+          const seasonChips = Array.from(detailView.querySelectorAll('.season-chip-btn'));
+          const scIdx = seasonChips.indexOf(currentFocused);
+          if (key === 'ArrowRight' && scIdx < seasonChips.length - 1) {
+            setTvFocus(seasonChips[scIdx + 1]);
+            return;
+          } else if (key === 'ArrowLeft' && scIdx > 0) {
+            setTvFocus(seasonChips[scIdx - 1]);
+            return;
+          } else if (key === 'ArrowUp') {
+            const playAction = document.getElementById('detailBtnResume') || document.getElementById('detailBtnPlay');
+            if (playAction) setTvFocus(playAction);
+            return;
+          } else if (key === 'ArrowDown') {
+            const firstEp = detailView.querySelector('.detail-episode-card');
+            if (firstEp) setTvFocus(firstEp);
+            return;
+          }
         }
+
+        // Se estiver nos cartões de episódio
+        const epCard = currentFocused.closest('.detail-episode-card');
+        if (epCard) {
+          const epCards = Array.from(detailView.querySelectorAll('.detail-episode-card'));
+          const epIdx = epCards.indexOf(currentFocused);
+          const cols = window.innerWidth >= 1200 ? 3 : 2;
+          if (key === 'ArrowRight' && epIdx < epCards.length - 1) {
+            setTvFocus(epCards[epIdx + 1]);
+            return;
+          } else if (key === 'ArrowLeft' && epIdx > 0) {
+            setTvFocus(epCards[epIdx - 1]);
+            return;
+          } else if (key === 'ArrowDown' && epIdx + cols < epCards.length) {
+            setTvFocus(epCards[epIdx + cols]);
+            return;
+          } else if (key === 'ArrowUp') {
+            if (epIdx - cols >= 0) {
+              setTvFocus(epCards[epIdx - cols]);
+            } else {
+              const activeSeason = detailView.querySelector('.season-chip-btn.active') || detailView.querySelector('.season-chip-btn');
+              if (activeSeason) setTvFocus(activeSeason);
+              else {
+                const playAction = document.getElementById('detailBtnResume') || document.getElementById('detailBtnPlay');
+                if (playAction) setTvFocus(playAction);
+              }
+            }
+            return;
+          }
+        }
+
+        // Navegação genérica se estiver em outro foco dentro do detailView
+        if (key === 'ArrowRight' && idx < detailFocusables.length - 1) setTvFocus(detailFocusables[idx + 1]);
+        else if (key === 'ArrowLeft' && idx > 0) setTvFocus(detailFocusables[idx - 1]);
         return;
       }
 
@@ -15421,7 +15526,6 @@ function escapeHtml(str) {
           });
         if (focusables.length === 0) return;
 
-        const currentFocused = document.querySelector('.tv-focused') || (focusables.includes(document.activeElement) ? document.activeElement : null);
         if (!currentFocused || !focusables.includes(currentFocused)) {
           const defaultAction = activeModal.querySelector('#movieModalBtnResume, #movieModalBtnPlay, .episode-card, button') || focusables[0];
           setTvFocus(defaultAction);
@@ -15439,11 +15543,12 @@ function escapeHtml(str) {
         return;
       }
 
-      // 1.5 SE ESTIVER NA SIDEBAR NETFLIX
+      // 1.5 SE O FOCO ESTIVER NA SIDEBAR NETFLIX
       const sidebar = document.getElementById('netflixSidebar');
-      if (sidebar && sidebar.contains(currentFocused)) {
+      if (sidebar && currentFocused && sidebar.contains(currentFocused)) {
         expandSidebar();
-        const sideBtns = Array.from(sidebar.querySelectorAll('.sidebar-item, .sidebar-brand'));
+        const sideBtns = Array.from(sidebar.querySelectorAll('.sidebar-item, .sidebar-brand'))
+          .filter(el => window.getComputedStyle(el).display !== 'none');
         const sIdx = sideBtns.indexOf(currentFocused);
 
         if (key === 'ArrowDown') {
@@ -15453,15 +15558,43 @@ function escapeHtml(str) {
           if (sIdx > 0) setTvFocus(sideBtns[sIdx - 1]);
           return;
         } else if (key === 'ArrowRight') {
-          // Sai da sidebar para o conteúdo principal
+          // Sai da sidebar para o conteúdo principal da tela ativa
           collapseSidebar();
-          const heroPlay = document.getElementById('heroBtnPlay');
-          if (heroPlay && window.getComputedStyle(heroPlay).display !== 'none') {
-            setTvFocus(heroPlay);
-            return;
+          const activeView = state.activeView || 'home';
+          if (activeView === 'home') {
+            const heroPlay = document.getElementById('heroBtnPlay');
+            if (heroPlay && window.getComputedStyle(heroPlay).display !== 'none') {
+              setTvFocus(heroPlay);
+              return;
+            }
+            const firstCard = document.querySelector('#homeView .carousel-track .movie-card');
+            if (firstCard) { setTvFocus(firstCard); return; }
+          } else if (activeView === 'movies') {
+            const firstChip = document.querySelector('#moviesView .filter-chips .chip');
+            const firstCard = document.querySelector('#moviesGrid .movie-card');
+            if (firstChip) { setTvFocus(firstChip); return; }
+            if (firstCard) { setTvFocus(firstCard); return; }
+          } else if (activeView === 'series') {
+            const firstChip = document.querySelector('#seriesView .filter-chips .chip');
+            const firstCard = document.querySelector('#seriesGrid .movie-card');
+            if (firstChip) { setTvFocus(firstChip); return; }
+            if (firstCard) { setTvFocus(firstCard); return; }
+          } else if (activeView === 'liveTv') {
+            const tvSearch = document.getElementById('liveTvSearchInput');
+            const firstChip = document.querySelector('#liveTvChipsRow .search-chip');
+            const firstCard = document.querySelector('#liveTvChannelsGrid .livetv-card');
+            if (tvSearch) { setTvFocus(tvSearch); return; }
+            if (firstChip) { setTvFocus(firstChip); return; }
+            if (firstCard) { setTvFocus(firstCard); return; }
+          } else if (activeView === 'search') {
+            const searchInput = document.getElementById('mainSearchInput');
+            if (searchInput) { setTvFocus(searchInput); return; }
+          } else if (activeView === 'settings') {
+            const firstSetting = document.querySelector('#settingsView .settings-btn-primary, #settingsView .settings-seg-btn');
+            if (firstSetting) { setTvFocus(firstSetting); return; }
           }
-          const firstCard = document.querySelector('main:not([style*="display: none"]) .movie-card, .settings-card');
-          if (firstCard) setTvFocus(firstCard);
+          const fallbackCard = document.querySelector('main:not([style*="display: none"]) .movie-card, .livetv-card, button');
+          if (fallbackCard) setTvFocus(fallbackCard);
           return;
         }
         return;
@@ -15509,7 +15642,10 @@ function escapeHtml(str) {
 
         const rIdx = resultCards.indexOf(currentFocused);
         if (rIdx !== -1) {
-          const cols = 6;
+          const cardWidth = currentFocused.offsetWidth || 210;
+          const gridWidth = document.getElementById('searchResultsGrid')?.clientWidth || 1200;
+          const cols = Math.max(1, Math.floor(gridWidth / (cardWidth + 16)));
+
           if (key === 'ArrowRight' && rIdx < resultCards.length - 1) setTvFocus(resultCards[rIdx + 1]);
           else if (key === 'ArrowLeft') {
             if (rIdx % cols === 0) {
@@ -15532,7 +15668,7 @@ function escapeHtml(str) {
       // 1.6 SE ESTIVER NA TELA DE CONFIGURAÇÕES (#settingsView)
       const settingsView = document.getElementById('settingsView');
       if (settingsView && window.getComputedStyle(settingsView).display !== 'none') {
-        const setFocusables = Array.from(settingsView.querySelectorAll('.settings-btn-primary, .settings-select, .dpad-focusable'))
+        const setFocusables = Array.from(settingsView.querySelectorAll('.settings-btn-primary, .settings-select, .settings-seg-btn, .dpad-focusable'))
           .filter(el => {
             const r = el.getBoundingClientRect();
             return r.width > 0 && r.height > 0 && window.getComputedStyle(el).display !== 'none';
@@ -15557,10 +15693,152 @@ function escapeHtml(str) {
         }
       }
 
-      // 2. NAVEGAÇÃO FORA DE MODAIS (HOME OU GRADES)
-      const currentFocused = document.querySelector('.tv-focused') || (document.activeElement && document.activeElement !== document.body ? document.activeElement : null);
+      // 1.7 SE ESTIVER NA TELA DE TV AO VIVO (#liveTvView)
+      const liveTvView = document.getElementById('liveTvView');
+      if (liveTvView && window.getComputedStyle(liveTvView).display !== 'none') {
+        const tvInput = document.getElementById('liveTvSearchInput');
+        const tvChips = Array.from(liveTvView.querySelectorAll('#liveTvChipsRow .search-chip'));
+        const tvCards = Array.from(liveTvView.querySelectorAll('#liveTvChannelsGrid .livetv-card'));
 
-      // SE NADA ESTIVER FOCADO AINDA: FOCA O HERO PLAY OU PRIMEIRO CARD
+        // Campo de busca de TV
+        if (currentFocused === tvInput) {
+          if (key === 'ArrowDown') {
+            const activeChip = liveTvView.querySelector('#liveTvChipsRow .search-chip.active') || tvChips[0];
+            if (activeChip) setTvFocus(activeChip);
+            else if (tvCards.length > 0) setTvFocus(tvCards[0]);
+            return;
+          } else if (key === 'ArrowLeft') {
+            expandSidebar();
+            const sideTv = document.getElementById('sideBtnLiveTv');
+            if (sideTv) setTvFocus(sideTv);
+            return;
+          }
+          return;
+        }
+
+        // Chips de categoria de TV
+        const chipIdx = tvChips.indexOf(currentFocused);
+        if (chipIdx !== -1) {
+          if (key === 'ArrowRight' && chipIdx < tvChips.length - 1) setTvFocus(tvChips[chipIdx + 1]);
+          else if (key === 'ArrowLeft') {
+            if (chipIdx === 0) {
+              expandSidebar();
+              const sideTv = document.getElementById('sideBtnLiveTv');
+              if (sideTv) setTvFocus(sideTv);
+            } else {
+              setTvFocus(tvChips[chipIdx - 1]);
+            }
+          } else if (key === 'ArrowUp') {
+            if (tvInput) setTvFocus(tvInput);
+          } else if (key === 'ArrowDown') {
+            if (tvCards.length > 0) setTvFocus(tvCards[0]);
+          }
+          return;
+        }
+
+        // Cartões de canal de TV
+        const cIdx = tvCards.indexOf(currentFocused);
+        if (cIdx !== -1) {
+          const cardWidth = currentFocused.offsetWidth || 280;
+          const gridWidth = document.getElementById('liveTvChannelsGrid')?.clientWidth || 1200;
+          const cols = Math.max(1, Math.floor(gridWidth / (cardWidth + 16)));
+
+          if (key === 'ArrowRight' && cIdx < tvCards.length - 1) setTvFocus(tvCards[cIdx + 1]);
+          else if (key === 'ArrowLeft') {
+            if (cIdx % cols === 0) {
+              expandSidebar();
+              const sideTv = document.getElementById('sideBtnLiveTv');
+              if (sideTv) setTvFocus(sideTv);
+            } else {
+              setTvFocus(tvCards[cIdx - 1]);
+            }
+          } else if (key === 'ArrowDown' && cIdx + cols < tvCards.length) {
+            setTvFocus(tvCards[cIdx + cols]);
+          } else if (key === 'ArrowUp') {
+            if (cIdx - cols >= 0) {
+              setTvFocus(tvCards[cIdx - cols]);
+            } else {
+              const activeChip = liveTvView.querySelector('#liveTvChipsRow .search-chip.active') || tvChips[0];
+              if (activeChip) setTvFocus(activeChip);
+              else if (tvInput) setTvFocus(tvInput);
+            }
+          }
+          return;
+        } else if (tvCards.length > 0) {
+          setTvFocus(tvCards[0]);
+          return;
+        }
+      }
+
+      // 1.8 SE ESTIVER NA GRADE DE FILMES (#moviesView) OU SÉRIES (#seriesView)
+      const moviesView = document.getElementById('moviesView');
+      const seriesView = document.getElementById('seriesView');
+      const isMoviesActive = moviesView && window.getComputedStyle(moviesView).display !== 'none';
+      const isSeriesActive = seriesView && window.getComputedStyle(seriesView).display !== 'none';
+
+      if (isMoviesActive || isSeriesActive) {
+        const activeContainer = isMoviesActive ? moviesView : seriesView;
+        const sideTargetBtn = isMoviesActive ? document.getElementById('sideBtnMovies') : document.getElementById('sideBtnSeries');
+        const filterChips = Array.from(activeContainer.querySelectorAll('.filter-chips .chip'));
+        const gridCards = Array.from(activeContainer.querySelectorAll('.grid-layout .movie-card'));
+
+        // Se estiver em um dos chips de filtro
+        const chIdx = filterChips.indexOf(currentFocused);
+        if (chIdx !== -1) {
+          if (key === 'ArrowRight' && chIdx < filterChips.length - 1) setTvFocus(filterChips[chIdx + 1]);
+          else if (key === 'ArrowLeft') {
+            if (chIdx === 0) {
+              expandSidebar();
+              if (sideTargetBtn) setTvFocus(sideTargetBtn);
+            } else {
+              setTvFocus(filterChips[chIdx - 1]);
+            }
+          } else if (key === 'ArrowDown') {
+            if (gridCards.length > 0) setTvFocus(gridCards[0]);
+          }
+          return;
+        }
+
+        // Se estiver em um dos cartões da grade
+        const gIdx = gridCards.indexOf(currentFocused);
+        if (gIdx !== -1) {
+          const cardWidth = currentFocused.offsetWidth || 210;
+          const gridEl = activeContainer.querySelector('.grid-layout');
+          const gridWidth = gridEl ? gridEl.clientWidth : 1200;
+          const cols = Math.max(1, Math.floor(gridWidth / (cardWidth + 16)));
+
+          if (key === 'ArrowRight' && gIdx < gridCards.length - 1) {
+            setTvFocus(gridCards[gIdx + 1]);
+          } else if (key === 'ArrowLeft') {
+            if (gIdx % cols === 0) {
+              expandSidebar();
+              if (sideTargetBtn) setTvFocus(sideTargetBtn);
+            } else {
+              setTvFocus(gridCards[gIdx - 1]);
+            }
+          } else if (key === 'ArrowDown') {
+            if (gIdx + cols < gridCards.length) {
+              setTvFocus(gridCards[gIdx + cols]);
+            } else if (gIdx < gridCards.length - 1) {
+              setTvFocus(gridCards[gridCards.length - 1]);
+            }
+          } else if (key === 'ArrowUp') {
+            if (gIdx - cols >= 0) {
+              setTvFocus(gridCards[gIdx - cols]);
+            } else {
+              const activeChip = activeContainer.querySelector('.filter-chips .chip.active') || filterChips[0];
+              if (activeChip) setTvFocus(activeChip);
+            }
+          }
+          return;
+        } else if (gridCards.length > 0) {
+          setTvFocus(gridCards[0]);
+          return;
+        }
+      }
+
+      // 2. NAVEGAÇÃO NA TELA INICIAL (HOME HERO & CARROSSÉIS)
+      // Se nada estiver focado ainda: foca o hero play ou primeiro card
       if (!currentFocused || !document.body.contains(currentFocused)) {
         const heroPlay = document.getElementById('heroBtnPlay');
         if (heroPlay && window.getComputedStyle(heroPlay).display !== 'none') {
@@ -15573,52 +15851,29 @@ function escapeHtml(str) {
         return;
       }
 
-      // A. O FOCO ATUAL ESTÁ NO TOP TV NAV (navHome, navMovies, navSeries)
-      if (currentFocused.id === 'navHome' || currentFocused.id === 'navMovies' || currentFocused.id === 'navSeries' || currentFocused.classList.contains('nav-btn')) {
-        const navBtns = [document.getElementById('navHome'), document.getElementById('navMovies'), document.getElementById('navSeries')].filter(Boolean);
-        const navIdx = navBtns.indexOf(currentFocused);
-
-        if (key === 'ArrowRight') {
-          if (navIdx < navBtns.length - 1) setTvFocus(navBtns[navIdx + 1]);
-          return;
-        } else if (key === 'ArrowLeft') {
-          if (navIdx > 0) setTvFocus(navBtns[navIdx - 1]);
-          return;
-        } else if (key === 'ArrowDown') {
-          const homeView = document.getElementById('homeView');
-          if (homeView && window.getComputedStyle(homeView).display !== 'none') {
-            const heroPlay = document.getElementById('heroBtnPlay');
-            if (heroPlay && window.getComputedStyle(heroPlay).display !== 'none') {
-              setTvFocus(heroPlay);
-              return;
-            }
-          }
-          const firstCard = document.querySelector('main:not([style*="display: none"]) .movie-card');
-          if (firstCard) setTvFocus(firstCard);
-          return;
-        }
-        return;
-      }
-
-      // B. O FOCO ATUAL ESTÁ NO HERO BANNER (PLAY, INFO)
+      // A. FOCO NO HERO BANNER (PLAY, INFO, VLC)
       if (currentFocused.id === 'heroBtnPlay' || currentFocused.id === 'heroBtnInfo' || currentFocused.id === 'heroBtnVlc') {
         if (key === 'ArrowDown') {
           const firstCard = document.querySelector('#homeView .carousel-track .movie-card');
           if (firstCard) setTvFocus(firstCard);
-        } else if (key === 'ArrowUp') {
-          const navHome = document.getElementById('navHome');
-          if (navHome) setTvFocus(navHome);
         } else if (key === 'ArrowRight') {
           if (currentFocused.id === 'heroBtnPlay') {
             const infoBtn = document.getElementById('heroBtnInfo');
             if (infoBtn && window.getComputedStyle(infoBtn).display !== 'none') setTvFocus(infoBtn);
+          } else if (currentFocused.id === 'heroBtnInfo') {
+            const vlcBtn = document.getElementById('heroBtnVlc');
+            if (vlcBtn && window.getComputedStyle(vlcBtn).display !== 'none') setTvFocus(vlcBtn);
           }
         } else if (key === 'ArrowLeft') {
-          if (currentFocused.id === 'heroBtnInfo') {
+          if (currentFocused.id === 'heroBtnVlc') {
+            const infoBtn = document.getElementById('heroBtnInfo');
+            if (infoBtn && window.getComputedStyle(infoBtn).display !== 'none') setTvFocus(infoBtn);
+          } else if (currentFocused.id === 'heroBtnInfo') {
             const playBtn = document.getElementById('heroBtnPlay');
-            if (playBtn) setTvFocus(playBtn);
+            if (playBtn && window.getComputedStyle(playBtn).display !== 'none') setTvFocus(playBtn);
           } else if (currentFocused.id === 'heroBtnPlay') {
-            // Se está no botão Play do Hero e aperta Esquerda -> Entra na Sidebar Netflix!
+            // No botão Play do Hero e aperta Esquerda -> Entra na Sidebar Netflix e expande!
+            expandSidebar();
             const sideHome = document.getElementById('sideBtnHome');
             if (sideHome) setTvFocus(sideHome);
           }
@@ -15626,7 +15881,7 @@ function escapeHtml(str) {
         return;
       }
 
-      // C. O FOCO ATUAL É UM CARD DENTRO DE UM CARROSSEL
+      // B. FOCO EM UM CARD DENTRO DE UM CARROSSEL DA HOME
       const currentTrack = currentFocused.closest('.carousel-track');
       const currentSection = currentFocused.closest('.carousel-section');
 
@@ -15643,7 +15898,8 @@ function escapeHtml(str) {
           if (curIdx > 0) {
             setTvFocus(siblings[curIdx - 1]);
           } else {
-            // Se está no primeiro cartão da fileira e aperta Esquerda -> Entra na Sidebar Netflix!
+            // Primeiro cartão da fileira e aperta Esquerda -> Entra na Sidebar Netflix!
+            expandSidebar();
             const sideHome = document.getElementById('sideBtnHome');
             if (sideHome) setTvFocus(sideHome);
           }
@@ -15697,54 +15953,45 @@ function escapeHtml(str) {
               setTvFocus(bestCard);
             }
           } else {
-            // Se está no primeiro carrossel e aperta Cima -> Sobe para o botão Assistir do Hero!
+            // Primeiro carrossel e aperta Cima -> Sobe para o botão Assistir do Hero!
             const heroPlay = document.getElementById('heroBtnPlay');
             if (heroPlay && window.getComputedStyle(heroPlay).display !== 'none') {
               setTvFocus(heroPlay);
-            } else {
-              const navHome = document.getElementById('navHome');
-              if (navHome) setTvFocus(navHome);
             }
           }
           return;
         }
       }
+    }
 
-      // D. O FOCO ATUAL É UM CARD DENTRO DE UMA GRADE (FILMES OU SÉRIES)
-      const currentGrid = currentFocused.closest('.grid-layout');
-      if (currentGrid) {
-        const gridCards = Array.from(currentGrid.querySelectorAll('.movie-card'));
-        const curIdx = gridCards.indexOf(currentFocused);
-        if (curIdx !== -1) {
-          const cardWidth = currentFocused.offsetWidth || 210;
-          const cols = Math.max(1, Math.floor(currentGrid.clientWidth / (cardWidth + 12)));
+    function normalizeTvKey(e) {
+      if (!e) return '';
+      const code = e.keyCode || e.which;
+      const key = e.key;
 
-          if (key === 'ArrowRight') {
-            if (curIdx < gridCards.length - 1) setTvFocus(gridCards[curIdx + 1]);
-          } else if (key === 'ArrowLeft') {
-            if (curIdx > 0) setTvFocus(gridCards[curIdx - 1]);
-          } else if (key === 'ArrowDown') {
-            if (curIdx + cols < gridCards.length) {
-              setTvFocus(gridCards[curIdx + cols]);
-            } else if (curIdx < gridCards.length - 1) {
-              setTvFocus(gridCards[gridCards.length - 1]);
-            }
-          } else if (key === 'ArrowUp') {
-            if (curIdx - cols >= 0) {
-              setTvFocus(gridCards[curIdx - cols]);
-            } else {
-              const activeView = currentFocused.closest('main');
-              const firstChip = activeView ? activeView.querySelector('.chip') : null;
-              if (firstChip) setTvFocus(firstChip);
-              else {
-                const nav = document.getElementById('navMovies') || document.getElementById('navHome');
-                if (nav) setTvFocus(nav);
-              }
-            }
-          }
-          return;
-        }
+      // Smart TV Back / Return / Escape (Samsung Tizen 10009, LG webOS 461, Android TV 4)
+      if (key === 'Escape' || key === 'Back' || key === 'BrowserBack' || key === 'GoBack' || code === 27 || code === 10009 || code === 461 || code === 4) {
+        return 'Escape';
       }
+
+      // D-Pad Directional Arrows (Tizen, webOS, Android TV, PC)
+      if (key === 'ArrowUp' || key === 'Up' || code === 38 || code === 19) return 'ArrowUp';
+      if (key === 'ArrowDown' || key === 'Down' || code === 40 || code === 20) return 'ArrowDown';
+      if (key === 'ArrowLeft' || key === 'Left' || code === 37 || code === 21) return 'ArrowLeft';
+      if (key === 'ArrowRight' || key === 'Right' || code === 39 || code === 22) return 'ArrowRight';
+
+      // Enter / Select / OK (Tizen 13, LG webOS 13, Android TV 23 / 66)
+      if (key === 'Enter' || key === 'Select' || key === 'Ok' || code === 13 || code === 23 || code === 66) return 'Enter';
+
+      // Media keys
+      if (key === 'MediaPlayPause' || code === 179 || code === 85) return ' ';
+      if (key === 'MediaPlay' || code === 415) return 'Play';
+      if (key === 'MediaPause' || code === 19) return 'Pause';
+      if (key === 'MediaStop' || code === 413) return 'Stop';
+      if (key === 'MediaTrackPrevious' || code === 412) return 'PageDown';
+      if (key === 'MediaTrackNext' || code === 417) return 'PageUp';
+
+      return key;
     }
 
     /* ATALHOS DE TECLADO E CONTROLE REMOTO SMART TV */

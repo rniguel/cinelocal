@@ -1025,8 +1025,8 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
 
     def end_headers(self):
         clean_path = self.path.split('?')[0].lower()
-        if clean_path.endswith(('.html', '.js', '.json')) or clean_path in ('/', '/app', '/app/'):
-            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        if clean_path.endswith(('.html', '.js', '.json', '.css', '.m3u8')) or clean_path in ('/', '/app', '/app/', '/index.html', '/app/index.html'):
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
             self.send_header('Pragma', 'no-cache')
             self.send_header('Expires', '0')
         self.send_header('Access-Control-Allow-Origin', '*')
