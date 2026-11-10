@@ -9721,6 +9721,14 @@ function escapeHtml(str) {
       renderLiveTvChannels();
     }
 
+    function getLiveStreamUrl(rawUrl) {
+      if (!rawUrl) return '';
+      if (rawUrl.startsWith('/api/live_proxy') || rawUrl.includes('/api/live_proxy?url=')) {
+        return rawUrl;
+      }
+      return `/api/live_proxy?url=${encodeURIComponent(rawUrl)}`;
+    }
+
     function playLiveChannel(channel) {
       if (!channel || !channel.streamUrl) return;
 
@@ -9755,21 +9763,54 @@ function escapeHtml(str) {
         window.currentHlsInstance = null;
       }
 
+      const streamToPlay = getLiveStreamUrl(channel.streamUrl);
+
       if (window.Hls && Hls.isSupported()) {
-        const hls = new Hls({ enableWorker: true });
-        hls.loadSource(channel.streamUrl);
+        const hlsConfig = {
+          enableWorker: true,
+          lowLatencyMode: false,
+          liveSyncDurationCount: 3,
+          liveMaxLatencyDurationCount: 8,
+          maxBufferLength: 30,
+          maxMaxBufferLength: 60,
+          backBufferLength: 30,
+          manifestLoadingTimeOut: 15000,
+          manifestLoadingMaxRetry: 5,
+          levelLoadingTimeOut: 15000,
+          levelLoadingMaxRetry: 5,
+          fragLoadingTimeOut: 20000,
+          fragLoadingMaxRetry: 6,
+          startFragPrefetch: true
+        };
+        const hls = new Hls(hlsConfig);
+        hls.loadSource(streamToPlay);
         hls.attachMedia(video);
         hls.on(Hls.Events.MANIFEST_PARSED, function() {
           video.play().catch(e => console.log('Autoplay prevent:', e));
         });
         hls.on(Hls.Events.ERROR, function(event, data) {
+          if (data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR) {
+            console.log('[Hls.js] Buffer stalled, recuperando buffer...');
+            hls.startLoad();
+            return;
+          }
+          if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+            console.log('[Hls.js] Erro de mídia, recuperando...');
+            hls.recoverMediaError();
+            return;
+          }
+          if (data.type === Hls.ErrorTypes.NETWORK_ERROR && !data.fatal) {
+            console.log('[Hls.js] Erro temporário de rede, mantendo carregamento...');
+            hls.startLoad();
+            return;
+          }
           if (data.fatal) {
             if (channel.fallbackUrls && channel.fallbackUrls.length > 0 && (!channel._fallbackAttempt || channel._fallbackAttempt < channel.fallbackUrls.length)) {
               channel._fallbackAttempt = (channel._fallbackAttempt || 0);
               const nextSource = channel.fallbackUrls[channel._fallbackAttempt++];
               console.log(`[CineLocal LiveTV] Alternando para sinal secundário #${channel._fallbackAttempt}: ${nextSource}`);
               showToast(`🔄 Alternando sinal para ${channel.name}...`);
-              hls.loadSource(nextSource);
+              hls.loadSource(getLiveStreamUrl(nextSource));
               hls.attachMedia(video);
               return;
             }
@@ -9779,10 +9820,10 @@ function escapeHtml(str) {
         });
         window.currentHlsInstance = hls;
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = channel.streamUrl;
+        video.src = streamToPlay;
         video.play().catch(e => console.log('Autoplay prevent:', e));
       } else {
-        video.src = channel.streamUrl;
+        video.src = streamToPlay;
         video.play().catch(e => console.log('Autoplay prevent:', e));
       }
 

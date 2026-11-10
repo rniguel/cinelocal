@@ -1429,9 +1429,99 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
 
         self.send_error(404, 'Rota POST não encontrada')
 
+    def handle_live_proxy(self, parsed):
+        """Proxy transparente para streams HLS ao vivo, eliminando bloqueios de CORS e travamentos de buffer."""
+        query = urllib.parse.parse_qs(parsed.query)
+        target_url = query.get('url', [None])[0]
+        if not target_url:
+            self.send_error(400, "Parâmetro 'url' obrigatório")
+            return
+
+        try:
+            req_headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                'Accept': '*/*',
+                'Referer': target_url
+            }
+            if 'Range' in self.headers:
+                req_headers['Range'] = self.headers['Range']
+
+            req = urllib.request.Request(target_url, headers=req_headers)
+            with urllib.request.urlopen(req, timeout=12) as resp:
+                final_url = resp.geturl()
+                content_type = resp.headers.get('Content-Type', '')
+
+                is_m3u8 = (
+                    'mpegurl' in content_type.lower() or
+                    'application/x-mpegurl' in content_type.lower() or
+                    '.m3u8' in target_url.lower() or
+                    '.m3u8' in final_url.lower()
+                )
+
+                if is_m3u8:
+                    raw_content = resp.read()
+                    if raw_content.startswith(b'#EXTM3U') or b'#EXT' in raw_content[:120]:
+                        text = raw_content.decode('utf-8', errors='ignore')
+                        lines = text.splitlines()
+                        rewritten = []
+                        for line in lines:
+                            l_str = line.strip()
+                            if not l_str:
+                                rewritten.append(line)
+                                continue
+                            if l_str.startswith('#'):
+                                def replace_uri(match):
+                                    inner = match.group(1)
+                                    abs_u = urllib.parse.urljoin(final_url, inner)
+                                    return f'URI="/api/live_proxy?url={urllib.parse.quote(abs_u, safe="")}"'
+                                l_str = re.sub(r'URI="([^"]+)"', replace_uri, l_str)
+                                rewritten.append(l_str)
+                            else:
+                                abs_u = urllib.parse.urljoin(final_url, l_str)
+                                rewritten.append(f'/api/live_proxy?url={urllib.parse.quote(abs_u, safe="")}')
+
+                        out_bytes = '\n'.join(rewritten).encode('utf-8')
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'application/vnd.apple.mpegurl; charset=utf-8')
+                        self.send_header('Access-Control-Allow-Origin', '*')
+                        self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS')
+                        self.send_header('Access-Control-Allow-Headers', '*')
+                        self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                        self.send_header('Content-Length', str(len(out_bytes)))
+                        self.end_headers()
+                        self.wfile.write(out_bytes)
+                        return
+
+                # Segmento binário (.ts, .aac, .mp4, etc.)
+                self.send_response(resp.status)
+                self.send_header('Content-Type', content_type or 'video/mp2t')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS')
+                self.send_header('Access-Control-Allow-Headers', '*')
+                self.send_header('Cache-Control', 'public, max-age=3600')
+                if 'Content-Length' in resp.headers:
+                    self.send_header('Content-Length', resp.headers['Content-Length'])
+                self.end_headers()
+                shutil.copyfileobj(resp, self.wfile)
+
+        except Exception as e:
+            try:
+                self.send_response(502)
+                self.send_header('Content-Type', 'text/plain; charset=utf-8')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(f"Live proxy error: {str(e)}".encode('utf-8'))
+            except Exception:
+                pass
+
     def do_GET(self):
         client_ip = self.client_address[0]
         parsed = urllib.parse.urlparse(self.path)
+
+        # Proxy HLS de TV ao Vivo (Elimina bloqueios de CORS e travamentos de buffer)
+        if parsed.path == '/api/live_proxy':
+            self.handle_live_proxy(parsed)
+            return
 
         # Rota de Status da Central de Ferramentas (Issue #17)
         if parsed.path == '/api/tools/status':
