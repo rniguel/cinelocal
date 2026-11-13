@@ -1116,9 +1116,13 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
     def do_OPTIONS(self):
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Range, Authorization')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD')
+        self.send_header('Access-Control-Allow-Headers', '*')
         self.end_headers()
+
+    def do_HEAD(self):
+        # Suporte a requisições HEAD (verificação de streams e mídias)
+        self.do_GET(is_head=True)
 
     def do_POST(self):
         client_ip = self.client_address[0]
@@ -1431,25 +1435,40 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
 
         self.send_error(404, 'Rota POST não encontrada')
 
-    def handle_live_proxy(self, parsed):
-        """Proxy transparente para streams HLS ao vivo, eliminando bloqueios de CORS e travamentos de buffer."""
+    def handle_live_proxy(self, parsed, is_head=False):
+        """Proxy transparente e de alta velocidade para streams HLS ao vivo, eliminando bloqueios de CORS, Referer e travamentos de buffer."""
         query = urllib.parse.parse_qs(parsed.query)
         target_url = query.get('url', [None])[0]
         if not target_url:
             self.send_error(400, "Parâmetro 'url' obrigatório")
             return
 
+        ref_param = query.get('ref', [None])[0] or query.get('referer', [None])[0]
+        ua_param = query.get('ua', [None])[0] or query.get('agent', [None])[0]
+
         try:
+            parsed_target = urllib.parse.urlparse(target_url)
+            origin_target = f"{parsed_target.scheme}://{parsed_target.netloc}"
+
+            # Preserva ou atribui o Referer e Origin adequados para evitar 403 Forbidden em CDNs protegidos
+            if ref_param:
+                effective_referer = ref_param
+            else:
+                effective_referer = origin_target + '/'
+
+            effective_ua = ua_param or 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36'
+
             req_headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                'User-Agent': effective_ua,
                 'Accept': '*/*',
-                'Referer': target_url
+                'Referer': effective_referer,
+                'Origin': origin_target
             }
             if 'Range' in self.headers:
                 req_headers['Range'] = self.headers['Range']
 
             req = urllib.request.Request(target_url, headers=req_headers)
-            with urllib.request.urlopen(req, timeout=12) as resp:
+            with urllib.request.urlopen(req, timeout=20) as resp:
                 final_url = resp.geturl()
                 content_type = resp.headers.get('Content-Type', '')
 
@@ -1460,7 +1479,24 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                     '.m3u8' in final_url.lower()
                 )
 
+                # Parâmetros de preservação de cabeçalho para reescrever em todas as URLs filhas
+                extra_qs = ''
+                if ref_param:
+                    extra_qs += f"&ref={urllib.parse.quote(ref_param, safe='')}"
+                if ua_param:
+                    extra_qs += f"&ua={urllib.parse.quote(ua_param, safe='')}"
+
                 if is_m3u8:
+                    if is_head:
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'application/vnd.apple.mpegurl; charset=utf-8')
+                        self.send_header('Access-Control-Allow-Origin', '*')
+                        self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS, HEAD')
+                        self.send_header('Access-Control-Allow-Headers', '*')
+                        self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                        self.end_headers()
+                        return
+
                     raw_content = resp.read()
                     if raw_content.startswith(b'#EXTM3U') or b'#EXT' in raw_content[:120]:
                         text = raw_content.decode('utf-8', errors='ignore')
@@ -1475,18 +1511,18 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                                 def replace_uri(match):
                                     inner = match.group(1)
                                     abs_u = urllib.parse.urljoin(final_url, inner)
-                                    return f'URI="/api/live_proxy?url={urllib.parse.quote(abs_u, safe="")}"'
+                                    return f'URI="/api/live_proxy?url={urllib.parse.quote(abs_u, safe="")}{extra_qs}"'
                                 l_str = re.sub(r'URI="([^"]+)"', replace_uri, l_str)
                                 rewritten.append(l_str)
                             else:
                                 abs_u = urllib.parse.urljoin(final_url, l_str)
-                                rewritten.append(f'/api/live_proxy?url={urllib.parse.quote(abs_u, safe="")}')
+                                rewritten.append(f'/api/live_proxy?url={urllib.parse.quote(abs_u, safe="")}{extra_qs}')
 
                         out_bytes = '\n'.join(rewritten).encode('utf-8')
                         self.send_response(200)
                         self.send_header('Content-Type', 'application/vnd.apple.mpegurl; charset=utf-8')
                         self.send_header('Access-Control-Allow-Origin', '*')
-                        self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS')
+                        self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS, HEAD')
                         self.send_header('Access-Control-Allow-Headers', '*')
                         self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
                         self.send_header('Content-Length', str(len(out_bytes)))
@@ -1498,13 +1534,14 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_response(resp.status)
                 self.send_header('Content-Type', content_type or 'video/mp2t')
                 self.send_header('Access-Control-Allow-Origin', '*')
-                self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS')
+                self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS, HEAD')
                 self.send_header('Access-Control-Allow-Headers', '*')
                 self.send_header('Cache-Control', 'public, max-age=3600')
                 if 'Content-Length' in resp.headers:
                     self.send_header('Content-Length', resp.headers['Content-Length'])
                 self.end_headers()
-                shutil.copyfileobj(resp, self.wfile)
+                if not is_head:
+                    shutil.copyfileobj(resp, self.wfile, length=128 * 1024)
 
         except Exception as e:
             try:
@@ -1516,7 +1553,7 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
             except Exception:
                 pass
 
-    def do_GET(self):
+    def do_GET(self, is_head=False):
         client_ip = self.client_address[0]
         parsed = urllib.parse.urlparse(self.path)
 
@@ -1531,7 +1568,8 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header('Content-Length', str(len(data)))
                 self.send_header('Access-Control-Allow-Origin', '*')
                 self.end_headers()
-                self.wfile.write(data)
+                if not is_head:
+                    self.wfile.write(data)
                 return
 
         # Alias para iptv_verified.json na raiz
@@ -1545,12 +1583,13 @@ class CineLocalStreamingHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header('Content-Length', str(len(data)))
                 self.send_header('Access-Control-Allow-Origin', '*')
                 self.end_headers()
-                self.wfile.write(data)
+                if not is_head:
+                    self.wfile.write(data)
                 return
 
         # Proxy HLS de TV ao Vivo (Elimina bloqueios de CORS e travamentos de buffer)
         if parsed.path == '/api/live_proxy':
-            self.handle_live_proxy(parsed)
+            self.handle_live_proxy(parsed, is_head=is_head)
             return
 
         # Rota de Status da Central de Ferramentas (Issue #17)

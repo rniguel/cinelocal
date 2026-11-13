@@ -10732,7 +10732,7 @@ function escapeHtml(str) {
         const raw = localStorage.getItem('cinelocal_iptv_custom_channels');
         if (raw) customChannels = JSON.parse(raw);
       } catch (e) {}
-      return [...baseChannels, ...customChannels];
+      return [...baseChannels, ...customChannels].map(ch => sanitizeChannelStream(ch));
     }
 
     function renderLiveTvSubFilters() {
@@ -11006,12 +11006,50 @@ function escapeHtml(str) {
       }).join('');
     }
 
-    function getLiveStreamUrl(rawUrl) {
+    function sanitizeChannelStream(ch) {
+      if (!ch) return ch;
+      // Auto-detecta Referer exigido por CDNs conhecidos caso não esteja preenchido
+      if (!ch.referer) {
+        if ((ch.streamUrl && ch.streamUrl.includes('cdn8embed')) || (ch.fallbackUrls && ch.fallbackUrls.some(u => u && u.includes('cdn8embed')))) {
+          ch.referer = 'https://playerembedcanais.site/';
+        } else if ((ch.streamUrl && ch.streamUrl.includes('embedtv.cc')) || (ch.fallbackUrls && ch.fallbackUrls.some(u => u && u.includes('embedtv.cc')))) {
+          ch.referer = 'https://ww0.embedtv.cc/';
+        } else if (ch.streamUrl && (ch.streamUrl.includes('pluto') || ch.streamUrl.includes('jmp2.uk'))) {
+          ch.referer = 'https://pluto.tv/';
+        }
+      }
+      // Se a fonte primária for um link sabidamente morto (ex: error.txt com domínio inválido) e houver fallback válido m3u8, promove o fallback
+      if (ch.streamUrl && (ch.streamUrl.includes('error.txt') || ch.streamUrl.includes('s25-cloudfront-net.lat'))) {
+        if (ch.fallbackUrls && ch.fallbackUrls.length > 0) {
+          const betterIdx = ch.fallbackUrls.findIndex(u => u && u.includes('.m3u8') && !u.includes('s25-cloudfront-net.lat'));
+          if (betterIdx >= 0) {
+            const oldMain = ch.streamUrl;
+            ch.streamUrl = ch.fallbackUrls[betterIdx];
+            ch.fallbackUrls[betterIdx] = oldMain;
+            if (ch.fallbackReferers && ch.fallbackReferers[betterIdx]) {
+              const oldRef = ch.referer;
+              ch.referer = ch.fallbackReferers[betterIdx];
+              ch.fallbackReferers[betterIdx] = oldRef;
+            }
+          }
+        }
+      }
+      return ch;
+    }
+
+    function getLiveStreamUrl(rawUrl, referer, userAgent) {
       if (!rawUrl) return '';
       if (rawUrl.startsWith('/api/live_proxy') || rawUrl.includes('/api/live_proxy?url=')) {
         return rawUrl;
       }
-      return `/api/live_proxy?url=${encodeURIComponent(rawUrl)}`;
+      let finalUrl = `/api/live_proxy?url=${encodeURIComponent(rawUrl)}`;
+      if (referer) {
+        finalUrl += `&ref=${encodeURIComponent(referer)}`;
+      }
+      if (userAgent) {
+        finalUrl += `&ua=${encodeURIComponent(userAgent)}`;
+      }
+      return finalUrl;
     }
 
     function playLiveChannel(channel) {
@@ -11085,24 +11123,38 @@ function escapeHtml(str) {
         window.currentHlsInstance = null;
       }
 
-      const streamToPlay = getLiveStreamUrl(channel.streamUrl);
+      channel._fallbackAttempt = 0;
+      const streamToPlay = getLiveStreamUrl(channel.streamUrl, channel.referer, channel.userAgent);
 
       if (window.Hls && Hls.isSupported()) {
+        const isTizenTv = /Tizen|SmartTV|webOS|NetCast/i.test(navigator.userAgent);
         const hlsConfig = {
-          enableWorker: true,
+          enableWorker: !isTizenTv, // Em Smart TVs Tizen, evita micro-travamentos gerados por workers
           lowLatencyMode: false,
-          liveSyncDurationCount: 3,
-          liveMaxLatencyDurationCount: 8,
-          maxBufferLength: 15,
-          maxMaxBufferLength: 30,
-          backBufferLength: 10,
-          manifestLoadingTimeOut: 15000,
+          // Mantém distância segura e saudável da ponta de gravação ao vivo (elimina stalls de buffer)
+          liveSyncDurationCount: 5,
+          liveMaxLatencyDurationCount: 15,
+          liveDurationInfinity: true,
+          // Buffer generoso de 45s a 90s para absorver qualquer oscilação de banda sem congelar
+          maxBufferLength: 45,
+          maxMaxBufferLength: 90,
+          maxBufferSize: 60 * 1024 * 1024,
+          backBufferLength: 20,
+          // Timeouts e retentativas adequadas para conexões residenciais
+          manifestLoadingTimeOut: 20000,
           manifestLoadingMaxRetry: 6,
-          levelLoadingTimeOut: 15000,
+          manifestLoadingRetryDelay: 1000,
+          levelLoadingTimeOut: 20000,
           levelLoadingMaxRetry: 6,
-          fragLoadingTimeOut: 20000,
+          levelLoadingRetryDelay: 1000,
+          fragLoadingTimeOut: 25000,
           fragLoadingMaxRetry: 8,
-          startFragPrefetch: true
+          fragLoadingRetryDelay: 1000,
+          startFragPrefetch: true,
+          // Tratamento suave de PTS/DTS timestamp holes (cortes de comercial em streams ao vivo)
+          highBufferWatchdogPeriod: 2,
+          nudgeOffset: 0.2,
+          nudgeMaxRetry: 6
         };
         const hls = new Hls(hlsConfig);
         hls.loadSource(streamToPlay);
@@ -11112,39 +11164,41 @@ function escapeHtml(str) {
         });
         hls.on(Hls.Events.ERROR, function(event, data) {
           if (data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR) {
-            console.log('[Hls.js] Buffer stalled, recuperando buffer na ponta ao vivo...');
-            if (video && video.buffered && video.buffered.length > 0) {
-              const liveEdge = video.buffered.end(video.buffered.length - 1);
-              if (Math.abs(video.currentTime - liveEdge) > 2) {
-                video.currentTime = Math.max(0, liveEdge - 1);
-              }
-            }
+            console.warn('[Hls.js] Buffer momentaneamente em espera, mantendo pipeline ativo...');
             hls.startLoad();
-            video.play().catch(() => {});
+            if (video.paused && !video.seeking) {
+              video.play().catch(() => {});
+            }
+            return;
+          }
+          if (data.details === Hls.ErrorDetails.BUFFER_SEEK_OVER_HOLE || data.details === Hls.ErrorDetails.BUFFER_NUDGE_ON_STALL) {
+            console.log('[Hls.js] Nudge suave sobre gap de transmissão...');
             return;
           }
           if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-            console.log('[Hls.js] Erro de mídia, recuperando...');
+            console.warn('[Hls.js] Erro de mídia na decodificação, recuperando pipeline...');
             hls.recoverMediaError();
             return;
           }
           if (data.type === Hls.ErrorTypes.NETWORK_ERROR && !data.fatal) {
-            console.log('[Hls.js] Erro temporário de rede, mantendo carregamento...');
+            console.log('[Hls.js] Oscilação transitória de rede, continuando carregamento...');
             hls.startLoad();
             return;
           }
           if (data.fatal) {
-            if (channel.fallbackUrls && channel.fallbackUrls.length > 0 && (!channel._fallbackAttempt || channel._fallbackAttempt < channel.fallbackUrls.length)) {
-              channel._fallbackAttempt = (channel._fallbackAttempt || 0);
-              const nextSource = channel.fallbackUrls[channel._fallbackAttempt++];
+            if (channel.fallbackUrls && channel.fallbackUrls.length > 0 && channel._fallbackAttempt < channel.fallbackUrls.length) {
+              const nextSource = channel.fallbackUrls[channel._fallbackAttempt];
+              const nextRef = (channel.fallbackReferers && channel.fallbackReferers[channel._fallbackAttempt]) || channel.referer;
+              const nextUa = (channel.fallbackUas && channel.fallbackUas[channel._fallbackAttempt]) || channel.userAgent;
+              channel._fallbackAttempt++;
               console.log(`[CineLocal LiveTV] Alternando para sinal secundário #${channel._fallbackAttempt}: ${nextSource}`);
               showToast(`🔄 Alternando sinal para ${channel.name}...`);
-              hls.loadSource(getLiveStreamUrl(nextSource));
+              hls.loadSource(getLiveStreamUrl(nextSource, nextRef, nextUa));
               hls.attachMedia(video);
               return;
             }
             console.warn('Erro Hls fatal:', data);
-            showToast('⚠️ Stream instável. Tente pelo VLC com o botão ao lado.');
+            showToast('⚠️ Sinal instável ou temporariamente indisponível.');
           }
         });
         window.currentHlsInstance = hls;
@@ -11294,7 +11348,7 @@ function escapeHtml(str) {
     }
 
     async function importSaimoTvChannels() {
-      showToast('⏳ Sincronizando com catálogo do Saimo TV...');
+      showToast('⏳ Sincronizando com catálogo dinâmico do Saimo TV...');
       try {
         const res = await fetch('https://canais-saimo.pages.dev/catalogo.txt');
         if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -11307,8 +11361,8 @@ function escapeHtml(str) {
           line = line.trim();
           if (!line || line.startsWith('#')) continue;
           if (line.startsWith('canal:')) {
-            if (current.name && current.streamUrl) imported.push(current);
-            current = { name: line.split('canal:')[1].trim(), fallbackUrls: [] };
+            if (current.name && current.streamUrl) imported.push(sanitizeChannelStream(current));
+            current = { name: line.split('canal:')[1].trim(), fallbackUrls: [], fallbackReferers: [], fallbackUas: [] };
           } else if (line.startsWith('logo:')) {
             current.logo = line.split('logo:')[1].trim();
           } else if (line.startsWith('categoria:')) {
@@ -11317,20 +11371,37 @@ function escapeHtml(str) {
               current.category = 'infantil'; current.categoryLabel = '🧸 Desenhos & Animes';
             } else if (rawCat.includes('esporte') || rawCat.includes('futebol')) {
               current.category = 'esportes'; current.categoryLabel = '⚽ Esportes & Aventura';
-            } else if (rawCat.includes('filme') || rawCat.includes('série')) {
+            } else if (rawCat.includes('filme') || rawCat.includes('série') || rawCat.includes('serie')) {
               current.category = 'filmes'; current.categoryLabel = '🎬 Filmes & Séries';
-            } else if (rawCat.includes('aberta') || rawCat.includes('notícia')) {
+            } else if (rawCat.includes('aberta') || rawCat.includes('notícia') || rawCat.includes('noticia')) {
               current.category = 'abertos'; current.categoryLabel = '📺 TV Aberta & Notícias';
             } else {
               current.category = 'variedades'; current.categoryLabel = '✨ Entretenimento & Shows';
             }
           } else if (line.startsWith('fonte:')) {
             const f = line.split('fonte:')[1].trim();
-            if (!current.streamUrl) current.streamUrl = f;
-            else current.fallbackUrls.push(f);
+            if (!current.streamUrl) {
+              current.streamUrl = f;
+            } else {
+              current.fallbackUrls.push(f);
+            }
+          } else if (line.startsWith('referer:')) {
+            const r = line.split('referer:')[1].trim();
+            if (!current.fallbackUrls || current.fallbackUrls.length === 0) {
+              current.referer = r;
+            } else {
+              current.fallbackReferers.push(r);
+            }
+          } else if (line.startsWith('agente:')) {
+            const a = line.split('agente:')[1].trim();
+            if (!current.fallbackUrls || current.fallbackUrls.length === 0) {
+              current.userAgent = a;
+            } else {
+              current.fallbackUas.push(a);
+            }
           }
         }
-        if (current.name && current.streamUrl) imported.push(current);
+        if (current.name && current.streamUrl) imported.push(sanitizeChannelStream(current));
 
         let existing = [];
         try {
@@ -11338,22 +11409,34 @@ function escapeHtml(str) {
           if (raw) existing = JSON.parse(raw);
         } catch (e) {}
 
-        const existingUrls = new Set(existing.map(c => c.streamUrl));
+        const existingNames = new Map(existing.map(c => [c.name.toLowerCase().trim(), c]));
         let added = 0;
+        let updated = 0;
         imported.forEach(ch => {
-          if (!existingUrls.has(ch.streamUrl)) {
+          const lowerName = ch.name.toLowerCase().trim();
+          if (existingNames.has(lowerName)) {
+            const ex = existingNames.get(lowerName);
+            ex.streamUrl = ch.streamUrl;
+            ex.fallbackUrls = ch.fallbackUrls;
+            ex.fallbackReferers = ch.fallbackReferers;
+            ex.fallbackUas = ch.fallbackUas;
+            ex.referer = ch.referer;
+            ex.userAgent = ch.userAgent;
+            if (ch.logo) ex.logo = ch.logo;
+            updated++;
+          } else {
             ch.id = 'saimo_' + Math.random().toString(36).substring(2, 9);
             ch.resolution = 'HD';
             ch.description = `Canal ${ch.name} via Saimo TV.`;
             existing.push(ch);
-            existingUrls.add(ch.streamUrl);
+            existingNames.set(lowerName, ch);
             added++;
           }
         });
 
         localStorage.setItem('cinelocal_iptv_custom_channels', JSON.stringify(existing));
         renderLiveTvChannels();
-        showToast(`🎉 ${added} canais sincronizados do Saimo TV!`);
+        showToast(`🎉 Saimo TV: ${added} novos canais adicionados e ${updated} fontes atualizadas!`);
       } catch (err) {
         console.error('Erro ao importar Saimo TV:', err);
         showToast('⚠️ Falha ao conectar ao servidor do Saimo TV.');
